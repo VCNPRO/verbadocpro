@@ -308,55 +308,66 @@ function AppContent() {
         }
 
         try {
-            // Lazy load xlsx library
             const XLSX = await import('xlsx');
 
-            // Flatten the extracted data for Excel
-            const excelData = history.map((entry, index) => {
-                const flatData: any = {
-                    'Nº': index + 1,
-                    'Archivo': entry.fileName,
-                    'Fecha Extracción': new Date(entry.timestamp).toLocaleString('es-ES'),
-                };
+            // 1. Recopilar todos los campos únicos de todos los documentos en el historial
+            const allFieldPaths = new Set<string>();
+            const flattenObject = (obj: any, prefix = ''): any => {
+                let result: any = {};
+                for (const key in obj) {
+                    const value = obj[key];
+                    const newKey = prefix ? `${prefix}.${key}` : key;
 
-                // Flatten extracted data
-                const flattenObject = (obj: any, prefix = ''): any => {
-                    let result: any = {};
-                    for (const key in obj) {
-                        const value = obj[key];
-                        const newKey = prefix ? `${prefix}.${key}` : key;
-
-                        if (value && typeof value === 'object' && !Array.isArray(value)) {
-                            Object.assign(result, flattenObject(value, newKey));
-                        } else if (Array.isArray(value)) {
-                            result[newKey] = JSON.stringify(value);
-                        } else {
-                            result[newKey] = value;
-                        }
+                    if (value && typeof value === 'object' && !Array.isArray(value)) {
+                        Object.assign(result, flattenObject(value, newKey));
+                    } else if (Array.isArray(value)) {
+                        result[newKey] = JSON.stringify(value); // Stringify arrays
+                    } else {
+                        result[newKey] = value;
                     }
-                    return result;
-                };
+                    allFieldPaths.add(newKey);
+                }
+                return result;
+            };
 
-                Object.assign(flatData, flattenObject(entry.extractedData));
-                return flatData;
+            const flattenedHistoryData = history.map(entry => ({
+                fileName: entry.fileName,
+                extractedData: flattenObject(entry.extractedData)
+            }));
+
+            const sortedFieldPaths = Array.from(allFieldPaths).sort();
+
+            // 2. Preparar la cabecera: 'Campo' + nombres de los documentos
+            const header = ['Campo', ...flattenedHistoryData.map(data => data.fileName)];
+
+            // 3. Preparar las filas de datos
+            const excelData: (string | number | null)[][] = [header];
+
+            sortedFieldPaths.forEach(fieldPath => {
+                const row: (string | number | null)[] = [fieldPath];
+                flattenedHistoryData.forEach(data => {
+                    const value = data.extractedData[fieldPath];
+                    row.push(value !== undefined ? value : 'N/A');
+                });
+                excelData.push(row);
             });
 
-            // Create workbook and worksheet
-            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            // Crear una nueva hoja de cálculo y añadir los datos
+            const worksheet = XLSX.utils.aoa_to_sheet(excelData);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Resultados');
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Resultados Pivotados');
 
-            // Auto-size columns
-            const cols = Object.keys(excelData[0] || {}).map(key => ({
-                wch: Math.max(key.length, 15)
-            }));
-            worksheet['!cols'] = cols;
+            // Auto-size columns (opcional, puede ser costoso para muchas columnas)
+            const maxColWidths = excelData[0].map((_, colIdx) =>
+                Math.max(...excelData.map(row => (row[colIdx] ? String(row[colIdx]).length : 0)))
+            );
+            worksheet['!cols'] = maxColWidths.map(w => ({ wch: w + 2 })); // +2 para un poco de padding
 
-            // Generate file and download
-            const fileName = `verbadoc-resultados-${new Date().toISOString().split('T')[0]}.xlsx`;
+            // Generar el archivo Excel y descargarlo
+            const fileName = `verbadoc-resultados-pivotados-${new Date().toISOString().split('T')[0]}.xlsx`;
             XLSX.writeFile(workbook, fileName);
 
-            console.log('📊 Historial exportado como Excel');
+            console.log('📊 Historial exportado como Excel pivotado');
         } catch (error) {
             console.error('Error exportando a Excel:', error);
             alert('Error al exportar a Excel');

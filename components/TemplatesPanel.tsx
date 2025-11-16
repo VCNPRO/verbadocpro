@@ -108,6 +108,26 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
     const [newPrompt, setNewPrompt] = useState('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');
     const [isGeneratingSchema, setIsGeneratingSchema] = useState(false);
 
+    // Función recursiva para comprobar si hay errores en el esquema
+    const schemaHasErrors = (schema: SchemaField[]): boolean => {
+        for (const field of schema) {
+            if (field.error) return true;
+            if (field.children && schemaHasErrors(field.children)) return true;
+        }
+        return false;
+    };
+
+    const isSaveDisabled = !newTemplateName.trim() || newSchema.length === 0 || schemaHasErrors(newSchema);
+
+    let disabledReason = '';
+    if (!newTemplateName.trim()) {
+        disabledReason = 'El nombre de la plantilla no puede estar vacío.';
+    } else if (newSchema.length === 0) {
+        disabledReason = 'La plantilla debe tener al menos un campo.';
+    } else if (schemaHasErrors(newSchema)) {
+        disabledReason = 'Hay errores en los nombres de los campos. Corrígelos para poder guardar.';
+    }
+
     useEffect(() => {
         setSelectedDepartamento(currentDepartamento || 'general');
     }, [currentDepartamento]);
@@ -650,7 +670,7 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
                         {/* Botón guardar */}
                         <button
                             onClick={handleSaveTemplate}
-                            disabled={!newTemplateName.trim() || newSchema.length === 0}
+                            disabled={isSaveDisabled}
                             className="w-full p-2 rounded font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
                             style={{
                                 backgroundColor: isLightMode ? '#2563eb' : '#06b6d4',
@@ -659,6 +679,11 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
                         >
                             Guardar Plantilla
                         </button>
+                        {isSaveDisabled && disabledReason && (
+                            <p className="text-xs text-center mt-1.5" style={{ color: isLightMode ? '#ef4444' : '#f87171' }}>
+                                {disabledReason}
+                            </p>
+                        )}
                     </div>
                 )}
             </div>
