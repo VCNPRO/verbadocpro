@@ -207,27 +207,6 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
 
                     {showPrompt && (
                         <>
-                            <div className="mb-3 p-3 rounded-lg border" style={{
-                                backgroundColor: isLightMode ? '#eff6ff' : 'rgba(6, 182, 212, 0.1)',
-                                borderColor: isLightMode ? '#93c5fd' : 'rgba(34, 211, 238, 0.3)'
-                            }}>
-                                <p className="text-xs font-medium" style={{ color: isLightMode ? '#1e3a8a' : '#22d3ee' }}>
-                                    💡 <strong>Importante:</strong> Personaliza esta instrucción para describir QUÉ información quieres extraer.
-                                </p>
-                                <p className="text-xs mt-1" style={{ color: textSecondary }}>
-                                    Sé específico: menciona campos como "nombre del paciente", "diagnóstico", "fecha", etc.
-                                </p>
-                            </div>
-                            <div className="flex justify-end mb-2">
-                                <button
-                                    onClick={useExample}
-                                    className="text-sm hover:opacity-80 transition-all flex items-center gap-1"
-                                    style={{ color: accentColor }}
-                                >
-                                    <SparklesIcon className="w-4 h-4" />
-                                    Usar Ejemplo
-                                </button>
-                            </div>
                             <textarea
                                 id="prompt"
                                 value={prompt}
