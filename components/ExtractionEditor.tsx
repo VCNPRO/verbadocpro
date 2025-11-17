@@ -147,7 +147,10 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
         }
     };
 
-    if (!file) {
+    // Si no hay archivo, pero hay plantilla seleccionada, mostrar la plantilla
+    const showTemplatePreview = !file && template;
+
+    if (!file && !template) {
         return (
             <div
                 className="flex flex-col items-center justify-center h-full rounded-lg border p-6 text-center transition-colors duration-500"
@@ -157,14 +160,14 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
                 }}
             >
                 <CubeIcon className="w-16 h-16 mb-4" style={{ color: textSecondary }} />
-                <h3 className="text-xl font-semibold" style={{ color: textColor }}>Seleccione un archivo</h3>
+                <h3 className="text-xl font-semibold" style={{ color: textColor }}>Seleccione una plantilla o archivo</h3>
                 <p className="max-w-sm mx-auto mt-1" style={{ color: textSecondary }}>
-                    Elija una plantilla del panel derecho y suba un documento del panel izquierdo para comenzar la extracción.
+                    Elija una plantilla del panel derecho para ver su estructura, o suba un documento del panel izquierdo para comenzar la extracción.
                 </p>
             </div>
         );
     }
-    
+
     const hasSchemaErrors = schema.some(field => field.error || (field.children && field.children.some(child => child.error)));
 
     return (
@@ -177,9 +180,17 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
         >
             <div className="p-4 md:p-6 border-b transition-colors duration-500" style={{ borderBottomColor: borderColor }}>
                 <h2 className="text-lg font-semibold mb-1" style={{ color: textColor }}>
-                    Editor de Extracción: <span className="font-normal" style={{ color: accentColor }}>{file.file.name}</span>
+                    {showTemplatePreview ? (
+                        <>Vista Previa de Plantilla: <span className="font-normal" style={{ color: accentColor }}>{template?.name || 'Sin nombre'}</span></>
+                    ) : (
+                        <>Editor de Extracción: <span className="font-normal" style={{ color: accentColor }}>{file?.file?.name || 'Sin nombre'}</span></>
+                    )}
                 </h2>
-                <p className="text-sm" style={{ color: textSecondary }}>Defina la estructura de datos que desea extraer del documento.</p>
+                <p className="text-sm" style={{ color: textSecondary }}>
+                    {showTemplatePreview
+                        ? 'Revise la estructura de esta plantilla. Suba un documento para usarla en la extracción.'
+                        : 'Defina la estructura de datos que desea extraer del documento.'}
+                </p>
             </div>
 
             <div className="flex-grow p-4 md:p-6 overflow-y-auto space-y-6">
