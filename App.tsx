@@ -566,6 +566,7 @@ function AppContent() {
                     </div>
                     <div className="lg:col-span-6 h-full">
                         <ExtractionEditor
+                            key={`editor-${selectedTemplate?.id || 'default'}-${prompt.substring(0, 20)}`}
                             file={activeFile}
                             template={selectedTemplate}
                             onUpdateTemplate={handleUpdateHealthTemplate}

@@ -60,6 +60,16 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
     const textSecondary = isLightMode ? '#475569' : '#94a3b8';
     const accentColor = isLightMode ? '#2563eb' : '#06b6d4';
 
+    // DEBUG: Log cuando cambian los props importantes
+    useEffect(() => {
+        console.log('🔄 ExtractionEditor - Props recibidos:', {
+            prompt: prompt?.substring(0, 50) + '...',
+            schemaLength: schema?.length,
+            schemaFields: schema?.map(f => f.name).join(', '),
+            file: file?.file?.name || 'sin archivo'
+        });
+    }, [prompt, schema, file]);
+
     // When the active file changes, clear previous results.
     // The schema and prompt are managed by App.tsx so they persist.
     useEffect(() => {
