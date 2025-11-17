@@ -384,7 +384,7 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
                 )}
             </div>
 
-            {file.extractedData && !file.error && (
+            {file?.extractedData && !file.error && (
                  <div className="border-t transition-colors duration-500" style={{ borderTopColor: borderColor }}>
                     <div className="flex justify-between items-center p-4 md:p-6 pb-2">
                         <h3 className="text-base font-medium" style={{ color: textColor }}>Resultados Extraídos (Vista PDF)</h3>
@@ -447,7 +447,7 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
                     </div>
                 </div>
             )}
-             {file.error && (
+             {file?.error && (
                 <div className="border-t p-4 md:p-6 transition-colors duration-500" style={{ borderTopColor: borderColor }}>
                     <h3 className="text-base font-medium text-red-400 mb-2">Error de Extracción</h3>
                     <p className="text-sm bg-red-900/30 p-3 rounded-md text-red-300">{file.error}</p>
