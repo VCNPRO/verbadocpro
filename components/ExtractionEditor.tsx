@@ -14,6 +14,7 @@ interface ExtractionEditorProps {
     file: UploadedFile | undefined;
     template: any;
     onUpdateTemplate: (sectionId: string, fieldName: string, newLabel: string) => void;
+    onSaveTemplateChanges?: (templateId: string, updatedPrompt: string, updatedSchema: SchemaField[]) => void;
     schema: SchemaField[];
     setSchema: React.Dispatch<React.SetStateAction<SchemaField[]>>;
     prompt: string;
@@ -45,7 +46,7 @@ const EXAMPLE_SCHEMA: SchemaField[] = [
 ];
 
 
-export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, template, onUpdateTemplate, schema, setSchema, prompt, setPrompt, onExtract, isLoading, theme, isLightMode }) => {
+export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, template, onUpdateTemplate, onSaveTemplateChanges, schema, setSchema, prompt, setPrompt, onExtract, isLoading, theme, isLightMode }) => {
     const [pdfPreviewURL, setPdfPreviewURL] = useState<string | null>(null);
     const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
     const [isSearchingImage, setIsSearchingImage] = useState(false);
@@ -60,15 +61,27 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
     const textSecondary = isLightMode ? '#475569' : '#94a3b8';
     const accentColor = isLightMode ? '#2563eb' : '#06b6d4';
 
+    // Detectar cambios en la plantilla
+    const hasTemplateChanges = useMemo(() => {
+        if (!template) return false;
+        if ('secciones' in template) return false; // No permitir guardar plantillas de salud
+
+        const promptChanged = prompt !== template.prompt;
+        const schemaChanged = JSON.stringify(schema) !== JSON.stringify(template.schema);
+
+        return promptChanged || schemaChanged;
+    }, [template, prompt, schema]);
+
     // DEBUG: Log cuando cambian los props importantes
     useEffect(() => {
         console.log('🔄 ExtractionEditor - Props recibidos:', {
             prompt: prompt?.substring(0, 50) + '...',
             schemaLength: schema?.length,
             schemaFields: schema?.map(f => f.name).join(', '),
-            file: file?.file?.name || 'sin archivo'
+            file: file?.file?.name || 'sin archivo',
+            hasChanges: hasTemplateChanges
         });
-    }, [prompt, schema, file]);
+    }, [prompt, schema, file, hasTemplateChanges]);
 
     // When the active file changes, clear previous results.
     // The schema and prompt are managed by App.tsx so they persist.
@@ -145,6 +158,23 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
         } finally {
             setIsGeneratingSchema(false);
         }
+    };
+
+    const handleSaveChanges = () => {
+        if (!template || !onSaveTemplateChanges) return;
+
+        // Si es una plantilla predefinida (no custom), preguntar si quiere guardar como copia
+        if (!template.custom) {
+            const saveCopy = confirm(
+                `"${template.name}" es una plantilla predefinida y no se puede modificar directamente.\n\n` +
+                `¿Deseas guardar una copia personalizada con tus cambios?`
+            );
+            if (!saveCopy) return;
+        }
+
+        console.log('💾 Guardando cambios en plantilla:', template.id, template.name);
+        onSaveTemplateChanges(template.id, prompt, schema);
+        alert(`✅ Cambios guardados en la plantilla "${template.name}"`);
     };
 
     // Si no hay archivo, pero hay plantilla seleccionada, mostrar la plantilla
@@ -359,6 +389,24 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
             </div>
 
             <div className="p-4 md:p-6 border-t transition-colors duration-500" style={{ borderTopColor: borderColor, backgroundColor: isLightMode ? '#f9fafb' : 'rgba(30, 41, 59, 0.8)' }}>
+                {/* Botón Guardar Cambios - Solo visible si hay cambios en la plantilla */}
+                {hasTemplateChanges && template && onSaveTemplateChanges && (
+                    <button
+                        onClick={handleSaveChanges}
+                        disabled={hasSchemaErrors || schema.length === 0}
+                        className="w-full flex items-center justify-center gap-2 font-bold py-2.5 px-4 rounded-md transition-all mb-3 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+                        style={{
+                            backgroundColor: isLightMode ? '#f59e0b' : '#f59e0b',
+                            color: '#ffffff'
+                        }}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+                        Guardar Cambios en Plantilla
+                    </button>
+                )}
+
                 <button
                     onClick={() => onExtract(selectedModel)}
                     disabled={isLoading || !file || hasSchemaErrors || schema.length === 0}

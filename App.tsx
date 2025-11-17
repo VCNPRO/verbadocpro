@@ -263,6 +263,76 @@ function AppContent() {
         console.log('🎯 Estado actualizado - Revisa el panel central');
     };
 
+    const handleSaveTemplateChanges = (templateId: string, updatedPrompt: string, updatedSchema: SchemaField[]) => {
+        console.log('💾 App.tsx - Guardando cambios en plantilla:', templateId);
+
+        // Buscar la plantilla original
+        const originalTemplate = selectedTemplate;
+        if (!originalTemplate) {
+            console.error('❌ No hay plantilla seleccionada');
+            return;
+        }
+
+        // Si es una plantilla predefinida (no custom), crear una copia personalizada
+        if (!originalTemplate.custom) {
+            const newCustomTemplate = {
+                id: `custom-${Date.now()}`,
+                name: `${originalTemplate.name} (Modificada)`,
+                description: originalTemplate.description || 'Copia modificada de plantilla predefinida',
+                type: 'modelo',
+                icon: originalTemplate.icon || 'file',
+                schema: JSON.parse(JSON.stringify(updatedSchema)),
+                prompt: updatedPrompt,
+                custom: true,
+                archived: false
+            };
+
+            console.log('📋 Creando copia personalizada:', newCustomTemplate.name);
+
+            // Obtener plantillas personalizadas del localStorage
+            const stored = localStorage.getItem('customTemplates_europa');
+            const customTemplates = stored ? JSON.parse(stored) : [];
+
+            // Agregar la nueva plantilla
+            const updatedTemplates = [...customTemplates, newCustomTemplate];
+            localStorage.setItem('customTemplates_europa', JSON.stringify(updatedTemplates));
+
+            console.log('✅ Copia guardada exitosamente como plantilla personalizada');
+
+            // Seleccionar la nueva plantilla
+            setSelectedTemplate(newCustomTemplate);
+            return;
+        }
+
+        // Si es una plantilla personalizada, actualizarla
+        const stored = localStorage.getItem('customTemplates_europa');
+        if (!stored) {
+            console.error('❌ No se encontraron plantillas personalizadas');
+            return;
+        }
+
+        const customTemplates = JSON.parse(stored);
+        const updatedTemplates = customTemplates.map((t: any) => {
+            if (t.id === templateId) {
+                return {
+                    ...t,
+                    schema: JSON.parse(JSON.stringify(updatedSchema)),
+                    prompt: updatedPrompt
+                };
+            }
+            return t;
+        });
+
+        localStorage.setItem('customTemplates_europa', JSON.stringify(updatedTemplates));
+        console.log('✅ Plantilla personalizada actualizada exitosamente');
+
+        // Actualizar la plantilla seleccionada en el estado
+        const updatedTemplate = updatedTemplates.find((t: any) => t.id === templateId);
+        if (updatedTemplate) {
+            setSelectedTemplate(updatedTemplate);
+        }
+    };
+
     const handleDepartamentoChange = (departamento: Departamento) => {
         setCurrentDepartamento(departamento);
     };
@@ -570,6 +640,7 @@ function AppContent() {
                             file={activeFile}
                             template={selectedTemplate}
                             onUpdateTemplate={handleUpdateHealthTemplate}
+                            onSaveTemplateChanges={handleSaveTemplateChanges}
                             schema={schema}
                             setSchema={setSchema}
                             prompt={prompt}
