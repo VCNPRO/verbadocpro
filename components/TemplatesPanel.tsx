@@ -235,12 +235,21 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
     };
 
     const handlePauseTemplate = (templateId: string) => {
+        const template = customTemplates.find(t => t.id === templateId);
+        const newPausedState = !template?.paused;
+
+        console.log('⏸️ Estado actual de pausa:', template?.paused, '→ Nuevo estado:', newPausedState);
+
         const updatedTemplates = customTemplates.map(t =>
-            t.id === templateId ? { ...t, paused: !t.paused } : t
+            t.id === templateId ? { ...t, paused: newPausedState } : t
         );
+
+        console.log('📋 Plantillas actualizadas:', updatedTemplates.map(t => ({ id: t.id, name: t.name, paused: t.paused })));
+
         setCustomTemplates(updatedTemplates);
         saveToLocalStorage(updatedTemplates);
-        console.log('⏸️ Plantilla pausada/reanudada:', templateId);
+
+        console.log('💾 Guardado en localStorage:', localStorage.getItem('customTemplates_europa'));
     };
 
     const handleDeleteTemplate = (templateId: string) => {
