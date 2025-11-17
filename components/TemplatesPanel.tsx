@@ -15,6 +15,7 @@ export interface Template {
     schema: SchemaField[];
     prompt: string;
     archived?: boolean;
+    paused?: boolean;
     custom?: boolean;
     departamento?: Departamento;
 }
@@ -233,6 +234,15 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
         saveToLocalStorage(updatedTemplates);
     };
 
+    const handlePauseTemplate = (templateId: string) => {
+        const updatedTemplates = customTemplates.map(t =>
+            t.id === templateId ? { ...t, paused: !t.paused } : t
+        );
+        setCustomTemplates(updatedTemplates);
+        saveToLocalStorage(updatedTemplates);
+        console.log('⏸️ Plantilla pausada/reanudada:', templateId);
+    };
+
     const handleDeleteTemplate = (templateId: string) => {
         if (confirm('¿Estás seguro de que quieres eliminar esta plantilla?')) {
             const updatedTemplates = customTemplates.filter(t => t.id !== templateId);
@@ -273,6 +283,8 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
     };
 
     const TemplateCard = ({ template, showActions = false }: { template: any, showActions?: boolean }) => {
+        const isPaused = template.paused;
+
         return (
             <div className="relative group/card">
                 <button
@@ -282,8 +294,13 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
                     }}
                     className="w-full text-left p-3 border rounded-lg transition-all group hover:shadow-md"
                     style={{
-                        backgroundColor: isLightMode ? '#ffffff' : 'rgba(30, 41, 59, 0.5)',
-                        borderColor: isLightMode ? '#d1d5db' : '#475569'
+                        backgroundColor: isPaused
+                            ? (isLightMode ? '#f3f4f6' : 'rgba(15, 23, 42, 0.5)')
+                            : (isLightMode ? '#ffffff' : 'rgba(30, 41, 59, 0.5)'),
+                        borderColor: isPaused
+                            ? (isLightMode ? '#fbbf24' : '#f59e0b')
+                            : (isLightMode ? '#d1d5db' : '#475569'),
+                        opacity: isPaused ? 0.7 : 1
                     }}
                 >
                     <div className="flex items-start gap-3">
@@ -298,7 +315,9 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
                                 className="text-sm font-semibold transition-colors"
                                 style={{ color: textColor }}
                             >
-                                {template.name} {template.archived && <span className="text-xs opacity-50">(Archivada)</span>}
+                                {template.name}
+                                {template.paused && <span className="text-xs ml-1" style={{ color: '#f59e0b' }}>⏸️ Pausada</span>}
+                                {template.archived && <span className="text-xs opacity-50"> (Archivada)</span>}
                             </h4>
                             <p
                                 className="text-xs mt-0.5 line-clamp-2 transition-colors"
@@ -311,6 +330,28 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
                 </button>
                 {showActions && (
                     <div className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity flex gap-1">
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handlePauseTemplate(template.id);
+                            }}
+                            className="p-1 rounded text-white transition-colors"
+                            style={{
+                                backgroundColor: template.paused ? '#10b981' : '#f59e0b'
+                            }}
+                            title={template.paused ? "Reanudar plantilla" : "Pausar plantilla"}
+                        >
+                            {template.paused ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            )}
+                        </button>
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
