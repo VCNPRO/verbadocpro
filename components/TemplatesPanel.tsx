@@ -150,13 +150,26 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
     };
 
     const handleSaveTemplate = () => {
-        if (!newTemplateName.trim()) return;
+        if (!newTemplateName.trim()) {
+            alert('Por favor, ingresa un nombre para la plantilla');
+            return;
+        }
 
         // Usar newSchema/newPrompt si estamos creando, sino usar current
         const schemaToSave = isCreatingTemplate ? newSchema : (currentSchema || []);
         const promptToSave = isCreatingTemplate ? newPrompt : (currentPrompt || '');
 
-        if (schemaToSave.length === 0) return;
+        if (schemaToSave.length === 0) {
+            alert('El esquema debe tener al menos un campo');
+            return;
+        }
+
+        // Validar que los campos del schema tengan nombre
+        const invalidFields = schemaToSave.filter(f => !f.name || f.name.trim() === '');
+        if (invalidFields.length > 0) {
+            alert('Todos los campos del esquema deben tener un nombre válido');
+            return;
+        }
 
         const newTemplate: any = {
             id: `custom-${Date.now()}`,
@@ -170,9 +183,17 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
             archived: false
         };
 
+        console.log('💾 Guardando nueva plantilla:', {
+            nombre: newTemplate.name,
+            campos: newTemplate.schema.length,
+            prompt: newTemplate.prompt.substring(0, 50) + '...'
+        });
+
         const updatedTemplates = [...customTemplates, newTemplate];
         setCustomTemplates(updatedTemplates);
         saveToLocalStorage(updatedTemplates);
+
+        console.log('✅ Plantilla guardada exitosamente. Total plantillas:', updatedTemplates.length);
 
         setNewTemplateName('');
         setNewTemplateDescription('');
@@ -181,6 +202,9 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
         // Reset new schema/prompt
         setNewSchema([{ id: `field-${Date.now()}`, name: '', type: 'STRING' }]);
         setNewPrompt('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');
+
+        // Mostrar confirmación al usuario
+        alert(`✅ Plantilla "${newTemplate.name}" guardada correctamente`);
     };
 
     const handleGenerateSchemaFromPrompt = async () => {
@@ -252,7 +276,10 @@ export function TemplatesPanel({ onSelectTemplate, onSaveTemplate, currentSchema
         return (
             <div className="relative group/card">
                 <button
-                    onClick={() => onSelectTemplate(template)}
+                    onClick={() => {
+                        console.log('👆 Click en plantilla:', template.name, '- Schema fields:', template.schema?.length || 0);
+                        onSelectTemplate(template);
+                    }}
                     className="w-full text-left p-3 border rounded-lg transition-all group hover:shadow-md"
                     style={{
                         backgroundColor: isLightMode ? '#ffffff' : 'rgba(30, 41, 59, 0.5)',

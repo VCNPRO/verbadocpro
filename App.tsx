@@ -208,6 +208,7 @@ function AppContent() {
     };
 
     const handleSelectTemplate = (template: any) => {
+        console.log('📋 Plantilla seleccionada:', template);
         setSelectedTemplate(template);
         const isHealthTemplate = 'secciones' in template;
 
@@ -237,14 +238,29 @@ function AppContent() {
             );
             setSchema(newSchema);
             setPrompt('Extrae la información clave del siguiente documento de Europa.');
+            console.log('✅ Health template aplicada - Schema:', newSchema.length, 'campos');
         } else {
-            setSchema(JSON.parse(JSON.stringify(template.schema)));
-            setPrompt(template.prompt);
+            // Validar que template.schema existe y es un array
+            if (!template.schema || !Array.isArray(template.schema)) {
+                console.error('❌ Error: La plantilla no tiene un schema válido', template);
+                alert('Error: Esta plantilla no tiene un esquema válido. Por favor, verifica la plantilla.');
+                return;
+            }
+
+            const newSchema = JSON.parse(JSON.stringify(template.schema));
+            const newPrompt = template.prompt || 'Extrae la información clave del siguiente documento según el esquema JSON proporcionado.';
+
+            setSchema(newSchema);
+            setPrompt(newPrompt);
+            console.log('✅ Plantilla aplicada - Schema:', newSchema.length, 'campos, Prompt:', newPrompt.substring(0, 50) + '...');
         }
 
         if (template.departamento) {
             setCurrentDepartamento(template.departamento);
         }
+
+        // Mostrar notificación visual
+        console.log('🎯 Estado actualizado - Revisa el panel central');
     };
 
     const handleDepartamentoChange = (departamento: Departamento) => {
