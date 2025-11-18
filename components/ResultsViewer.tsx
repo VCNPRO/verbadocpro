@@ -10,7 +10,7 @@ interface ResultsViewerProps {
     onClose?: () => void;
     onClearHistory?: () => void;
     onExportHistory?: () => void;
-    onExportExcel?: () => void;
+    onExportExcel?: (transposed: boolean) => void;
     onImportHistory?: () => void;
 }
 
@@ -28,6 +28,7 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
         results.length > 0 ? results[0] : null
     );
     const [excelTransposed, setExcelTransposed] = useState<boolean>(false);
+    const [historyExcelTransposed, setHistoryExcelTransposed] = useState<boolean>(false);
 
     const cardBg = isLightMode ? '#ffffff' : 'rgba(30, 41, 59, 0.5)';
     const borderColor = isLightMode ? '#dbeafe' : 'rgba(51, 65, 85, 0.5)';
@@ -166,7 +167,7 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
                 )}
 
                 {/* Gestión de Historial */}
-                {(onClearHistory || onExportHistory || onImportHistory) && (
+                {(onClearHistory || onExportHistory || onImportHistory || onExportExcel) && (
                     <div
                         className="p-3 rounded-lg border transition-colors"
                         style={{
@@ -177,6 +178,50 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
                         <h3 className="text-sm font-semibold mb-2" style={{ color: textColor }}>
                             📂 Gestión de Historial ({results.length} extracciones)
                         </h3>
+
+                        {/* Selector de formato para exportación del historial completo */}
+                        {onExportExcel && (
+                            <div className="mb-3 p-2 rounded-md" style={{ backgroundColor: isLightMode ? '#f0f9ff' : 'rgba(15, 23, 42, 0.5)' }}>
+                                <p className="text-xs font-medium mb-1.5" style={{ color: textColor }}>
+                                    Formato de Excel para historial completo:
+                                </p>
+                                <div className="flex gap-3">
+                                    <label className="flex items-center gap-1.5 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="historyExcelFormat"
+                                            checked={!historyExcelTransposed}
+                                            onChange={() => setHistoryExcelTransposed(false)}
+                                            className="cursor-pointer"
+                                            style={{ accentColor: accentColor }}
+                                        />
+                                        <span className="text-xs" style={{ color: textColor }}>
+                                            Horizontal →
+                                        </span>
+                                    </label>
+                                    <label className="flex items-center gap-1.5 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="historyExcelFormat"
+                                            checked={historyExcelTransposed}
+                                            onChange={() => setHistoryExcelTransposed(true)}
+                                            className="cursor-pointer"
+                                            style={{ accentColor: accentColor }}
+                                        />
+                                        <span className="text-xs" style={{ color: textColor }}>
+                                            Vertical/Pivotado ↓
+                                        </span>
+                                    </label>
+                                </div>
+                                <p className="text-xs mt-1.5" style={{ color: textSecondary }}>
+                                    {historyExcelTransposed
+                                        ? 'Campos como filas, cada documento como columna'
+                                        : 'Campos como columnas, cada documento como fila'
+                                    }
+                                </p>
+                            </div>
+                        )}
+
                         <div className="flex flex-wrap gap-2">
                             {onExportHistory && (
                                 <button
@@ -196,7 +241,7 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
                             )}
                             {onExportExcel && (
                                 <button
-                                    onClick={onExportExcel}
+                                    onClick={() => onExportExcel(historyExcelTransposed)}
                                     className="flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all hover:opacity-90"
                                     style={{
                                         backgroundColor: isLightMode ? '#059669' : '#047857',

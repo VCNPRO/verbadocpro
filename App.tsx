@@ -387,7 +387,7 @@ function AppContent() {
     };
 
     // Exportar historial como Excel
-    const handleExportExcel = async () => {
+    const handleExportExcel = async (transposed: boolean = false) => {
         if (history.length === 0) {
             alert('No hay historial para exportar');
             return;
@@ -423,37 +423,65 @@ function AppContent() {
 
             const sortedFieldPaths = Array.from(allFieldPaths).sort();
 
-            // 2. Preparar la cabecera: 'Campo' + nombres de los documentos
-            const header = ['Campo', ...flattenedHistoryData.map(data => data.fileName)];
+            let excelData: (string | number | null)[][];
+            let sheetName: string;
+            let fileName: string;
 
-            // 3. Preparar las filas de datos
-            const excelData: (string | number | null)[][] = [header];
+            if (transposed) {
+                // FORMATO VERTICAL/TRANSPUESTO: Campos como filas, documentos como columnas
+                // 2. Preparar la cabecera: 'Campo' + nombres de los documentos
+                const header = ['Campo', ...flattenedHistoryData.map(data => data.fileName)];
 
-            sortedFieldPaths.forEach(fieldPath => {
-                const row: (string | number | null)[] = [fieldPath];
-                flattenedHistoryData.forEach(data => {
-                    const value = data.extractedData[fieldPath];
-                    row.push(value !== undefined ? value : 'N/A');
+                // 3. Preparar las filas de datos
+                excelData = [header];
+
+                sortedFieldPaths.forEach(fieldPath => {
+                    const row: (string | number | null)[] = [fieldPath];
+                    flattenedHistoryData.forEach(data => {
+                        const value = data.extractedData[fieldPath];
+                        row.push(value !== undefined ? value : 'N/A');
+                    });
+                    excelData.push(row);
                 });
-                excelData.push(row);
-            });
+
+                sheetName = 'Resultados Pivotados';
+                fileName = `verbadoc-resultados-pivotados-${new Date().toISOString().split('T')[0]}.xlsx`;
+            } else {
+                // FORMATO HORIZONTAL: Campos como columnas, documentos como filas
+                // 2. Preparar la cabecera: 'Archivo' + nombres de los campos
+                const header = ['Archivo', ...sortedFieldPaths];
+
+                // 3. Preparar las filas de datos (cada documento es una fila)
+                excelData = [header];
+
+                flattenedHistoryData.forEach(data => {
+                    const row: (string | number | null)[] = [data.fileName];
+                    sortedFieldPaths.forEach(fieldPath => {
+                        const value = data.extractedData[fieldPath];
+                        row.push(value !== undefined ? value : 'N/A');
+                    });
+                    excelData.push(row);
+                });
+
+                sheetName = 'Resultados';
+                fileName = `verbadoc-resultados-${new Date().toISOString().split('T')[0]}.xlsx`;
+            }
 
             // Crear una nueva hoja de cálculo y añadir los datos
             const worksheet = XLSX.utils.aoa_to_sheet(excelData);
             const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Resultados Pivotados');
+            XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
 
             // Auto-size columns (opcional, puede ser costoso para muchas columnas)
             const maxColWidths = excelData[0].map((_, colIdx) =>
                 Math.max(...excelData.map(row => (row[colIdx] ? String(row[colIdx]).length : 0)))
             );
-            worksheet['!cols'] = maxColWidths.map(w => ({ wch: w + 2 })); // +2 para un poco de padding
+            worksheet['!cols'] = maxColWidths.map(w => ({ wch: Math.min(w + 2, 50) })); // +2 para padding, max 50
 
             // Generar el archivo Excel y descargarlo
-            const fileName = `verbadoc-resultados-pivotados-${new Date().toISOString().split('T')[0]}.xlsx`;
             XLSX.writeFile(workbook, fileName);
 
-            console.log('📊 Historial exportado como Excel pivotado');
+            console.log(`📊 Historial exportado como Excel ${transposed ? 'pivotado' : 'horizontal'}`);
         } catch (error) {
             console.error('Error exportando a Excel:', error);
             alert('Error al exportar a Excel');
