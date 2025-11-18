@@ -66,11 +66,23 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
         if (!template) return false;
         if ('secciones' in template) return false; // No permitir guardar plantillas de salud
 
-        const promptChanged = prompt !== template.prompt;
-        const schemaChanged = JSON.stringify(schema) !== JSON.stringify(template.schema);
+        // Comparar prompt (con valor por defecto si no existe)
+        const templatePrompt = template.prompt || '';
+        const promptChanged = prompt !== templatePrompt;
+
+        // Comparar schema (con valor por defecto si no existe)
+        const templateSchema = template.schema || [];
+        const schemaChanged = JSON.stringify(schema) !== JSON.stringify(templateSchema);
 
         return promptChanged || schemaChanged;
     }, [template, prompt, schema]);
+
+    // Siempre mostrar botón guardar cuando hay plantilla seleccionada (no de salud)
+    const canSaveTemplate = useMemo(() => {
+        if (!template) return false;
+        if ('secciones' in template) return false;
+        return true;
+    }, [template]);
 
     // DEBUG: Log cuando cambian los props importantes
     useEffect(() => {
@@ -389,21 +401,23 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
             </div>
 
             <div className="p-4 md:p-6 border-t transition-colors duration-500" style={{ borderTopColor: borderColor, backgroundColor: isLightMode ? '#f9fafb' : 'rgba(30, 41, 59, 0.8)' }}>
-                {/* Botón Guardar Cambios - Solo visible si hay cambios en la plantilla */}
-                {hasTemplateChanges && template && onSaveTemplateChanges && (
+                {/* Botón Guardar Cambios - Visible cuando hay plantilla seleccionada */}
+                {canSaveTemplate && onSaveTemplateChanges && (
                     <button
                         onClick={handleSaveChanges}
                         disabled={hasSchemaErrors || schema.length === 0}
                         className="w-full flex items-center justify-center gap-2 font-bold py-2.5 px-4 rounded-md transition-all mb-3 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
                         style={{
-                            backgroundColor: isLightMode ? '#f59e0b' : '#f59e0b',
+                            backgroundColor: hasTemplateChanges
+                                ? (isLightMode ? '#f59e0b' : '#f59e0b')
+                                : (isLightMode ? '#6b7280' : '#4b5563'),
                             color: '#ffffff'
                         }}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                         </svg>
-                        Guardar Cambios en Plantilla
+                        {hasTemplateChanges ? 'Guardar Cambios en Plantilla' : 'Guardar como Nueva Plantilla'}
                     </button>
                 )}
 
