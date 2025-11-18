@@ -18,7 +18,7 @@ import { ResultsViewer } from './components/ResultsViewer.tsx';
 import { ChatbotLaia } from './components/ChatbotLaia.tsx';
 import { AdminDashboard } from './components/AdminDashboard.tsx';
 // Fix: Use explicit file extension in import.
-import type { UploadedFile, ExtractionResult, SchemaField, Departamento } from './types.ts';
+import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
 import { AVAILABLE_MODELS, type GeminiModel } from './services/geminiService.ts';
 import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig.ts';
@@ -192,7 +192,7 @@ function AppContent() {
         }
 
         setIsLoading(false);
-        setShowingResults(true); // Mostrar resultados automáticamente
+        setShowResultsExpanded(true); // Mostrar resultados automáticamente
     };
     
     const handleReplay = (result: ExtractionResult) => {
