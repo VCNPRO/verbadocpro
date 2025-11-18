@@ -373,10 +373,129 @@ export const jsonToExcel = (data: object | object[], schema?: SchemaField[]): Bl
 };
 
 /**
- * Descarga un archivo Excel (.xlsx real)
+ * Convierte un objeto JSON a Excel en formato transpuesto/pivotado
+ * Los campos se muestran como filas (de arriba a abajo) y los registros como columnas
  */
-export const downloadExcel = (data: object | object[], filename: string, schema?: SchemaField[]) => {
-    const blob = jsonToExcel(data, schema);
+export const jsonToExcelTransposed = (data: object | object[], schema?: SchemaField[]): Blob => {
+    const dataArray = Array.isArray(data) ? data : [data];
+
+    if (dataArray.length === 0) {
+        // Crear libro vacío
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([['No hay datos']]);
+        XLSX.utils.book_append_sheet(wb, ws, 'Datos Extraídos');
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        return new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    }
+
+    // Función para expandir arrays de objetos en múltiples filas
+    const expandArrays = (obj: any, prefix = ''): any[] => {
+        let maxArrayLength = 1;
+        const arrayFields: { [key: string]: any[] } = {};
+        const scalarFields: { [key: string]: any } = {};
+
+        const processObject = (o: any, p = '') => {
+            Object.keys(o).forEach(key => {
+                const prefixedKey = p ? `${p}.${key}` : key;
+                const value = o[key];
+
+                if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+                    processObject(value, prefixedKey);
+                } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && value[0] !== null) {
+                    arrayFields[prefixedKey] = value;
+                    maxArrayLength = Math.max(maxArrayLength, value.length);
+                } else if (Array.isArray(value)) {
+                    scalarFields[prefixedKey] = value.join('\n');
+                } else {
+                    scalarFields[prefixedKey] = value;
+                }
+            });
+        };
+
+        processObject(obj);
+
+        const rows: any[] = [];
+        for (let i = 0; i < maxArrayLength; i++) {
+            const row: any = { ...scalarFields };
+
+            Object.entries(arrayFields).forEach(([arrayKey, arrayValue]) => {
+                const item = arrayValue[i];
+                if (item) {
+                    Object.entries(item).forEach(([propKey, propValue]) => {
+                        row[`${arrayKey}.${propKey}`] = propValue;
+                    });
+                } else {
+                    if (arrayValue[0]) {
+                        Object.keys(arrayValue[0]).forEach(propKey => {
+                            row[`${arrayKey}.${propKey}`] = '';
+                        });
+                    }
+                }
+            });
+
+            rows.push(row);
+        }
+
+        return rows;
+    };
+
+    // Expandir cada objeto a múltiples filas si tiene arrays
+    const allRows = dataArray.flatMap(item => expandArrays(item));
+
+    // Obtener todas las columnas (campos)
+    let allColumns: string[];
+    if (schema && schema.length > 0) {
+        allColumns = getFieldOrderFromSchema(schema);
+    } else {
+        allColumns = Array.from(
+            new Set(allRows.flatMap(row => Object.keys(row)))
+        );
+    }
+
+    // Crear datos transpuestos
+    // Fila de encabezado: "Campo" + "Registro 1", "Registro 2", etc.
+    const headers = ['Campo', ...allRows.map((_, idx) => `Registro ${idx + 1}`)];
+
+    // Cada fila subsiguiente representa un campo
+    const transposedData = [headers];
+
+    allColumns.forEach(column => {
+        const row = [column]; // Primera celda es el nombre del campo
+        allRows.forEach(dataRow => {
+            row.push(dataRow[column] ?? '');
+        });
+        transposedData.push(row);
+    });
+
+    // Crear libro y hoja de trabajo
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(transposedData);
+
+    // Configurar ancho de columnas
+    const colWidths = [
+        { wch: Math.max(...allColumns.map(c => c.length), 15) }, // Columna de campos
+        ...allRows.map(() => ({ wch: 20 })) // Columnas de registros
+    ];
+    ws['!cols'] = colWidths;
+
+    // Agregar hoja al libro
+    XLSX.utils.book_append_sheet(wb, ws, 'Datos Extraídos');
+
+    // Generar archivo Excel como buffer
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+
+    // Retornar como Blob
+    return new Blob([excelBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+};
+
+/**
+ * Descarga un archivo Excel (.xlsx real)
+ * @param transposed - Si es true, exporta en formato transpuesto (campos como filas)
+ */
+export const downloadExcel = (data: object | object[], filename: string, schema?: SchemaField[], transposed: boolean = false) => {
+    const blob = transposed ? jsonToExcelTransposed(data, schema) : jsonToExcel(data, schema);
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
 

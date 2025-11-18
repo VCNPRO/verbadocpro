@@ -27,6 +27,7 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
     const [selectedResult, setSelectedResult] = useState<ExtractionResult | null>(
         results.length > 0 ? results[0] : null
     );
+    const [excelTransposed, setExcelTransposed] = useState<boolean>(false);
 
     const cardBg = isLightMode ? '#ffffff' : 'rgba(30, 41, 59, 0.5)';
     const borderColor = isLightMode ? '#dbeafe' : 'rgba(51, 65, 85, 0.5)';
@@ -62,7 +63,8 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
         downloadExcel(
             selectedResult.extractedData,
             `${selectedResult.fileName.replace(/\.[^/.]+$/, '')}_extraccion`,
-            selectedResult.schema
+            selectedResult.schema,
+            excelTransposed
         );
     };
 
@@ -259,6 +261,56 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
                             </p>
                             <p className="text-xs mt-1" style={{ color: textSecondary }}>
                                 Extraído el {new Date(selectedResult.timestamp).toLocaleString()}
+                            </p>
+                        </div>
+
+                        {/* Selector de formato Excel */}
+                        <div
+                            className="p-3 rounded-lg border transition-colors"
+                            style={{
+                                backgroundColor: isLightMode ? '#f0f9ff' : 'rgba(30, 41, 59, 0.5)',
+                                borderColor: borderColor
+                            }}
+                        >
+                            <h3 className="text-sm font-semibold mb-2 flex items-center gap-2" style={{ color: textColor }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: accentColor }}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                                </svg>
+                                Formato de Excel
+                            </h3>
+                            <div className="flex gap-3">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="excelFormat"
+                                        checked={!excelTransposed}
+                                        onChange={() => setExcelTransposed(false)}
+                                        className="cursor-pointer"
+                                        style={{ accentColor: accentColor }}
+                                    />
+                                    <span className="text-sm" style={{ color: textColor }}>
+                                        Horizontal (columnas →)
+                                    </span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input
+                                        type="radio"
+                                        name="excelFormat"
+                                        checked={excelTransposed}
+                                        onChange={() => setExcelTransposed(true)}
+                                        className="cursor-pointer"
+                                        style={{ accentColor: accentColor }}
+                                    />
+                                    <span className="text-sm" style={{ color: textColor }}>
+                                        Vertical/Transpuesto (filas ↓)
+                                    </span>
+                                </label>
+                            </div>
+                            <p className="text-xs mt-2" style={{ color: textSecondary }}>
+                                {excelTransposed
+                                    ? '📊 Los campos aparecerán como filas (de arriba a abajo) y los registros como columnas'
+                                    : '📊 Los campos aparecerán como columnas (de izquierda a derecha) - formato tradicional'
+                                }
                             </p>
                         </div>
 
