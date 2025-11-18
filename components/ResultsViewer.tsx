@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { ExtractionResult } from '../types.ts';
 import { JsonViewer } from './JsonViewer.tsx';
-import { downloadExcel, downloadCSV } from '../utils/exportUtils.ts';
+import { downloadExcel, downloadCSV, downloadPDF } from '../utils/exportUtils.ts';
 
 interface ResultsViewerProps {
     results: ExtractionResult[];
@@ -11,6 +11,7 @@ interface ResultsViewerProps {
     onClearHistory?: () => void;
     onExportHistory?: () => void;
     onExportExcel?: (transposed: boolean) => void;
+    onExportAllPDFs?: () => void;
     onImportHistory?: () => void;
 }
 
@@ -22,6 +23,7 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
     onClearHistory,
     onExportHistory,
     onExportExcel,
+    onExportAllPDFs,
     onImportHistory
 }) => {
     const [selectedResult, setSelectedResult] = useState<ExtractionResult | null>(
@@ -56,6 +58,16 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
             selectedResult.extractedData,
             `${selectedResult.fileName.replace(/\.[^/.]+$/, '')}_extraccion`,
             selectedResult.schema
+        );
+    };
+
+    const handleDownloadPDF = () => {
+        if (!selectedResult) return;
+        downloadPDF(
+            selectedResult.extractedData,
+            `${selectedResult.fileName.replace(/\.[^/.]+$/, '')}_extraccion`,
+            selectedResult.schema,
+            true // Siempre en formato vertical
         );
     };
 
@@ -255,6 +267,22 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
                                     Exportar Excel
                                 </button>
                             )}
+                            {onExportAllPDFs && (
+                                <button
+                                    onClick={onExportAllPDFs}
+                                    className="flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all hover:opacity-90"
+                                    style={{
+                                        backgroundColor: isLightMode ? '#dc2626' : '#b91c1c',
+                                        color: '#ffffff'
+                                    }}
+                                    title="Descargar todos los PDFs del historial (formato vertical)"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                    Exportar PDFs
+                                </button>
+                            )}
                             {onImportHistory && (
                                 <button
                                     onClick={onImportHistory}
@@ -361,6 +389,20 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
 
                         {/* Botones de acción */}
                         <div className="flex flex-wrap gap-2">
+                            <button
+                                onClick={handleDownloadPDF}
+                                className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90"
+                                style={{
+                                    backgroundColor: isLightMode ? '#dc2626' : '#ef4444',
+                                    color: '#ffffff'
+                                }}
+                                title="Descargar PDF (formato vertical)"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                                Descargar PDF
+                            </button>
                             <button
                                 onClick={handleDownloadJSON}
                                 className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90"

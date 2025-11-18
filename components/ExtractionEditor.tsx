@@ -6,7 +6,7 @@ import type { UploadedFile, SchemaField } from '../types.ts';
 import { SchemaBuilder } from './SchemaBuilder.tsx';
 import { ImageSearchPanel } from './ImageSearchPanel.tsx';
 import { CubeIcon, ExclamationTriangleIcon, SparklesIcon } from './Icons.tsx';
-import { downloadCSV, downloadExcel, downloadJSON, downloadPDF, generatePDFPreviewURL } from '../utils/exportUtils.ts';
+// Las funciones de exportación están ahora en ResultsViewer
 import { AVAILABLE_MODELS, type GeminiModel, searchImageInDocument, generateSchemaFromPrompt } from '../services/geminiService.ts';
 import { HealthSchemaViewer } from './HealthSchemaViewer.tsx';
 
@@ -47,7 +47,6 @@ const EXAMPLE_SCHEMA: SchemaField[] = [
 
 
 export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, template, onUpdateTemplate, onSaveTemplateChanges, schema, setSchema, prompt, setPrompt, onExtract, isLoading, theme, isLightMode }) => {
-    const [pdfPreviewURL, setPdfPreviewURL] = useState<string | null>(null);
     const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
     const [isSearchingImage, setIsSearchingImage] = useState(false);
     const [imageSearchResult, setImageSearchResult] = useState<any>(null);
@@ -94,31 +93,6 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
             hasChanges: hasTemplateChanges
         });
     }, [prompt, schema, file, hasTemplateChanges]);
-
-    // When the active file changes, clear previous results.
-    // The schema and prompt are managed by App.tsx so they persist.
-    useEffect(() => {
-        // Cleanup previous PDF URL
-        if (pdfPreviewURL) {
-            URL.revokeObjectURL(pdfPreviewURL);
-            setPdfPreviewURL(null);
-        }
-    }, [file?.id]);
-
-    // Generate PDF preview when extracted data changes
-    useEffect(() => {
-        if (file?.extractedData && !file.error) {
-            const url = generatePDFPreviewURL(file.extractedData, file.file.name.replace(/\.[^/.]+$/, ""));
-            setPdfPreviewURL(url);
-
-            // Cleanup on unmount or when data changes
-            return () => {
-                if (url) {
-                    URL.revokeObjectURL(url);
-                }
-            };
-        }
-    }, [file?.extractedData, file?.error]);
 
     const handleImageSearch = async (referenceImage: File, modelId: GeminiModel) => {
         if (!file) return;
@@ -446,69 +420,7 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
                 )}
             </div>
 
-            {file?.extractedData && !file.error && (
-                 <div className="border-t transition-colors duration-500" style={{ borderTopColor: borderColor }}>
-                    <div className="flex justify-between items-center p-4 md:p-6 pb-2">
-                        <h3 className="text-base font-medium" style={{ color: textColor }}>Resultados Extraídos (Vista PDF)</h3>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => downloadPDF(file.extractedData!, file.file.name.replace(/\.[^/.]+$/, ""))}
-                                className="text-xs px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors flex items-center gap-1"
-                                title="Descargar PDF"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                PDF
-                            </button>
-                            <button
-                                onClick={() => downloadJSON(file.extractedData!, file.file.name.replace(/\.[^/.]+$/, ""))}
-                                className="text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex items-center gap-1"
-                                title="Descargar JSON"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                JSON
-                            </button>
-                            <button
-                                onClick={() => downloadCSV(file.extractedData!, file.file.name.replace(/\.[^/.]+$/, ""))}
-                                className="text-xs px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors flex items-center gap-1"
-                                title="Descargar CSV"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                CSV
-                            </button>
-                            <button
-                                onClick={() => downloadExcel(file.extractedData!, file.file.name.replace(/\.[^/.]+$/, ""))}
-                                className="text-xs px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors flex items-center gap-1"
-                                title="Descargar Excel"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                </svg>
-                                Excel
-                            </button>
-                        </div>
-                    </div>
-                    <div className="p-4 md:p-6 pt-0 transition-colors duration-500" style={{ backgroundColor: isLightMode ? '#f3f4f6' : 'rgba(15, 23, 42, 0.5)' }}>
-                        {pdfPreviewURL ? (
-                            <iframe
-                                src={pdfPreviewURL}
-                                className="w-full h-96 border rounded-md"
-                                style={{ borderColor: borderColor }}
-                                title="Vista previa del PDF"
-                            />
-                        ) : (
-                            <div className="flex items-center justify-center h-96" style={{ color: textSecondary }}>
-                                Generando vista previa del PDF...
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
+            {/* Visor PDF y botones de exportación movidos a la pestaña "Resultados de Extracción" */}
              {file?.error && (
                 <div className="border-t p-4 md:p-6 transition-colors duration-500" style={{ borderTopColor: borderColor }}>
                     <h3 className="text-base font-medium text-red-400 mb-2">Error de Extracción</h3>

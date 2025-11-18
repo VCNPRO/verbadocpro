@@ -488,6 +488,32 @@ function AppContent() {
         }
     };
 
+    // Exportar todos los PDFs del historial (un PDF por documento)
+    const handleExportAllPDFs = () => {
+        if (history.length === 0) {
+            alert('No hay historial para exportar');
+            return;
+        }
+
+        // Importar las funciones necesarias dinámicamente
+        import('./utils/exportUtils.ts').then(({ downloadPDF }) => {
+            history.forEach((entry, index) => {
+                // Pequeño delay entre descargas para evitar problemas en el navegador
+                setTimeout(() => {
+                    downloadPDF(
+                        entry.extractedData,
+                        `${entry.fileName.replace(/\.[^/.]+$/, '')}_extraccion`,
+                        entry.schema,
+                        true // Siempre formato vertical
+                    );
+                }, index * 300); // 300ms de delay entre cada PDF
+            });
+
+            console.log(`📄 Exportando ${history.length} PDFs...`);
+            alert(`Se descargarán ${history.length} PDFs en formato vertical`);
+        });
+    };
+
     // Importar historial desde JSON
     const handleImportHistory = () => {
         const input = document.createElement('input');
@@ -779,6 +805,7 @@ function AppContent() {
                                 onClearHistory={handleClearHistory}
                                 onExportHistory={handleExportHistory}
                                 onExportExcel={handleExportExcel}
+                                onExportAllPDFs={handleExportAllPDFs}
                                 onImportHistory={handleImportHistory}
                             />
                         </div>

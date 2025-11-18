@@ -134,10 +134,122 @@ export const jsonToPDF = (data: object | object[], filename: string, schema?: Sc
 };
 
 /**
- * Descarga un archivo PDF
+ * Convierte un objeto JSON a PDF en formato vertical (campos como filas)
  */
-export const downloadPDF = (data: object | object[], filename: string, schema?: SchemaField[]) => {
-    const blob = jsonToPDF(data, filename, schema);
+export const jsonToPDFVertical = (data: object | object[], filename: string, schema?: SchemaField[]): Blob => {
+    const pdf = new jsPDF();
+    const dataArray = Array.isArray(data) ? data : [data];
+
+    if (dataArray.length === 0) {
+        pdf.text('No hay datos para mostrar', 10, 10);
+        return pdf.output('blob');
+    }
+
+    // Título
+    pdf.setFontSize(16);
+    pdf.setTextColor(0, 102, 204);
+    pdf.text('Resultados de Extracción de Datos', 14, 15);
+
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text(`Fecha: ${new Date().toLocaleString('es-ES')}`, 14, 22);
+    pdf.text(`Documento: ${filename}`, 14, 27);
+
+    // Función para aplanar objetos anidados
+    const flattenObject = (obj: any, prefix = ''): any => {
+        return Object.keys(obj).reduce((acc: any, key: string) => {
+            const prefixedKey = prefix ? `${prefix}.${key}` : key;
+
+            if (obj[key] !== null && typeof obj[key] === 'object' && !Array.isArray(obj[key])) {
+                Object.assign(acc, flattenObject(obj[key], prefixedKey));
+            } else if (Array.isArray(obj[key])) {
+                if (obj[key].length > 0 && typeof obj[key][0] === 'object' && obj[key][0] !== null) {
+                    const allProps = new Set<string>();
+                    obj[key].forEach((item: any) => {
+                        Object.keys(item).forEach(prop => allProps.add(prop));
+                    });
+
+                    allProps.forEach(prop => {
+                        const values = obj[key].map((item: any, index: number) => {
+                            const value = item[prop];
+                            return value !== undefined && value !== null ? `[${index + 1}] ${value}` : '';
+                        }).filter(v => v !== '');
+
+                        acc[`${prefixedKey}.${prop}`] = values.join('; ');
+                    });
+                } else {
+                    acc[prefixedKey] = obj[key].join('; ');
+                }
+            } else {
+                acc[prefixedKey] = obj[key];
+            }
+
+            return acc;
+        }, {});
+    };
+
+    const flattenedData = dataArray.map(item => flattenObject(item));
+
+    // Si tenemos schema, usar su orden; si no, extraer de los datos
+    let allColumns: string[];
+    if (schema && schema.length > 0) {
+        allColumns = getFieldOrderFromSchema(schema);
+    } else {
+        allColumns = Array.from(
+            new Set(flattenedData.flatMap(item => Object.keys(item)))
+        );
+    }
+
+    // FORMATO VERTICAL: Cada fila es un campo
+    // Columna 1: Nombre del campo
+    // Columnas 2-N: Valores de cada registro
+
+    const headers = flattenedData.length === 1
+        ? ['Campo', 'Valor']
+        : ['Campo', ...flattenedData.map((_, idx) => `Registro ${idx + 1}`)];
+
+    const tableData = allColumns.map(fieldName => {
+        const row = [fieldName];
+        flattenedData.forEach(item => {
+            row.push(String(item[fieldName] ?? ''));
+        });
+        return row;
+    });
+
+    // Crear tabla con autoTable
+    autoTable(pdf, {
+        head: [headers],
+        body: tableData,
+        startY: 32,
+        theme: 'striped',
+        headStyles: {
+            fillColor: [0, 102, 204],
+            textColor: 255,
+            fontStyle: 'bold',
+            halign: 'left'
+        },
+        styles: {
+            fontSize: 9,
+            cellPadding: 3,
+        },
+        alternateRowStyles: {
+            fillColor: [240, 240, 240]
+        },
+        margin: { top: 32, left: 14, right: 14 },
+        columnStyles: {
+            0: { fontStyle: 'bold', cellWidth: 'auto' }
+        }
+    });
+
+    return pdf.output('blob');
+};
+
+/**
+ * Descarga un archivo PDF
+ * Por defecto usa formato vertical (campos como filas)
+ */
+export const downloadPDF = (data: object | object[], filename: string, schema?: SchemaField[], vertical: boolean = true) => {
+    const blob = vertical ? jsonToPDFVertical(data, filename, schema) : jsonToPDF(data, filename, schema);
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
 
@@ -152,9 +264,10 @@ export const downloadPDF = (data: object | object[], filename: string, schema?: 
 
 /**
  * Genera una URL de objeto para mostrar el PDF en un iframe
+ * Por defecto usa formato vertical (campos como filas)
  */
-export const generatePDFPreviewURL = (data: object | object[], filename: string, schema?: SchemaField[]): string => {
-    const blob = jsonToPDF(data, filename, schema);
+export const generatePDFPreviewURL = (data: object | object[], filename: string, schema?: SchemaField[], vertical: boolean = true): string => {
+    const blob = vertical ? jsonToPDFVertical(data, filename, schema) : jsonToPDF(data, filename, schema);
     return URL.createObjectURL(blob);
 };
 
