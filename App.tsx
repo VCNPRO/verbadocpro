@@ -26,11 +26,18 @@ import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfi
 import { AuthProvider, useAuth } from './src/contexts/AuthContext.mock.tsx';
 import { AuthModal } from './src/components/AuthModal.tsx';
 
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+    const { currentUser } = useAuth();
+    if (currentUser?.role !== 'admin') {
+        return <Navigate to="/" />;
+    }
+    return children;
+}
+
 function AppContent() {
     const { currentUser, userProfile, logout } = useAuth();
-
-    // Detectar si estamos en modo admin mediante parámetro ?admin
-    const isAdminRoute = new URLSearchParams(window.location.search).get('admin') === 'true';
 
     const [files, setFiles] = useState<UploadedFile[]>([]);
     const [activeFileId, setActiveFileId] = useState<string | null>(null);
@@ -565,11 +572,6 @@ function AppContent() {
     // Mostrar modal de autenticación si no hay usuario
     if (!currentUser) {
         return <AuthModal />;
-    }
-
-    // Si estamos en la ruta /admin, mostrar el dashboard de administración
-    if (isAdminRoute) {
-        return <AdminDashboard />;
     }
 
     return (
