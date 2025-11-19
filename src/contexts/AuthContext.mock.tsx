@@ -122,6 +122,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
         users.push(newUser);
         saveAllUsers(users);
 
+        // Register user in KV database
+        try {
+            await fetch('/api/users/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: newUser.uid,
+                    email: newUser.email,
+                    displayName: newUser.displayName,
+                    department: newUser.department,
+                }),
+            });
+        } catch (error) {
+            console.error('Failed to register user in KV:', error);
+        }
+
         // Establecer sesión
         setCurrentUserSession(newUser.uid);
 
