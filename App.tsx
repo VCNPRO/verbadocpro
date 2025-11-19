@@ -407,7 +407,24 @@ function AppContent() {
                     if (value && typeof value === 'object' && !Array.isArray(value)) {
                         Object.assign(result, flattenObject(value, newKey));
                     } else if (Array.isArray(value)) {
-                        result[newKey] = JSON.stringify(value); // Stringify arrays
+                        // Manejar arrays correctamente
+                        if (value.length === 0) {
+                            result[newKey] = '';
+                        } else if (typeof value[0] === 'object' && value[0] !== null) {
+                            // Array de objetos: expandir el primer elemento inline
+                            if (value.length === 1) {
+                                // Si solo hay un elemento, expandir sus propiedades
+                                Object.assign(result, flattenObject(value[0], newKey));
+                            } else {
+                                // Si hay múltiples elementos, expandir todos con índices
+                                value.forEach((item, idx) => {
+                                    Object.assign(result, flattenObject(item, `${newKey}[${idx}]`));
+                                });
+                            }
+                        } else {
+                            // Array de primitivos: unir con saltos de línea
+                            result[newKey] = value.join('\n');
+                        }
                     } else {
                         result[newKey] = value;
                     }
