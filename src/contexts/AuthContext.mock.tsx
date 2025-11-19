@@ -17,6 +17,7 @@ export interface UserProfile {
     department: EuropaDepartment;
     createdAt: Date;
     lastLogin: Date;
+    role: 'user' | 'admin';
 }
 
 // Mock de FirebaseUser para mantener compatibilidad
@@ -24,6 +25,7 @@ interface MockFirebaseUser {
     uid: string;
     email: string | null;
     displayName: string | null;
+    role: 'user' | 'admin';
 }
 
 interface AuthContextType {
@@ -64,6 +66,7 @@ interface StoredUser {
     department: EuropaDepartment;
     createdAt: string;
     lastLogin: string;
+    role: 'user' | 'admin';
 }
 
 function getAllUsers(): StoredUser[] {
@@ -112,7 +115,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             displayName,
             department,
             createdAt: new Date().toISOString(),
-            lastLogin: new Date().toISOString()
+            lastLogin: new Date().toISOString(),
+            role: 'user',
         };
 
         users.push(newUser);
@@ -125,7 +129,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const mockUser: MockFirebaseUser = {
             uid: newUser.uid,
             email: newUser.email,
-            displayName: newUser.displayName
+            displayName: newUser.displayName,
+            role: newUser.role,
         };
 
         const profile: UserProfile = {
@@ -134,7 +139,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             displayName: newUser.displayName,
             department: newUser.department,
             createdAt: new Date(newUser.createdAt),
-            lastLogin: new Date(newUser.lastLogin)
+            lastLogin: new Date(newUser.lastLogin),
+            role: newUser.role,
         };
 
         setCurrentUser(mockUser);
@@ -160,6 +166,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const user = users.find(u => u.email === email);
 
         if (!user) {
+            // Special case for admin user
+            if (email === import.meta.env.VITE_ADMIN_USERNAME && password === import.meta.env.VITE_ADMIN_PASSWORD) {
+                const adminUser: MockFirebaseUser = {
+                    uid: 'admin',
+                    email: import.meta.env.VITE_ADMIN_USERNAME,
+                    displayName: 'Admin',
+                    role: 'admin',
+                };
+                const adminProfile: UserProfile = {
+                    uid: 'admin',
+                    email: import.meta.env.VITE_ADMIN_USERNAME,
+                    displayName: 'Admin',
+                    department: 'general',
+                    createdAt: new Date(),
+                    lastLogin: new Date(),
+                    role: 'admin',
+                };
+                setCurrentUser(adminUser);
+                setUserProfile(adminProfile);
+                setCurrentUserSession('admin');
+                return;
+            }
             throw new Error('auth/user-not-found');
         }
 
@@ -178,7 +206,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const mockUser: MockFirebaseUser = {
             uid: user.uid,
             email: user.email,
-            displayName: user.displayName
+            displayName: user.displayName,
+            role: user.role,
         };
 
         const profile: UserProfile = {
@@ -187,7 +216,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
             displayName: user.displayName,
             department: user.department,
             createdAt: new Date(user.createdAt),
-            lastLogin: new Date(user.lastLogin)
+            lastLogin: new Date(user.lastLogin),
+            role: user.role,
         };
 
         setCurrentUser(mockUser);
@@ -229,6 +259,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Verificar acceso a departamento
     function hasDepartmentAccess(department: EuropaDepartment): boolean {
         if (!userProfile) return false;
+        if (userProfile.role === 'admin') return true;
         // El usuario puede acceder a su propio departamento o a 'general'
         return userProfile.department === department || department === 'general';
     }
@@ -239,6 +270,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
             const currentUid = getCurrentUserSession();
 
             if (currentUid) {
+                if (currentUid === 'admin') {
+                    const adminUser: MockFirebaseUser = {
+                        uid: 'admin',
+                        email: import.meta.env.VITE_ADMIN_USERNAME,
+                        displayName: 'Admin',
+                        role: 'admin',
+                    };
+                    const adminProfile: UserProfile = {
+                        uid: 'admin',
+                        email: import.meta.env.VITE_ADMIN_USERNAME,
+                        displayName: 'Admin',
+                        department: 'general',
+                        createdAt: new Date(),
+                        lastLogin: new Date(),
+                        role: 'admin',
+                    };
+                    setCurrentUser(adminUser);
+                    setUserProfile(adminProfile);
+                    setLoading(false);
+                    return;
+                }
+
                 const users = getAllUsers();
                 const user = users.find(u => u.uid === currentUid);
 
@@ -246,7 +299,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     const mockUser: MockFirebaseUser = {
                         uid: user.uid,
                         email: user.email,
-                        displayName: user.displayName
+                        displayName: user.displayName,
+                        role: user.role,
                     };
 
                     const profile: UserProfile = {
@@ -255,7 +309,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                         displayName: user.displayName,
                         department: user.department,
                         createdAt: new Date(user.createdAt),
-                        lastLogin: new Date(user.lastLogin)
+                        lastLogin: new Date(user.lastLogin),
+                        role: user.role,
                     };
 
                     setCurrentUser(mockUser);

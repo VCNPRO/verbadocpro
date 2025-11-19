@@ -564,12 +564,12 @@ function AppContent() {
 
     // Mostrar modal de autenticación si no hay usuario
     if (!currentUser) {
-        return <AuthModal isLightMode={isLightMode} />;
+        return <AuthModal />;
     }
 
     // Si estamos en la ruta /admin, mostrar el dashboard de administración
     if (isAdminRoute) {
-        return <AdminDashboard isLightMode={isLightMode} />;
+        return <AdminDashboard />;
     }
 
     return (
