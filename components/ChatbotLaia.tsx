@@ -15,14 +15,14 @@ interface ChatbotLaiaProps {
 // Base de conocimiento de Laia basada en las guías de usuario
 const LAIA_KNOWLEDGE = {
     greetings: [
-        "¡Hola! Soy Laia, tu asistente virtual de VerbaDoc Europa. ¿En qué puedo ayudarte hoy?",
-        "¡Bienvenido/a! Soy Laia. Estoy aquí para ayudarte con VerbaDoc Europa. ¿Qué necesitas saber?",
+        "¡Hola! Soy Laia, tu asistente virtual de VerbaDoc Enterprise. ¿En qué puedo ayudarte hoy?",
+        "¡Bienvenido/a! Soy Laia. Estoy aquí para ayudarte con VerbaDoc Enterprise. ¿Qué necesitas saber?",
     ],
     quickStart: "Para empezar rápido:\n1️⃣ Sube tu documento (PDF, JPG, PNG)\n2️⃣ Selecciona una plantilla del panel derecho\n3️⃣ Haz clic en 'Ejecutar Extracción'\n4️⃣ Exporta los resultados en Excel, CSV o JSON",
     templates: "Tenemos plantillas para varios departamentos:\n• General\n• Contabilidad (facturas, gastos)\n• Finanzas (informes)\n• Marketing (presupuestos)\n• Legal (contratos)\n• Recursos Humanos\n\nPuedes crear tus propias plantillas en 'Mis Modelos'.",
     createTemplate: "Para crear una plantilla:\n1. Ve al panel derecho\n2. Haz clic en 'Mis Modelos' para expandir\n3. Haz clic en 'Crear Nueva Plantilla'\n4. Dale un nombre descriptivo\n5. Escribe el prompt (qué extraer)\n6. Define los campos del esquema\n7. Guarda tu plantilla\n\n⚠️ Recuerda: no uses espacios ni tildes en nombres de campos.",
-    models: "VerbaDoc Europa ofrece 3 modelos de IA:\n• **Genérico** 🇪🇺 - Económico, para documentos simples\n• **Recomendado** 🇪🇺 - Equilibrado, para la mayoría de casos\n• **Avanzado** 🇪🇺 - Potente, para documentos complejos\n\nTodos procesados 100% en Europa (Bélgica).",
-    security: "VerbaDoc Europa garantiza:\n🇪🇺 Procesamiento 100% en Europa (Bélgica)\n🔒 Cumplimiento RGPD/GDPR\n🏢 Protección de datos empresariales\n🔐 Cifrado TLS 1.3\n📜 Certificaciones: ISO 27001, ISO 27018, SOC 2\n\nTus documentos NO se almacenan en nuestros servidores.",
+    models: "VerbaDoc Enterprise ofrece 3 modelos de IA:\n• **Genérico** 🇪🇺 - Económico, para documentos simples\n• **Recomendado** 🇪🇺 - Equilibrado, para la mayoría de casos\n• **Avanzado** 🇪🇺 - Potente, para documentos complejos\n\nTodos procesados 100% en Europa (Bélgica).",
+    security: "VerbaDoc Enterprise garantiza:\n🇪🇺 Procesamiento 100% en Europa (Bélgica)\n🔒 Cumplimiento RGPD/GDPR\n🏢 Protección de datos empresariales\n🔐 Cifrado TLS 1.3\n📜 Certificaciones: ISO 27001, ISO 27018, SOC 2\n\nTus documentos NO se almacenan en nuestros servidores.",
     fieldTypes: "Tipos de campos disponibles:\n• STRING - Texto (nombre, dirección)\n• NUMBER - Números (precio, cantidad)\n• BOOLEAN - Sí/No (¿pagado?)\n• ARRAY_OF_STRINGS - Lista de textos\n• ARRAY_OF_OBJECTS - Lista de grupos\n• OBJECT - Grupo de campos",
     batch: "Para procesar muchos documentos:\n1. Sube todos los archivos similares\n2. Configura el esquema con el primero\n3. Haz clic en 'Procesar Todos'\n4. ¡Todos se procesarán automáticamente!",
     export: "Puedes exportar en 3 formatos:\n• **Excel** (.xlsx) - Recomendado para análisis\n• **CSV** - Para hojas de cálculo\n• **JSON** - Para sistemas e integraciones",
@@ -95,7 +95,7 @@ export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false })
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
-            text: '¡Hola! Soy Laia, tu asistente de VerbaDoc Europa 🇪🇺\n\n¿En qué puedo ayudarte hoy?',
+            text: '¡Hola! Soy Laia, tu asistente de VerbaDoc Enterprise 🇪🇺\n\n¿En qué puedo ayudarte hoy?',
             sender: 'laia',
             timestamp: new Date()
         }
