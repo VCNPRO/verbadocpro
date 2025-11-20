@@ -115,10 +115,10 @@ export function AIAssistantPanel({
 
   if (!file) {
     return (
-      <div className="border rounded-lg p-6 bg-card text-center">
+      <div className="border rounded-lg p-6 text-center" style={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }}>
         <div className="text-6xl mb-4">🤖</div>
         <h3 className="text-lg font-semibold mb-2">Asistente IA</h3>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
           Sube un documento para activar las funciones inteligentes
         </p>
       </div>
@@ -126,14 +126,14 @@ export function AIAssistantPanel({
   }
 
   return (
-    <div className="border rounded-lg bg-card">
+    <div className="border rounded-lg" style={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }}>
       {/* Header */}
-      <div className="border-b p-4 bg-primary/5">
+      <div className="border-b p-4" style={{ backgroundColor: 'hsl(var(--primary) / 0.05)' }}>
         <div className="flex items-center gap-3">
           <span className="text-3xl">🤖</span>
           <div>
             <h3 className="font-semibold text-lg">Asistente IA</h3>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>
               Análisis inteligente de documentos
             </p>
           </div>
@@ -142,11 +142,11 @@ export function AIAssistantPanel({
 
       {/* PDF Info */}
       {pdfInfo && (
-        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border-b">
+        <div className="p-4 border-b" style={{ backgroundColor: 'hsl(var(--muted) / 0.5)' }}>
           <div className="flex items-center gap-2 text-sm">
             <span>📄</span>
             <span className="font-medium">PDF detectado:</span>
-            <span className="text-muted-foreground">
+            <span style={{ color: 'hsl(var(--muted-foreground))' }}>
               {pdfInfo.numPages} páginas • {(pdfInfo.fileSize / 1024).toFixed(1)} KB
             </span>
           </div>
@@ -161,7 +161,7 @@ export function AIAssistantPanel({
           <div className="flex items-start justify-between mb-3">
             <div>
               <h4 className="font-semibold text-sm mb-1">🏷️ Clasificación Automática</h4>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>
                 Detecta el tipo de documento y sugiere el esquema de extracción
               </p>
             </div>
@@ -193,7 +193,7 @@ export function AIAssistantPanel({
                     {(classification.confidence * 100).toFixed(0)}% confianza
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mb-2">
+                <p className="text-xs mb-2" style={{ color: 'hsl(var(--muted-foreground))' }}>
                   {classification.reasoning}
                 </p>
                 {classification.keyIndicators && classification.keyIndicators.length > 0 && (
@@ -223,7 +223,7 @@ export function AIAssistantPanel({
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h4 className="font-semibold text-sm mb-1">📑 Segmentación de PDF</h4>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>
                   Detecta múltiples documentos dentro del PDF
                 </p>
               </div>
@@ -252,17 +252,17 @@ export function AIAssistantPanel({
                   </p>
                   <div className="space-y-2">
                     {segmentation.segments.map((seg: any, idx: number) => (
-                      <div key={seg.id} className="text-xs bg-white dark:bg-gray-800 p-2 rounded">
+                      <div key={seg.id} className="text-xs p-2 rounded" style={{ backgroundColor: 'hsl(var(--muted) / 0.3)' }}>
                         <div className="flex items-center justify-between">
                           <span className="font-medium">
                             Doc {idx + 1}: {seg.documentType || 'Desconocido'}
                           </span>
-                          <span className="text-muted-foreground">
+                          <span style={{ color: 'hsl(var(--muted-foreground))' }}>
                             Pág. {seg.pageNumbers.join(', ')}
                           </span>
                         </div>
                         {seg.reasoning && (
-                          <p className="text-muted-foreground mt-1">{seg.reasoning}</p>
+                          <p className="mt-1" style={{ color: 'hsl(var(--muted-foreground))' }}>{seg.reasoning}</p>
                         )}
                       </div>
                     ))}
@@ -286,7 +286,7 @@ export function AIAssistantPanel({
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h4 className="font-semibold text-sm mb-1">✅ Validación Inteligente</h4>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>
                   Detecta errores e inconsistencias en los datos extraídos
                 </p>
               </div>
@@ -330,20 +330,20 @@ export function AIAssistantPanel({
                   {validation.issues.length > 0 && (
                     <div className="space-y-1 mt-2">
                       {validation.issues.slice(0, 3).map((issue: any, idx: number) => (
-                        <div key={idx} className="text-xs bg-white dark:bg-gray-800 p-2 rounded">
+                        <div key={idx} className="text-xs p-2 rounded" style={{ backgroundColor: 'hsl(var(--muted) / 0.3)' }}>
                           <div className="flex items-start gap-2">
                             <span>
                               {issue.severity === 'error' ? '❌' : issue.severity === 'warning' ? '⚠️' : 'ℹ️'}
                             </span>
                             <div className="flex-1">
                               <p className="font-medium">{issue.field}</p>
-                              <p className="text-muted-foreground">{issue.message}</p>
+                              <p style={{ color: 'hsl(var(--muted-foreground))' }}>{issue.message}</p>
                             </div>
                           </div>
                         </div>
                       ))}
                       {validation.issues.length > 3 && (
-                        <p className="text-xs text-muted-foreground text-center mt-1">
+                        <p className="text-xs text-center mt-1" style={{ color: 'hsl(var(--muted-foreground))' }}>
                           + {validation.issues.length - 3} problemas más
                         </p>
                       )}
@@ -354,7 +354,7 @@ export function AIAssistantPanel({
                     <div className="mt-2 pt-2 border-t">
                       <p className="text-xs font-medium mb-1">💡 Sugerencias:</p>
                       {validation.suggestions.map((sug: string, idx: number) => (
-                        <p key={idx} className="text-xs text-muted-foreground">• {sug}</p>
+                        <p key={idx} className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>• {sug}</p>
                       ))}
                     </div>
                   )}
@@ -373,8 +373,8 @@ export function AIAssistantPanel({
       </div>
 
       {/* Footer con información */}
-      <div className="border-t p-3 bg-muted/30">
-        <p className="text-xs text-muted-foreground text-center">
+      <div className="border-t p-3" style={{ backgroundColor: 'hsl(var(--muted) / 0.3)' }}>
+        <p className="text-xs text-center" style={{ color: 'hsl(var(--muted-foreground))' }}>
           💡 El Asistente IA aprende de tus correcciones para mejorar con el tiempo
         </p>
       </div>
