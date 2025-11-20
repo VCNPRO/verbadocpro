@@ -199,7 +199,10 @@ export function AIAssistantPanel({
                 {classification.keyIndicators && classification.keyIndicators.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {classification.keyIndicators.map((indicator: string, idx: number) => (
-                      <span key={idx} className="text-xs bg-primary/10 px-2 py-1 rounded">
+                      <span key={idx} className="text-xs px-2 py-1 rounded" style={{
+                        backgroundColor: 'hsl(var(--primary) / 0.1)',
+                        color: 'hsl(var(--card-foreground))'
+                      }}>
                         • {indicator}
                       </span>
                     ))}
