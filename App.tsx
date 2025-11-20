@@ -9,6 +9,7 @@ import { SettingsModal } from './components/SettingsModal.tsx';
 import { ResultsViewer } from './components/ResultsViewer.tsx';
 import { ChatbotLaia } from './components/ChatbotLaia.tsx';
 import { AdminDashboard } from './components/AdminDashboard.tsx';
+import { AIAssistantPanel } from './components/AIAssistantPanel.tsx';
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
 import { AVAILABLE_MODELS, type GeminiModel } from './services/geminiService.ts';
@@ -683,7 +684,7 @@ function AppContent() {
                         </div>
 
                         {/* Extraction Editor */}
-                        <div className="lg:col-span-9">
+                        <div className="lg:col-span-6">
                             <ExtractionEditor
                                 key={`editor-${selectedTemplate?.id || 'default'}`}
                                 file={activeFile}
@@ -698,6 +699,22 @@ function AppContent() {
                                 isLoading={isLoading}
                                 theme={currentTheme}
                                 isLightMode={isLightMode}
+                            />
+                        </div>
+
+                        {/* AI Assistant Panel */}
+                        <div className="lg:col-span-3">
+                            <AIAssistantPanel
+                                file={activeFile?.file || null}
+                                onSchemaGenerated={(schema, prompt) => {
+                                    setSchema(schema);
+                                    setPrompt(prompt);
+                                }}
+                                onValidationComplete={(validation) => {
+                                    console.log('Validación completada:', validation);
+                                }}
+                                extractedData={activeFile?.extractedData}
+                                currentSchema={schema}
                             />
                         </div>
                     </div>
