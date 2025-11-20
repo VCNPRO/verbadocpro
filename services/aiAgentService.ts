@@ -37,6 +37,68 @@ export interface ValidationIssue {
 // CLASIFICACIÓN AUTOMÁTICA DE DOCUMENTOS
 // ============================================
 
+// Helper para convertir File a base64
+const fileToGenerativePart = async (file: File) => {
+  const base64EncodedDataPromise = new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result.split(',')[1]);
+      } else {
+        resolve('');
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+  return {
+    inlineData: {
+      data: await base64EncodedDataPromise,
+      mimeType: file.type,
+    },
+  };
+};
+
+// Función auxiliar para llamar a la API de Vercel (sin schema)
+const callVertexAIAPIRaw = async (file: File, prompt: string, model: GeminiModel): Promise<string> => {
+  const baseURL = typeof window !== 'undefined'
+    ? window.location.origin
+    : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:5173';
+
+  const url = `${baseURL}/api/extract`;
+
+  const generativePart = await fileToGenerativePart(file);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      contents: {
+        role: 'user',
+        parts: [
+          { text: prompt },
+          generativePart
+        ]
+      },
+      config: {
+        responseMimeType: 'application/json',
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(error.message || `HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  return result.text;
+};
+
 /**
  * Clasifica automáticamente un documento usando Gemini Vision
  * @param file - Archivo a clasificar (PDF, imagen)
@@ -88,12 +150,9 @@ Responde SOLO en JSON (sin markdown):
 }`;
 
   try {
-    const result = await extractDataFromDocument(
-      file,
-      [], // Sin schema específico, solo análisis
-      classificationPrompt,
-      model
-    );
+    // Llamar directamente a la API sin schema
+    const resultText = await callVertexAIAPIRaw(file, classificationPrompt, model);
+    const result = JSON.parse(resultText);
 
     console.log(`✅ Clasificado como: ${result.type} (${(result.confidence * 100).toFixed(0)}%)`);
 
@@ -323,12 +382,9 @@ Responde SOLO en JSON (sin markdown):
   "suggestions": ["sugerencia general 1", "sugerencia 2"]
 }`;
 
-    const result = await extractDataFromDocument(
-      originalFile,
-      [],
-      validationPrompt,
-      model
-    );
+    // Llamar directamente a la API sin schema
+    const resultText = await callVertexAIAPIRaw(originalFile, validationPrompt, model);
+    const result = JSON.parse(resultText);
 
     console.log(`✅ Validación IA completada: Score ${result.score}/100`);
 
