@@ -21,7 +21,7 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                             <h2 className="text-2xl font-bold text-slate-100">
                                 Guía de Usuario
                             </h2>
-                            <p className="text-sm text-slate-400">Aprende a usar Verbadoc Europa Pro</p>
+                            <p className="text-sm text-slate-400">Aprende a usar Verbadoc Enterprise</p>
                         </div>
                     </div>
                     <button
