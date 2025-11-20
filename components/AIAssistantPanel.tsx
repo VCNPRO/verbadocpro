@@ -184,9 +184,12 @@ export function AIAssistantPanel({
             </button>
           ) : (
             <div className="space-y-2">
-              <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded p-3">
+              <div className="border rounded p-3" style={{
+                backgroundColor: 'hsl(142 71% 45% / 0.1)',
+                borderColor: 'hsl(142 71% 45% / 0.3)'
+              }}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-sm">
+                  <span className="font-semibold text-sm" style={{ color: 'hsl(var(--card-foreground))' }}>
                     {classification.type.replace(/_/g, ' ').toUpperCase()}
                   </span>
                   <span className="text-xs bg-green-600 text-white px-2 py-1 rounded">
@@ -200,8 +203,9 @@ export function AIAssistantPanel({
                   <div className="flex flex-wrap gap-1 mt-2">
                     {classification.keyIndicators.map((indicator: string, idx: number) => (
                       <span key={idx} className="text-xs px-2 py-1 rounded" style={{
-                        backgroundColor: 'hsl(var(--primary) / 0.1)',
-                        color: 'hsl(var(--card-foreground))'
+                        backgroundColor: 'hsl(var(--muted) / 0.4)',
+                        color: 'hsl(var(--card-foreground))',
+                        fontWeight: '500'
                       }}>
                         • {indicator}
                       </span>
@@ -249,8 +253,11 @@ export function AIAssistantPanel({
               </button>
             ) : (
               <div className="space-y-2">
-                <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded p-3">
-                  <p className="font-semibold text-sm mb-2">
+                <div className="border rounded p-3" style={{
+                  backgroundColor: 'hsl(199 89% 48% / 0.1)',
+                  borderColor: 'hsl(199 89% 48% / 0.3)'
+                }}>
+                  <p className="font-semibold text-sm mb-2" style={{ color: 'hsl(var(--card-foreground))' }}>
                     {segmentation.segmentsFound} documento(s) detectado(s)
                   </p>
                   <div className="space-y-2">
@@ -312,13 +319,12 @@ export function AIAssistantPanel({
               </button>
             ) : (
               <div className="space-y-2">
-                <div className={`border rounded p-3 ${
-                  validation.isValid
-                    ? 'bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800'
-                    : 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800'
-                }`}>
+                <div className="border rounded p-3" style={{
+                  backgroundColor: validation.isValid ? 'hsl(142 71% 45% / 0.1)' : 'hsl(43 96% 56% / 0.1)',
+                  borderColor: validation.isValid ? 'hsl(142 71% 45% / 0.3)' : 'hsl(43 96% 56% / 0.3)'
+                }}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-sm">
+                    <span className="font-semibold text-sm" style={{ color: 'hsl(var(--card-foreground))' }}>
                       Score: {validation.score}/100
                     </span>
                     <span className={`text-xs px-2 py-1 rounded ${
