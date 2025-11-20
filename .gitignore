@@ -30,3 +30,4 @@ service-account*.json
 *.sln
 *.sw?
 .vercel
+.env.local

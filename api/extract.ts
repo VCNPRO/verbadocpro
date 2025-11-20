@@ -48,13 +48,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const { model, contents, config } = req.body;
 
+    // Validaciones mejoradas
     if (!model || !contents) {
+      console.error('❌ Faltan campos requeridos:', { model: !!model, contents: !!contents });
       return res.status(400).json({ error: 'Missing required fields: model, contents' });
+    }
+
+    // Verificar configuración
+    if (!PROJECT_ID) {
+      console.error('❌ VITE_GEMINI_PROJECT_ID o GOOGLE_CLOUD_PROJECT no están configurados');
+      return res.status(500).json({
+        error: 'Configuración incompleta',
+        message: 'PROJECT_ID no está configurado. Verifica las variables de entorno VITE_GEMINI_PROJECT_ID o GOOGLE_CLOUD_PROJECT'
+      });
+    }
+
+    if (!credentials && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      console.error('❌ GOOGLE_APPLICATION_CREDENTIALS no está configurado');
+      return res.status(500).json({
+        error: 'Configuración incompleta',
+        message: 'Credenciales de Google Cloud no configuradas. Verifica la variable GOOGLE_APPLICATION_CREDENTIALS'
+      });
     }
 
     console.log(`🇪🇺 Procesando con Vertex AI en ${LOCATION}`);
     console.log(`📍 Proyecto: ${PROJECT_ID}`);
     console.log(`🤖 Modelo: ${model}`);
+    console.log(`📄 Tipo de contenido:`, contents.parts?.map((p: any) => p.text ? 'text' : p.inlineData ? `file(${p.inlineData.mimeType})` : 'unknown').join(', '));
 
     // Obtener el modelo generativo
     const generativeModel = vertexAI.getGenerativeModel({
@@ -63,6 +83,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     // Generar contenido
+    console.log(`⏳ Llamando a Vertex AI...`);
     const result = await generativeModel.generateContent({
       contents: [contents],
       generationConfig: {
@@ -84,12 +105,41 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
-    console.error('❌ Error en Vertex AI:', error);
+    console.error('❌ Error en Vertex AI:', {
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      status: error.status,
+      details: error.details,
+      stack: error.stack?.split('\n').slice(0, 3).join('\n')
+    });
+
+    // Determinar el tipo de error y dar respuestas más específicas
+    let errorMessage = 'Error al procesar con Vertex AI';
+    let userMessage = error.message || 'Error desconocido';
+
+    if (error.code === 'ENOENT') {
+      errorMessage = 'Archivo de credenciales no encontrado';
+      userMessage = 'No se pudo leer el archivo de credenciales de Google Cloud';
+    } else if (error.message?.includes('credentials') || error.message?.includes('authentication')) {
+      errorMessage = 'Error de autenticación';
+      userMessage = 'Las credenciales de Google Cloud son inválidas o han expirado';
+    } else if (error.message?.includes('quota') || error.message?.includes('rate limit')) {
+      errorMessage = 'Límite de uso excedido';
+      userMessage = 'Se ha alcanzado el límite de solicitudes. Intenta más tarde';
+    } else if (error.message?.includes('permission')) {
+      errorMessage = 'Permisos insuficientes';
+      userMessage = 'La cuenta de servicio no tiene permisos para Vertex AI';
+    } else if (error.message?.includes('not found') || error.code === 404) {
+      errorMessage = 'Modelo no encontrado';
+      userMessage = `El modelo "${req.body.model}" no está disponible en ${LOCATION}`;
+    }
 
     return res.status(500).json({
-      error: 'Error al procesar con Vertex AI',
-      message: error.message || 'Error desconocido',
-      details: error.details || null,
+      error: errorMessage,
+      message: userMessage,
+      code: error.code,
+      details: process.env.NODE_ENV === 'development' ? error.details : null,
     });
   }
 }
