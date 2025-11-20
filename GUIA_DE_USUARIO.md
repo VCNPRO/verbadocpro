@@ -1,10 +1,19 @@
-# 📘 Guía de Usuario - Extractor de Datos Profesional
+# 📘 Guía de Usuario - Verbadoc Europa Pro
 
 ## 🎯 ¿Qué es esta herramienta?
 
-**Extractor de Datos Profesional** es una aplicación web que te ayuda a extraer información de documentos (PDFs, imágenes, textos) de forma automática usando Inteligencia Artificial.
+**Verbadoc Europa Pro** es una aplicación web profesional que extrae información de documentos (PDFs, imágenes, textos) de forma automática usando Inteligencia Artificial avanzada.
 
-**En palabras simples:** Subes un documento (como una factura, contrato o formulario), le dices qué información quieres sacar, y la herramienta te devuelve esa información organizada en formato de tabla que puedes descargar en Excel o CSV.
+**En palabras simples:** Subes un documento (como una factura, contrato o formulario), el **Asistente IA** lo analiza automáticamente, y obtienes los datos organizados en formato Excel o CSV.
+
+### 🆕 Novedad: Asistente IA Integrado
+
+Ahora con **Asistente IA** que:
+- 🏷️ **Clasifica automáticamente** tu documento
+- 💡 **Sugiere el esquema perfecto** de extracción
+- ✅ **Valida los datos** extraídos
+- 📑 **Segmenta PDFs** con múltiples documentos
+- 🇪🇺 **100% en Europa** (cumplimiento GDPR)
 
 ---
 
@@ -29,17 +38,142 @@ Un **prompt** es la instrucción que le das a la IA. Es como pedirle a alguien q
 
 ---
 
+## 🤖 El Asistente IA - Tu Ayudante Inteligente
+
+### ¿Qué es el Asistente IA?
+
+El **Asistente IA** es un panel que aparece automáticamente cuando subes un documento. Utiliza Inteligencia Artificial avanzada (Google Vertex AI) para ayudarte en todo el proceso.
+
+### Funciones del Asistente IA:
+
+#### 1. 🏷️ Clasificación Automática
+
+**¿Qué hace?**
+- Analiza tu documento automáticamente
+- Detecta qué tipo de documento es (factura, contrato, formulario, etc.)
+- Sugiere el esquema de extracción perfecto
+
+**¿Cómo usarlo?**
+1. Sube tu documento
+2. El Asistente IA aparece en el panel derecho
+3. Click en "🔍 Clasificar Documento"
+4. Espera 5-10 segundos
+5. Ve la clasificación y el esquema sugerido
+
+**Ejemplo de resultado:**
+```
+FACTURA COMERCIAL (95% confianza)
+
+"El documento contiene claramente la palabra 'Factura'
+como tipo de documento, junto con un número de factura,
+fecha, artículos, cantidades, precios y totales..."
+
+Indicadores clave:
+• Número de factura: 001414
+• Fecha: 19/11/2025
+• Cliente: Miriam Ruiz Da Silva
+• Total: [monto detectado]
+```
+
+#### 2. 📑 Segmentación de PDFs
+
+**¿Qué hace?**
+- Detecta si tu PDF contiene varios documentos
+- Identifica dónde empieza y termina cada documento
+- Te permite procesarlos por separado
+
+**¿Cuándo usarlo?**
+- Tienes un PDF con 10 facturas escaneadas juntas
+- Un PDF con múltiples contratos
+- Documentos multipágina con secciones independientes
+
+**¿Cómo usarlo?**
+1. Sube tu PDF multipágina
+2. El Asistente IA muestra cuántas páginas tiene
+3. Click en "🔍 Buscar Documentos"
+4. Ve cuántos documentos se detectaron
+5. Revisa las páginas de cada documento
+
+**Ejemplo de resultado:**
+```
+3 documento(s) detectado(s)
+
+Doc 1: Factura Comercial
+Pág. 1, 2
+"Primera factura detectada con encabezado y datos completos"
+
+Doc 2: Factura Comercial
+Pág. 3
+"Segunda factura..."
+
+Doc 3: Recibo
+Pág. 4, 5
+"Recibo de pago..."
+```
+
+#### 3. ✅ Validación Inteligente
+
+**¿Qué hace?**
+- Revisa los datos extraídos
+- Detecta errores e inconsistencias
+- Compara con los datos reales del documento
+- Te da sugerencias de mejora
+
+**¿Cuándo usarlo?**
+- Después de extraer los datos
+- Si sospechas que algo está mal
+- Antes de exportar datos importantes
+
+**¿Cómo usarlo?**
+1. Extrae los datos normalmente
+2. Verás los resultados en JSON
+3. En el Asistente IA, click en "🔍 Validar Datos"
+4. Espera 10-15 segundos
+5. Ve el score de validación y los problemas detectados
+
+**Ejemplo de resultado:**
+```
+Score: 85/100 ⚠️ 3 problemas detectados
+
+❌ total
+El total calculado (1250.50) no coincide con el
+total extraído (1240.50)
+
+⚠️ fecha_factura
+La fecha está en formato incorrecto. Debería ser
+DD/MM/YYYY
+
+ℹ️ numero_factura
+El número de factura parece incompleto
+
+💡 Sugerencias:
+• Revisa el cálculo del total manualmente
+• Verifica el formato de fecha en el esquema
+```
+
+### Ventajas de Usar el Asistente IA
+
+| Sin Asistente IA | Con Asistente IA |
+|------------------|------------------|
+| Escribes el prompt manualmente | ✅ Prompt generado automáticamente |
+| Creas el esquema campo por campo | ✅ Esquema sugerido al instante |
+| No sabes si hay errores | ✅ Validación automática |
+| Procesas PDFs página por página | ✅ Segmentación automática |
+| ⏱️ 5-10 minutos por documento | ⏱️ 30 segundos por documento |
+
+---
+
 ## 🚀 Guía Paso a Paso - Tu Primera Extracción
 
 ### Paso 1: Abrir la Aplicación
 
 1. Abre tu navegador web (Chrome, Firefox, Edge)
-2. Ve a: `https://extractor-de-datos-profesional.vercel.app`
+2. Ve a: `https://verbadoceuropapro.vercel.app`
 3. Verás una pantalla con 4 secciones:
    - **Izquierda (Plantillas)**: Plantillas predefinidas
    - **Centro-Izquierda (Lote de Documentos)**: Tus archivos subidos
    - **Centro (Editor)**: Donde configuras la extracción
-   - **Derecha (Historial)**: Extracciones anteriores
+   - **Derecha (Asistente IA & Historial)**: Tu ayudante inteligente
 
 ---
 
@@ -72,9 +206,23 @@ Si quieres revisar el contenido del documento antes de extraer:
 
 ---
 
-### Paso 4: Usar un Ejemplo (Recomendado para principiantes)
+### Paso 4: Usar el Asistente IA (⭐ RECOMENDADO)
 
-Si es tu primera vez, usa el ejemplo incluido:
+**La forma más fácil y rápida:**
+
+1. Una vez subido tu documento, el **Asistente IA** aparece automáticamente en el panel derecho
+2. Haz clic en **"🔍 Clasificar Documento"**
+3. Espera 5-10 segundos mientras la IA analiza el documento
+4. Verás:
+   - El tipo de documento detectado (ej: FACTURA COMERCIAL)
+   - El nivel de confianza (ej: 95%)
+   - Los indicadores clave encontrados
+5. El **Prompt** y **Esquema** se llenarán automáticamente
+6. **¡Listo! Salta al Paso 7 (Ejecutar la Extracción)**
+
+**Alternativa - Usar un Ejemplo:**
+
+Si prefieres practicar primero con datos de ejemplo:
 
 1. Haz clic en **"Usar Ejemplo"** (botón con estrella ✨) en la parte superior del editor
 2. Haz clic en **"Usar Ejemplo"** en el archivo de ejemplo
@@ -82,11 +230,9 @@ Si es tu primera vez, usa el ejemplo incluido:
    - El **Prompt** (instrucción)
    - El **Esquema** (estructura de datos)
 
-**¡Ahora puedes practicar con datos de ejemplo!**
-
 ---
 
-### Paso 5: Definir el Prompt (Instrucción)
+### Paso 5: Definir el Prompt Manualmente (Solo si no usas el Asistente IA)
 
 El **prompt** es lo que le pides a la IA. Debe ser claro y específico.
 

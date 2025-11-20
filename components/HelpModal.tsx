@@ -18,9 +18,9 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                         <InformationCircleIcon className="w-8 h-8 text-cyan-400" />
                         <div>
                             <h2 className="text-2xl font-bold text-slate-100">
-                                Guía Rápida
+                                Guía de Usuario
                             </h2>
-                            <p className="text-sm text-slate-400">Aprende a usar verbadoc enterprise</p>
+                            <p className="text-sm text-slate-400">Aprende a usar Verbadoc Europa Pro</p>
                         </div>
                     </div>
                     <button
@@ -34,6 +34,51 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
 
                 {/* Content */}
                 <div className="flex-grow overflow-y-auto p-6 space-y-6">
+                    {/* ASISTENTE IA - NUEVO */}
+                    <div className="bg-gradient-to-r from-purple-900/30 to-pink-900/30 rounded-lg p-6 border-2 border-purple-600/50">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center">
+                                <span className="text-2xl">🤖</span>
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-purple-300">🆕 Asistente IA - Tu Mejor Amigo</h3>
+                                <p className="text-sm text-purple-200/80">Usa SIEMPRE el Asistente IA primero</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="bg-slate-800/50 p-4 rounded-lg border border-purple-700/30">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-2xl">🏷️</span>
+                                    <h4 className="font-semibold text-purple-300">Clasificación Automática</h4>
+                                </div>
+                                <p className="text-xs text-slate-300">
+                                    Detecta el tipo de documento y sugiere el esquema perfecto automáticamente
+                                </p>
+                            </div>
+
+                            <div className="bg-slate-800/50 p-4 rounded-lg border border-purple-700/30">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-2xl">✅</span>
+                                    <h4 className="font-semibold text-purple-300">Validación Inteligente</h4>
+                                </div>
+                                <p className="text-xs text-slate-300">
+                                    Revisa los datos extraídos y te indica errores e inconsistencias
+                                </p>
+                            </div>
+
+                            <div className="bg-slate-800/50 p-4 rounded-lg border border-purple-700/30">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="text-2xl">📑</span>
+                                    <h4 className="font-semibold text-purple-300">Segmentación de PDFs</h4>
+                                </div>
+                                <p className="text-xs text-slate-300">
+                                    Detecta múltiples documentos dentro de un PDF y los separa automáticamente
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* INICIO RÁPIDO - 5 MINUTOS */}
                     <div className="bg-gradient-to-r from-cyan-900/30 to-blue-900/30 rounded-lg p-6 border-2 border-cyan-600/50">
                         <div className="flex items-center gap-3 mb-4">
@@ -59,10 +104,10 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
 
                             <div className="bg-slate-800/50 p-4 rounded-lg border border-cyan-700/30">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-2xl">📋</span>
-                                    <h4 className="font-semibold text-cyan-300">2. Selecciona Plantilla</h4>
+                                    <span className="text-2xl">🤖</span>
+                                    <h4 className="font-semibold text-cyan-300">2. Usa Asistente IA</h4>
                                 </div>
-                                <p className="text-xs text-slate-300">Panel derecho → "Plantillas" → Escoge tu departamento</p>
+                                <p className="text-xs text-slate-300">Click en "Clasificar Documento" → El esquema se llena automáticamente</p>
                             </div>
 
                             <div className="bg-slate-800/50 p-4 rounded-lg border border-cyan-700/30">
@@ -122,9 +167,9 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                         <div className="bg-green-900/20 rounded-lg p-4 border border-green-700/50">
                             <h4 className="font-semibold text-green-400 mb-3">✅ Haz Esto</h4>
                             <ul className="text-xs text-slate-300 space-y-2">
-                                <li>• <strong>Usa plantillas</strong> para ahorrar tiempo</li>
+                                <li>• <strong>Usa el Asistente IA</strong> siempre primero 🤖</li>
+                                <li>• <strong>Valida los datos</strong> antes de exportar ✅</li>
                                 <li>• <strong>Prueba con 1 primero</strong> antes de procesar 100</li>
-                                <li>• <strong>Modelo Recomendado</strong> para docs estándar</li>
                                 <li>• <strong>Guarda tus plantillas</strong> para reutilizar</li>
                                 <li>• <strong>Exporta a Excel</strong> para análisis</li>
                             </ul>
@@ -133,9 +178,9 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                         <div className="bg-red-900/20 rounded-lg p-4 border border-red-700/50">
                             <h4 className="font-semibold text-red-400 mb-3">❌ Evita Esto</h4>
                             <ul className="text-xs text-slate-300 space-y-2">
+                                <li>• No ignores el Asistente IA - te ahorra mucho tiempo</li>
                                 <li>• No mezcles tipos de documentos en un lote</li>
-                                <li>• No uses prompts vagos ("dame todo")</li>
-                                <li>• No proceses sin probar primero</li>
+                                <li>• No proceses sin validar primero</li>
                                 <li>• No olvides exportar resultados</li>
                             </ul>
                         </div>
