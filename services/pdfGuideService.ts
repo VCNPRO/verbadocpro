@@ -1,165 +1,108 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 
-// Extend jsPDF type to include autoTable
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-    lastAutoTable: { finalY: number };
-  }
-}
-
-// Professional Color Palette (RGB values)
+// Professional Color Palette (RGB)
 const COLORS = {
-  primary: [14, 165, 233],      // Cyan 500
-  primaryDark: [3, 105, 161],   // Cyan 700
-  secondary: [100, 116, 139],   // Slate 500
-  accent: [168, 85, 247],       // Purple 500
-  success: [34, 197, 94],       // Green 500
-  warning: [245, 158, 11],      // Amber 500
-  danger: [239, 68, 68],        // Red 500
-  text: [15, 23, 42],           // Slate 900
-  textLight: [100, 116, 139],   // Slate 500
-  bgLight: [248, 250, 252],     // Slate 50
-  bgMedium: [226, 232, 240],    // Slate 200
+  primary: [14, 165, 233],
+  primaryDark: [3, 105, 161],
+  secondary: [100, 116, 139],
+  accent: [168, 85, 247],
+  success: [34, 197, 94],
+  warning: [245, 158, 11],
+  danger: [239, 68, 68],
+  text: [15, 23, 42],
+  textLight: [100, 116, 139],
+  bgLight: [248, 250, 252],
   white: [255, 255, 255],
 };
 
-// Helper: Convert hex to RGB
-function hexToRgb(hex: string): [number, number, number] {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)]
-    : [0, 0, 0];
-}
-
-// Helper: Add professional header
-function addProfessionalHeader(doc: jsPDF, title: string, subtitle: string, pageNum: number, totalPages: number) {
+// Add header
+function addHeader(doc: jsPDF, subtitle: string, pageNum: number, totalPages: number) {
   const pageWidth = doc.internal.pageSize.getWidth();
 
-  // Header background
-  doc.setFillColor(...COLORS.primary);
-  doc.rect(0, 0, pageWidth, 40, 'F');
+  doc.setFillColor(COLORS.primary[0], COLORS.primary[1], COLORS.primary[2]);
+  doc.rect(0, 0, pageWidth, 35, 'F');
 
-  // Brand name
-  doc.setFontSize(18);
+  doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...COLORS.white);
-  doc.text('Verbadoc Enterprise', 20, 18);
+  doc.setTextColor(255, 255, 255);
+  doc.text('Verbadoc Enterprise', 20, 15);
 
-  // Subtitle
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...COLORS.white);
-  doc.text(subtitle, 20, 28);
-
-  // Page number
-  doc.setFontSize(9);
-  doc.text(`Pag. ${pageNum}/${totalPages}`, pageWidth - 30, 18);
+  doc.text(subtitle, 20, 24);
+  doc.text(`Pag. ${pageNum}/${totalPages}`, pageWidth - 30, 15);
 }
 
-// Helper: Add professional footer
-function addProfessionalFooter(doc: jsPDF) {
+// Add footer
+function addFooter(doc: jsPDF) {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  // Footer line
-  doc.setDrawColor(...COLORS.bgMedium);
-  doc.setLineWidth(0.5);
-  doc.line(20, pageHeight - 20, pageWidth - 20, pageHeight - 20);
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.3);
+  doc.line(20, pageHeight - 18, pageWidth - 20, pageHeight - 18);
 
-  // Footer text
-  doc.setFontSize(8);
-  doc.setTextColor(...COLORS.textLight);
+  doc.setFontSize(7);
+  doc.setTextColor(100, 116, 139);
   doc.setFont('helvetica', 'normal');
-  doc.text('100% GDPR Compliant - Procesado en Europa', 20, pageHeight - 12);
-  doc.text('https://verbadoceuropapro.vercel.app', pageWidth - 90, pageHeight - 12);
+  doc.text('100% GDPR - Procesado en Europa', 20, pageHeight - 10);
+  doc.text('verbadoceuropapro.vercel.app', pageWidth - 70, pageHeight - 10);
 }
 
-// Helper: Add section title
-function addSectionTitle(doc: jsPDF, y: number, title: string, color: number[] = COLORS.primary): number {
+// Add section title
+function addSection(doc: jsPDF, y: number, title: string, color: number[]) {
   const pageWidth = doc.internal.pageSize.getWidth();
 
-  // Background bar
-  doc.setFillColor(...color);
-  doc.rect(20, y, pageWidth - 40, 12, 'F');
+  doc.setFillColor(color[0], color[1], color[2]);
+  doc.rect(20, y, pageWidth - 40, 10, 'F');
 
-  // Title
-  doc.setFontSize(13);
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...COLORS.white);
-  doc.text(title, 25, y + 8);
+  doc.setTextColor(255, 255, 255);
+  doc.text(title, 25, y + 7);
 
-  return y + 18;
+  return y + 15;
 }
 
-// Helper: Add info box
-function addInfoBox(doc: jsPDF, y: number, title: string, content: string[], bgColor: number[], textColor: number[] = COLORS.text): number {
+// Add info box
+function addBox(doc: jsPDF, y: number, lines: string[], bgColor: number[], textColor: number[]) {
   const pageWidth = doc.internal.pageSize.getWidth();
-  const boxWidth = pageWidth - 40;
-  let currentY = y;
+  const height = 8 + (lines.length * 5);
 
-  // Calculate box height
-  let boxHeight = 10;
-  content.forEach(line => {
-    const lines = doc.splitTextToSize(line, boxWidth - 10);
-    boxHeight += lines.length * 5;
-  });
-
-  // Draw box
-  doc.setFillColor(...bgColor);
-  doc.roundedRect(20, currentY, boxWidth, boxHeight, 3, 3, 'F');
-
-  currentY += 7;
-
-  // Title
-  if (title) {
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...textColor);
-    doc.text(title, 25, currentY);
-    currentY += 6;
-  }
-
-  // Content
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...textColor);
-
-  content.forEach(line => {
-    const lines = doc.splitTextToSize(line, boxWidth - 10);
-    doc.text(lines, 25, currentY);
-    currentY += lines.length * 5;
-  });
-
-  return y + boxHeight + 5;
-}
-
-// Helper: Add bullet list
-function addBulletList(doc: jsPDF, y: number, items: string[]): number {
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const maxWidth = pageWidth - 50;
-  let currentY = y;
+  doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
+  doc.roundedRect(20, y, pageWidth - 40, height, 2, 2, 'F');
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...COLORS.text);
+  doc.setTextColor(textColor[0], textColor[1], textColor[2]);
 
+  let currentY = y + 6;
+  lines.forEach(line => {
+    doc.text(line, 25, currentY);
+    currentY += 5;
+  });
+
+  return y + height + 3;
+}
+
+// Add bullet list
+function addBullets(doc: jsPDF, y: number, items: string[]) {
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(15, 23, 42);
+
+  let currentY = y;
   items.forEach(item => {
-    // Bullet point (small circle)
-    doc.setFillColor(...COLORS.primary);
-    doc.circle(22, currentY - 2, 1, 'F');
-
-    // Text
-    const lines = doc.splitTextToSize(item, maxWidth);
-    doc.text(lines, 27, currentY);
-    currentY += lines.length * 5;
+    doc.setFillColor(14, 165, 233);
+    doc.circle(22, currentY - 2, 0.8, 'F');
+    doc.text(item, 27, currentY);
+    currentY += 5;
   });
 
   return currentY;
 }
 
-// QUICK GUIDE PDF
+// QUICK GUIDE
 export function generateQuickGuidePDF() {
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -168,168 +111,146 @@ export function generateQuickGuidePDF() {
   });
 
   const pageWidth = doc.internal.pageSize.getWidth();
-  const totalPages = 2;
-  let currentPage = 1;
 
-  // PAGE 1 - Cover & Quick Start
-  addProfessionalHeader(doc, 'Verbadoc Enterprise', 'Guia Rapida', currentPage, totalPages);
-  addProfessionalFooter(doc);
+  // PAGE 1
+  addHeader(doc, 'Guia Rapida', 1, 2);
+  addFooter(doc);
 
-  let y = 55;
+  let y = 50;
 
-  // Main title
-  doc.setFontSize(28);
+  // Title
+  doc.setFontSize(24);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...COLORS.primary);
+  doc.setTextColor(14, 165, 233);
   doc.text('Guia Rapida', 20, y);
-  y += 10;
+  y += 8;
 
-  doc.setFontSize(14);
-  doc.setTextColor(...COLORS.textLight);
+  doc.setFontSize(12);
+  doc.setTextColor(100, 116, 139);
   doc.setFont('helvetica', 'normal');
   doc.text('Comienza en 3 minutos', 20, y);
-  y += 20;
+  y += 15;
 
-  // AI Assistant Box
-  y = addInfoBox(doc, y, 'ASISTENTE IA - Tu mejor aliado', [
-    'Panel inteligente que aparece automaticamente al subir documentos.',
-    'Clasifica, valida y segmenta usando IA avanzada en servidores europeos.'
-  ], [243, 232, 255], COLORS.text);
+  // AI Box
+  y = addBox(doc, y, [
+    'ASISTENTE IA - Tu mejor aliado',
+    'Clasifica, valida y segmenta documentos con IA europea'
+  ], [243, 232, 255], [15, 23, 42]);
 
-  y += 3;
-
-  // Three main features
-  y = addSectionTitle(doc, y, 'CLASIFICACION AUTOMATICA', COLORS.accent);
-  y = addBulletList(doc, y, [
+  // Features
+  y = addSection(doc, y, 'CLASIFICACION AUTOMATICA', COLORS.accent);
+  y = addBullets(doc, y, [
     'Detecta el tipo de documento',
     'Sugiere esquema de extraccion perfecto',
     'Muestra nivel de confianza'
   ]);
   y += 5;
 
-  y = addSectionTitle(doc, y, 'VALIDACION INTELIGENTE', COLORS.success);
-  y = addBulletList(doc, y, [
-    'Revisa datos extraidos automaticamente',
+  y = addSection(doc, y, 'VALIDACION INTELIGENTE', COLORS.success);
+  y = addBullets(doc, y, [
+    'Revisa datos extraidos',
     'Detecta errores e inconsistencias',
     'Asigna puntuacion de calidad'
   ]);
   y += 5;
 
-  y = addSectionTitle(doc, y, 'SEGMENTACION DE PDFs', COLORS.warning);
-  y = addBulletList(doc, y, [
-    'Detecta multiples documentos en un PDF',
+  y = addSection(doc, y, 'SEGMENTACION DE PDFs', COLORS.warning);
+  y = addBullets(doc, y, [
+    'Detecta multiples documentos',
     'Los separa automaticamente',
     'Procesa cada uno individualmente'
   ]);
   y += 10;
 
-  // Quick Start Steps
-  doc.setFontSize(16);
+  // Steps
+  doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...COLORS.primary);
+  doc.setTextColor(14, 165, 233);
   doc.text('Empieza en 3 Pasos', 20, y);
-  y += 10;
+  y += 8;
 
   // Step 1
   doc.setFillColor(219, 234, 254);
-  doc.roundedRect(20, y, pageWidth - 40, 20, 2, 2, 'F');
-  doc.setFontSize(11);
+  doc.roundedRect(20, y, pageWidth - 40, 18, 2, 2, 'F');
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...COLORS.primaryDark);
-  doc.text('1. SUBE TU DOCUMENTO', 25, y + 7);
-  doc.setFontSize(9);
+  doc.setTextColor(3, 105, 161);
+  doc.text('1. SUBE TU DOCUMENTO', 25, y + 6);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...COLORS.text);
-  doc.text('Arrastra tu PDF/imagen o haz clic en "Haga clic para subir"', 25, y + 13);
-  y += 25;
+  doc.setTextColor(15, 23, 42);
+  doc.text('Arrastra tu PDF/imagen o haz clic en "Haga clic para subir"', 25, y + 12);
+  y += 22;
 
   // Step 2
   doc.setFillColor(243, 232, 255);
-  doc.roundedRect(20, y, pageWidth - 40, 20, 2, 2, 'F');
-  doc.setFontSize(11);
+  doc.roundedRect(20, y, pageWidth - 40, 18, 2, 2, 'F');
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(124, 58, 237);
-  doc.text('2. USA EL ASISTENTE IA', 25, y + 7);
-  doc.setFontSize(9);
+  doc.text('2. USA EL ASISTENTE IA', 25, y + 6);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...COLORS.text);
-  doc.text('Click en "Clasificar Documento" - El esquema se llena solo', 25, y + 13);
-  y += 25;
+  doc.setTextColor(15, 23, 42);
+  doc.text('Click en "Clasificar Documento" - El esquema se llena solo', 25, y + 12);
+  y += 22;
 
   // Step 3
   doc.setFillColor(209, 250, 229);
-  doc.roundedRect(20, y, pageWidth - 40, 20, 2, 2, 'F');
-  doc.setFontSize(11);
+  doc.roundedRect(20, y, pageWidth - 40, 18, 2, 2, 'F');
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(5, 150, 105);
-  doc.text('3. EXTRAE Y DESCARGA', 25, y + 7);
-  doc.setFontSize(9);
+  doc.text('3. EXTRAE Y DESCARGA', 25, y + 6);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...COLORS.text);
-  doc.text('Click "Ejecutar Extraccion" y luego "Excel" para descargar', 25, y + 13);
+  doc.setTextColor(15, 23, 42);
+  doc.text('Click "Ejecutar Extraccion" y luego "Excel" para descargar', 25, y + 12);
 
-  // PAGE 2 - Tips & Document Types
+  // PAGE 2
   doc.addPage();
-  currentPage++;
-  addProfessionalHeader(doc, 'Verbadoc Enterprise', 'Guia Rapida', currentPage, totalPages);
-  addProfessionalFooter(doc);
+  addHeader(doc, 'Guia Rapida', 2, 2);
+  addFooter(doc);
 
-  y = 55;
+  y = 50;
 
-  // Document Types Table
-  y = addSectionTitle(doc, y, 'TIPOS DE DOCUMENTOS SOPORTADOS', COLORS.secondary);
+  y = addSection(doc, y, 'TIPOS DE DOCUMENTOS', COLORS.secondary);
+  y = addBullets(doc, y, [
+    'Facturas: Facturas comerciales, recibos, tickets',
+    'Formularios: Solicitudes, contratos, actas',
+    'Reportes: Informes, documentos corporativos',
+    'Medicos: Recetas, informes medicos',
+    'Legales: Contratos, poderes, escrituras'
+  ]);
+  y += 10;
 
-  doc.autoTable({
-    startY: y,
-    head: [['Tipo', 'Ejemplos']],
-    body: [
-      ['Facturas', 'Facturas comerciales, recibos, tickets'],
-      ['Formularios', 'Solicitudes, contratos, actas'],
-      ['Reportes', 'Informes, documentos corporativos'],
-      ['Medicos', 'Recetas, informes medicos, analisis'],
-      ['Legales', 'Contratos, poderes, escrituras'],
-    ],
-    theme: 'grid',
-    headStyles: { fillColor: COLORS.secondary, textColor: COLORS.white, fontSize: 10 },
-    bodyStyles: { fontSize: 9, textColor: COLORS.text },
-    alternateRowStyles: { fillColor: COLORS.bgLight },
-    margin: { left: 20, right: 20 },
-  });
+  y = addSection(doc, y, 'MEJORES PRACTICAS', COLORS.success);
+  y = addBox(doc, y, [
+    'HAZ ESTO:',
+    '  Usa el Asistente IA siempre primero',
+    '  Valida datos antes de exportar',
+    '  Prueba con 1 antes de procesar 100',
+    '  Exporta a Excel para analisis facil'
+  ], [209, 250, 229], [5, 150, 105]);
 
-  y = doc.lastAutoTable.finalY + 10;
+  y = addBox(doc, y, [
+    'EVITA ESTO:',
+    '  No ignores el Asistente IA',
+    '  No mezcles tipos de documentos',
+    '  No proceses sin validar primero'
+  ], [254, 226, 226], [220, 38, 38]);
 
-  // Best Practices
-  y = addSectionTitle(doc, y, 'MEJORES PRACTICAS', COLORS.success);
-
-  const doList = [
-    'Usa el Asistente IA siempre primero',
-    'Valida datos antes de exportar',
-    'Prueba con 1 antes de procesar 100',
-    'Exporta a Excel para analisis facil'
-  ];
-
-  y = addInfoBox(doc, y, 'HAZ ESTO:', doList, [209, 250, 229], [5, 150, 105]);
-  y += 3;
-
-  const dontList = [
-    'No ignores el Asistente IA',
-    'No mezcles tipos de documentos',
-    'No proceses sin validar primero'
-  ];
-
-  y = addInfoBox(doc, y, 'EVITA ESTO:', dontList, [254, 226, 226], [220, 38, 38]);
   y += 5;
-
-  // GDPR Badge
-  y = addInfoBox(doc, y, '', [
+  y = addBox(doc, y, [
     'CUMPLIMIENTO GDPR - 100% EUROPEO',
-    'Datos procesados en Europa (Belgica) - No se almacenan permanentemente'
+    'Datos procesados en Europa (Belgica)',
+    'No se almacenan datos permanentemente'
   ], [209, 250, 229], [5, 150, 105]);
 
   doc.save('Verbadoc_Enterprise_Guia_Rapida.pdf');
 }
 
-// FULL GUIDE PDF
+// FULL GUIDE
 export function generateFullGuidePDF() {
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -338,243 +259,202 @@ export function generateFullGuidePDF() {
   });
 
   const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  const totalPages = 4;
-  let currentPage = 1;
 
-  // PAGE 1 - Cover & TOC
-  addProfessionalHeader(doc, 'Verbadoc Enterprise', 'Guia Completa', currentPage, totalPages);
-  addProfessionalFooter(doc);
+  // PAGE 1 - Cover
+  addHeader(doc, 'Guia Completa', 1, 3);
+  addFooter(doc);
 
-  let currentY = 60;
+  let y = 55;
 
-  // Main Title
-  doc.setFontSize(32);
+  doc.setFontSize(28);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...COLORS.primary);
-  doc.text('Guia Completa', 20, currentY);
-  currentY += 12;
-
-  doc.setFontSize(16);
-  doc.setTextColor(...COLORS.textLight);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Verbadoc Enterprise', 20, currentY);
-  currentY += 6;
-
-  doc.setFontSize(12);
-  doc.text('Extraccion profesional de datos con IA', 20, currentY);
-  currentY += 20;
-
-  // Highlight Box
-  currentY = addInfoBox(doc, currentY, 'NUEVO: ASISTENTE IA INTEGRADO', [
-    'Clasifica, valida y segmenta documentos automaticamente usando',
-    'IA avanzada en servidores europeos (Google Vertex AI - Belgica).'
-  ], [243, 232, 255], COLORS.accent);
-
-  currentY += 10;
-
-  // Table of Contents
-  doc.setFillColor(...COLORS.bgLight);
-  doc.roundedRect(20, currentY, pageWidth - 40, 90, 3, 3, 'F');
+  doc.setTextColor(14, 165, 233);
+  doc.text('Guia Completa', 20, y);
+  y += 10;
 
   doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...COLORS.primary);
-  doc.text('INDICE DE CONTENIDOS', 25, currentY + 10);
-
-  currentY += 20;
-  doc.setFontSize(10);
+  doc.setTextColor(100, 116, 139);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...COLORS.text);
+  doc.text('Verbadoc Enterprise', 20, y);
+  y += 5;
 
-  const tocItems = [
+  doc.setFontSize(11);
+  doc.text('Extraccion profesional de datos con IA', 20, y);
+  y += 15;
+
+  y = addBox(doc, y, [
+    'NUEVO: ASISTENTE IA INTEGRADO',
+    'Clasifica, valida y segmenta documentos automaticamente',
+    'IA avanzada en servidores europeos (Google Vertex AI - Belgica)'
+  ], [243, 232, 255], [168, 85, 247]);
+
+  y += 10;
+
+  // TOC
+  doc.setFillColor(248, 250, 252);
+  doc.roundedRect(20, y, pageWidth - 40, 80, 2, 2, 'F');
+
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(14, 165, 233);
+  doc.text('INDICE DE CONTENIDOS', 25, y + 8);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(15, 23, 42);
+
+  const toc = [
     '1. El Asistente IA',
     '2. Guia Paso a Paso',
     '3. Procesamiento en Lote',
     '4. Solucion de Problemas',
     '5. Mejores Practicas',
-    '6. Cumplimiento GDPR',
+    '6. Cumplimiento GDPR'
   ];
 
-  tocItems.forEach(item => {
-    doc.text(item, 30, currentY);
-    currentY += 7;
+  let tocY = y + 18;
+  toc.forEach(item => {
+    doc.text(item, 30, tocY);
+    tocY += 7;
   });
 
   // PAGE 2 - AI Assistant
   doc.addPage();
-  currentPage++;
-  addProfessionalHeader(doc, 'Verbadoc Enterprise', 'Guia Completa', currentPage, totalPages);
-  addProfessionalFooter(doc);
+  addHeader(doc, 'Guia Completa', 2, 3);
+  addFooter(doc);
 
-  currentY = 55;
+  y = 50;
 
-  currentY = addSectionTitle(doc, currentY, '1. EL ASISTENTE IA', COLORS.accent);
+  y = addSection(doc, y, '1. EL ASISTENTE IA', COLORS.accent);
 
-  currentY = addInfoBox(doc, currentY, '', [
-    'Panel inteligente que aparece automaticamente al subir un documento.',
-    'Utiliza Google Vertex AI en servidores europeos (Belgica) para garantizar',
-    'cumplimiento total con regulaciones GDPR.'
-  ], COLORS.bgLight, COLORS.text);
+  y = addBox(doc, y, [
+    'Panel inteligente que aparece al subir un documento.',
+    'Utiliza Google Vertex AI en servidores europeos (Belgica)',
+    'para garantizar cumplimiento GDPR.'
+  ], [248, 250, 252], [15, 23, 42]);
 
-  currentY += 5;
-
-  // Classification
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...COLORS.primary);
-  doc.text('CLASIFICACION AUTOMATICA', 20, currentY);
-  currentY += 6;
+  doc.setTextColor(14, 165, 233);
+  doc.text('CLASIFICACION AUTOMATICA', 20, y);
+  y += 5;
 
-  currentY = addBulletList(doc, currentY, [
+  y = addBullets(doc, y, [
     'Detecta automaticamente el tipo de documento',
     'Genera esquema de extraccion personalizado',
-    'Muestra nivel de confianza e indicadores clave',
-    'Ejemplo: "FACTURA COMERCIAL (95% confianza)"'
+    'Muestra nivel de confianza e indicadores clave'
   ]);
-  currentY += 8;
+  y += 8;
 
-  // Validation
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...COLORS.primary);
-  doc.text('VALIDACION INTELIGENTE', 20, currentY);
-  currentY += 6;
+  doc.text('VALIDACION INTELIGENTE', 20, y);
+  y += 5;
 
-  currentY = addBulletList(doc, currentY, [
+  y = addBullets(doc, y, [
     'Revisa datos extraidos vs documento original',
     'Detecta errores e inconsistencias',
-    'Asigna score de calidad (0-100)',
-    'Ejemplo: "Score 85/100 - 3 problemas detectados"'
+    'Asigna score de calidad (0-100)'
   ]);
-  currentY += 8;
+  y += 8;
 
-  // Segmentation
-  doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...COLORS.primary);
-  doc.text('SEGMENTACION DE PDFs', 20, currentY);
-  currentY += 6;
+  doc.text('SEGMENTACION DE PDFs', 20, y);
+  y += 5;
 
-  currentY = addBulletList(doc, currentY, [
+  y = addBullets(doc, y, [
     'Detecta multiples documentos en un PDF',
     'Identifica inicio y fin de cada documento',
-    'Permite procesarlos por separado',
-    'Ejemplo: "3 documentos: Doc1 (Pag.1-2), Doc2 (Pag.3-4)..."'
+    'Permite procesarlos por separado'
   ]);
+  y += 10;
 
-  // PAGE 3 - Step by Step & Batch Processing
-  doc.addPage();
-  currentPage++;
-  addProfessionalHeader(doc, 'Verbadoc Enterprise', 'Guia Completa', currentPage, totalPages);
-  addProfessionalFooter(doc);
-
-  currentY = 55;
-
-  currentY = addSectionTitle(doc, currentY, '2. GUIA PASO A PASO', COLORS.primary);
+  y = addSection(doc, y, '2. GUIA PASO A PASO', COLORS.primary);
 
   const steps = [
-    ['PASO 1: Abrir Aplicacion', 'Ve a: https://verbadoceuropapro.vercel.app'],
-    ['PASO 2: Subir Documentos', 'Arrastra archivo o click en "Haga clic para subir"'],
-    ['PASO 3: Usar Asistente IA', 'Click "Clasificar Documento" - Espera 5-10 seg'],
-    ['PASO 4: Ejecutar Extraccion', 'Revisa todo, click "Ejecutar Extraccion"'],
-    ['PASO 5: Validar (Opcional)', 'Click "Validar Datos" del Asistente'],
-    ['PASO 6: Exportar', 'Click en "Excel" para descargar'],
+    'PASO 1: Abrir Aplicacion - verbadoceuropapro.vercel.app',
+    'PASO 2: Subir Documentos - Arrastra archivo o click',
+    'PASO 3: Usar Asistente IA - Click "Clasificar Documento"',
+    'PASO 4: Ejecutar Extraccion - Click "Ejecutar Extraccion"',
+    'PASO 5: Validar - Click "Validar Datos" (opcional)',
+    'PASO 6: Exportar - Click en "Excel" para descargar'
   ];
 
-  steps.forEach(([title, desc]) => {
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...COLORS.primaryDark);
-    doc.text(title, 20, currentY);
-    currentY += 5;
+  y = addBullets(doc, y, steps);
 
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...COLORS.text);
-    const lines = doc.splitTextToSize(desc, pageWidth - 50);
-    doc.text(lines, 25, currentY);
-    currentY += lines.length * 5 + 3;
-  });
+  // PAGE 3
+  doc.addPage();
+  addHeader(doc, 'Guia Completa', 3, 3);
+  addFooter(doc);
 
-  currentY += 5;
+  y = 50;
 
-  currentY = addSectionTitle(doc, currentY, '3. PROCESAMIENTO EN LOTE', COLORS.secondary);
+  y = addSection(doc, y, '3. PROCESAMIENTO EN LOTE', COLORS.secondary);
 
-  currentY = addBulletList(doc, currentY, [
+  y = addBullets(doc, y, [
     'Sube todos los archivos (10, 20, 50...)',
     'Selecciona el primer archivo',
     'Usa Asistente IA para clasificarlo',
     'Ejecuta extraccion en el primero',
     'Verifica que resultados sean correctos',
-    'Click en "Procesar Todos"',
-    'Espera a que termine',
-    'Descarga cada resultado'
+    'Click en "Procesar Todos"'
   ]);
+  y += 5;
 
-  currentY += 5;
-
-  currentY = addInfoBox(doc, currentY, 'IMPORTANTE:', [
-    'Todos los archivos deben ser del mismo tipo (ej: todas facturas)'
+  y = addBox(doc, y, [
+    'IMPORTANTE:',
+    'Todos los archivos deben ser del mismo tipo'
   ], [254, 243, 199], [146, 64, 14]);
 
-  // PAGE 4 - Troubleshooting & Best Practices
-  doc.addPage();
-  currentPage++;
-  addProfessionalHeader(doc, 'Verbadoc Enterprise', 'Guia Completa', currentPage, totalPages);
-  addProfessionalFooter(doc);
+  y += 5;
 
-  currentY = 55;
+  y = addSection(doc, y, '4. SOLUCION DE PROBLEMAS', COLORS.danger);
 
-  currentY = addSectionTitle(doc, currentY, '4. SOLUCION DE PROBLEMAS', COLORS.danger);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(15, 23, 42);
 
-  doc.autoTable({
-    startY: currentY,
-    head: [['Problema', 'Solucion']],
-    body: [
-      ['El esquema esta vacio', 'Usa "Clasificar Documento" del Asistente IA'],
-      ['Datos incorrectos', 'Click "Validar Datos", lee sugerencias, ajusta'],
-      ['Error 500', 'Recarga pagina (F5), intenta de nuevo'],
-      ['No clasifica bien', 'Documento complejo. Mejora calidad de escaneo'],
-    ],
-    theme: 'striped',
-    headStyles: { fillColor: COLORS.danger, textColor: COLORS.white, fontSize: 10 },
-    bodyStyles: { fontSize: 9, textColor: COLORS.text },
-    margin: { left: 20, right: 20 },
+  const problems = [
+    ['El esquema esta vacio', 'Usa "Clasificar Documento"'],
+    ['Datos incorrectos', 'Click "Validar Datos"'],
+    ['Error 500', 'Recarga pagina (F5)'],
+    ['No clasifica bien', 'Mejora calidad del escaneo']
+  ];
+
+  problems.forEach(([problem, solution]) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(`- ${problem}:`, 25, y);
+    y += 4;
+    doc.setFont('helvetica', 'normal');
+    doc.text(`  ${solution}`, 27, y);
+    y += 6;
   });
 
-  currentY = doc.lastAutoTable.finalY + 10;
+  y += 5;
 
-  currentY = addSectionTitle(doc, currentY, '5. MEJORES PRACTICAS', COLORS.success);
+  y = addSection(doc, y, '5. MEJORES PRACTICAS', COLORS.success);
 
-  const doList = [
-    'Usa el Asistente IA siempre primero',
-    'Valida datos antes de exportar',
-    'Prueba con 1 antes de procesar 100',
-    'Exporta a Excel para analisis facil',
-    'Usa PDFs nativos (mejor que escaneados)'
-  ];
+  y = addBox(doc, y, [
+    'HAZ ESTO:',
+    '  Usa el Asistente IA siempre primero',
+    '  Valida datos antes de exportar',
+    '  Prueba con 1 antes de procesar 100',
+    '  Usa PDFs nativos (mejor que escaneados)'
+  ], [209, 250, 229], [5, 150, 105]);
 
-  currentY = addInfoBox(doc, currentY, 'HAZ ESTO:', doList, [209, 250, 229], [5, 150, 105]);
-  currentY += 3;
+  y = addBox(doc, y, [
+    'EVITA ESTO:',
+    '  No ignores el Asistente IA',
+    '  No mezcles tipos de documentos',
+    '  No proceses sin validar primero'
+  ], [254, 226, 226], [220, 38, 38]);
 
-  const dontList = [
-    'No ignores el Asistente IA',
-    'No mezcles tipos de documentos',
-    'No proceses sin validar primero',
-    'No uses imagenes de baja calidad'
-  ];
+  y += 5;
 
-  currentY = addInfoBox(doc, currentY, 'EVITA ESTO:', dontList, [254, 226, 226], [220, 38, 38]);
-  currentY += 5;
+  y = addSection(doc, y, '6. CUMPLIMIENTO GDPR', COLORS.success);
 
-  // GDPR Section
-  currentY = addSectionTitle(doc, currentY, '6. CUMPLIMIENTO GDPR - 100% EUROPEO', COLORS.success);
-
-  currentY = addInfoBox(doc, currentY, '', [
-    'TODOS LOS DATOS SE PROCESAN EN EUROPA (BELGICA)',
-    'NO SE ALMACENAN DATOS PERMANENTEMENTE',
-    'CUMPLIMIENTO TOTAL CON REGULACIONES EUROPEAS'
+  y = addBox(doc, y, [
+    '100% EUROPEO',
+    'Datos procesados en Europa (Belgica)',
+    'No se almacenan datos permanentemente',
+    'Cumplimiento total con regulaciones europeas'
   ], [209, 250, 229], [5, 150, 105]);
 
   doc.save('Verbadoc_Enterprise_Guia_Completa.pdf');
