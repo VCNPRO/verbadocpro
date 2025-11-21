@@ -154,15 +154,98 @@ export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false })
     ]);
     const [inputValue, setInputValue] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [showVoiceSettings, setShowVoiceSettings] = useState(false);
+    const [voiceSettings, setVoiceSettings] = useState({
+        enabled: false,
+        voiceName: '',
+        rate: 0.9,
+        pitch: 1.0
+    });
+    const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    // Cargar voces disponibles
+    useEffect(() => {
+        const loadVoices = () => {
+            const voices = speechSynthesis.getVoices();
+            const spanishVoices = voices.filter(v => v.lang.includes('es'));
+            setAvailableVoices(spanishVoices.length > 0 ? spanishVoices : voices);
+
+            // Seleccionar voz por defecto en español
+            if (!voiceSettings.voiceName && spanishVoices.length > 0) {
+                setVoiceSettings(prev => ({
+                    ...prev,
+                    voiceName: spanishVoices[0].name
+                }));
+            }
+        };
+
+        loadVoices();
+        speechSynthesis.onvoiceschanged = loadVoices;
+    }, []);
+
+    // Cargar preferencias guardadas
+    useEffect(() => {
+        const saved = localStorage.getItem('laia-voice-settings');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                setVoiceSettings(parsed);
+            } catch (e) {
+                console.error('Error cargando preferencias de voz:', e);
+            }
+        }
+    }, []);
+
+    // Guardar preferencias cuando cambian
+    useEffect(() => {
+        localStorage.setItem('laia-voice-settings', JSON.stringify(voiceSettings));
+    }, [voiceSettings]);
+
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+
+    // Función para hablar
+    const speak = (text: string) => {
+        if (!('speechSynthesis' in window)) {
+            console.warn('Speech Synthesis no soportado en este navegador');
+            return;
+        }
+
+        if (!voiceSettings.enabled) return;
+
+        // Cancelar cualquier speech en progreso
+        speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        utterance.rate = voiceSettings.rate;
+        utterance.pitch = voiceSettings.pitch;
+
+        // Seleccionar voz
+        const selectedVoice = availableVoices.find(v => v.name === voiceSettings.voiceName);
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        }
+
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+
+        speechSynthesis.speak(utterance);
+    };
+
+    // Función para detener el habla
+    const stopSpeaking = () => {
+        speechSynthesis.cancel();
+        setIsSpeaking(false);
+    };
 
     const handleSend = () => {
         if (!inputValue.trim()) return;
@@ -190,6 +273,9 @@ export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false })
             };
             setMessages(prev => [...prev, laiaMessage]);
             setIsTyping(false);
+
+            // Hablar la respuesta si está activado
+            speak(response);
         }, 800);
     };
 
@@ -244,13 +330,118 @@ export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false })
                                 <p className="text-xs text-white/80">Asistente Virtual</p>
                             </div>
                         </div>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="p-1 hover:bg-white/20 rounded transition-colors"
-                        >
-                            <XIcon className="w-6 h-6 text-white" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                            {/* Botón Toggle Voz */}
+                            <button
+                                onClick={() => {
+                                    if (isSpeaking) {
+                                        stopSpeaking();
+                                    } else {
+                                        setVoiceSettings(prev => ({ ...prev, enabled: !prev.enabled }));
+                                    }
+                                }}
+                                className="p-2 hover:bg-white/20 rounded transition-colors"
+                                title={voiceSettings.enabled ? 'Desactivar voz' : 'Activar voz'}
+                            >
+                                {isSpeaking ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                ) : voiceSettings.enabled ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                                    </svg>
+                                )}
+                            </button>
+
+                            {/* Botón Configuración */}
+                            <button
+                                onClick={() => setShowVoiceSettings(!showVoiceSettings)}
+                                className="p-2 hover:bg-white/20 rounded transition-colors"
+                                title="Configuración de voz"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </button>
+
+                            {/* Botón Cerrar */}
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="p-1 hover:bg-white/20 rounded transition-colors"
+                            >
+                                <XIcon className="w-6 h-6 text-white" />
+                            </button>
+                        </div>
                     </div>
+
+                    {/* Menú de Configuración de Voz */}
+                    {showVoiceSettings && (
+                        <div className="p-4 border-b" style={{ backgroundColor: isLightMode ? '#f9fafb' : '#0f172a', borderColor }}>
+                            <h4 className="text-sm font-semibold mb-3" style={{ color: textColor }}>⚙️ Configuración de Voz</h4>
+
+                            {/* Toggle Activar */}
+                            <div className="flex items-center justify-between mb-3">
+                                <span className="text-sm" style={{ color: textColor }}>Activar voz</span>
+                                <button
+                                    onClick={() => setVoiceSettings(prev => ({ ...prev, enabled: !prev.enabled }))}
+                                    className="relative w-12 h-6 rounded-full transition-colors"
+                                    style={{ backgroundColor: voiceSettings.enabled ? accentColor : '#94a3b8' }}
+                                >
+                                    <div
+                                        className="absolute w-5 h-5 bg-white rounded-full top-0.5 transition-transform"
+                                        style={{ left: voiceSettings.enabled ? '24px' : '2px' }}
+                                    />
+                                </button>
+                            </div>
+
+                            {/* Selector de Voz */}
+                            <div className="mb-3">
+                                <label className="text-xs mb-1 block" style={{ color: textColor }}>Voz:</label>
+                                <select
+                                    value={voiceSettings.voiceName}
+                                    onChange={(e) => setVoiceSettings(prev => ({ ...prev, voiceName: e.target.value }))}
+                                    className="w-full px-2 py-1 rounded border text-sm"
+                                    style={{ backgroundColor: bgColor, borderColor, color: textColor }}
+                                    disabled={!voiceSettings.enabled}
+                                >
+                                    {availableVoices.map(voice => (
+                                        <option key={voice.name} value={voice.name}>
+                                            {voice.name} {voice.lang.includes('es') ? '🇪🇸' : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Control de Velocidad */}
+                            <div>
+                                <label className="text-xs mb-1 block" style={{ color: textColor }}>
+                                    Velocidad: {voiceSettings.rate.toFixed(1)}x
+                                </label>
+                                <input
+                                    type="range"
+                                    min="0.5"
+                                    max="2.0"
+                                    step="0.1"
+                                    value={voiceSettings.rate}
+                                    onChange={(e) => setVoiceSettings(prev => ({ ...prev, rate: parseFloat(e.target.value) }))}
+                                    className="w-full"
+                                    disabled={!voiceSettings.enabled}
+                                />
+                                <div className="flex justify-between text-xs mt-1" style={{ color: isLightMode ? '#6b7280' : '#94a3b8' }}>
+                                    <span>Lento</span>
+                                    <span>Normal</span>
+                                    <span>Rápido</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Messages */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
