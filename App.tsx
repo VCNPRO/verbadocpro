@@ -951,7 +951,7 @@ function AppContent() {
                                 © 2025 verbadoc. Todos los derechos reservados. • Procesamiento 100% en Europa 🇪🇺
                             </p>
                             <p className="text-xs" style={{ color: isLightMode ? '#64748b' : '#64748b' }}>
-                                v2.0 • Powered by Google Gemini AI (Bélgica)
+                                v2.0 • AI Services in Europe (Brussels, Frankfurt, and Dublin)
                             </p>
                         </div>
                     </div>

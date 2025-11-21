@@ -12,68 +12,121 @@ interface ChatbotLaiaProps {
     isLightMode?: boolean;
 }
 
-// Base de conocimiento de Laia basada en las guías de usuario
+// Base de conocimiento de Laia basada en las guías de usuario completas
 const LAIA_KNOWLEDGE = {
     greetings: [
-        "¡Hola! Soy Laia, tu asistente virtual de VerbaDoc Enterprise. ¿En qué puedo ayudarte hoy?",
-        "¡Bienvenido/a! Soy Laia. Estoy aquí para ayudarte con VerbaDoc Enterprise. ¿Qué necesitas saber?",
+        "¡Hola! Soy Laia, tu asistente virtual de verbadoc enterprises. ¿En qué puedo ayudarte hoy?",
+        "¡Bienvenido/a! Soy Laia. Estoy aquí para ayudarte con verbadoc enterprises. ¿Qué necesitas saber?",
     ],
-    quickStart: "Para empezar rápido:\n1️⃣ Sube tu documento (PDF, JPG, PNG)\n2️⃣ Selecciona una plantilla del panel derecho\n3️⃣ Haz clic en 'Ejecutar Extracción'\n4️⃣ Exporta los resultados en Excel, CSV o JSON",
-    templates: "Tenemos plantillas para varios departamentos:\n• General\n• Contabilidad (facturas, gastos)\n• Finanzas (informes)\n• Marketing (presupuestos)\n• Legal (contratos)\n• Recursos Humanos\n\nPuedes crear tus propias plantillas en 'Mis Modelos'.",
-    createTemplate: "Para crear una plantilla:\n1. Ve al panel derecho\n2. Haz clic en 'Mis Modelos' para expandir\n3. Haz clic en 'Crear Nueva Plantilla'\n4. Dale un nombre descriptivo\n5. Escribe el prompt (qué extraer)\n6. Define los campos del esquema\n7. Guarda tu plantilla\n\n⚠️ Recuerda: no uses espacios ni tildes en nombres de campos.",
-    models: "VerbaDoc Enterprise ofrece 3 modelos de IA:\n• **Genérico** 🇪🇺 - Económico, para documentos simples\n• **Recomendado** 🇪🇺 - Equilibrado, para la mayoría de casos\n• **Avanzado** 🇪🇺 - Potente, para documentos complejos\n\nTodos procesados 100% en Europa (Bélgica).",
-    security: "VerbaDoc Enterprise garantiza:\n🇪🇺 Procesamiento 100% en Europa (Bélgica)\n🔒 Cumplimiento RGPD/GDPR\n🏢 Protección de datos empresariales\n🔐 Cifrado TLS 1.3\n📜 Certificaciones: ISO 27001, ISO 27018, SOC 2\n\nTus documentos NO se almacenan en nuestros servidores.",
-    fieldTypes: "Tipos de campos disponibles:\n• STRING - Texto (nombre, dirección)\n• NUMBER - Números (precio, cantidad)\n• BOOLEAN - Sí/No (¿pagado?)\n• ARRAY_OF_STRINGS - Lista de textos\n• ARRAY_OF_OBJECTS - Lista de grupos\n• OBJECT - Grupo de campos",
-    batch: "Para procesar muchos documentos:\n1. Sube todos los archivos similares\n2. Configura el esquema con el primero\n3. Haz clic en 'Procesar Todos'\n4. ¡Todos se procesarán automáticamente!",
-    export: "Puedes exportar en 3 formatos:\n• **Excel** (.xlsx) - Recomendado para análisis\n• **CSV** - Para hojas de cálculo\n• **JSON** - Para sistemas e integraciones",
-    tips: "💡 **Consejos útiles:**\n✅ Usa plantillas para ahorrar tiempo\n✅ Prueba con 1 documento antes de procesar 100\n✅ Modelo Recomendado para docs estándar\n✅ Guarda tus plantillas para reutilizar\n\n❌ **Evita:**\n❌ Mezclar tipos de documentos\n❌ Prompts vagos como 'dame todo'\n❌ Procesar sin probar primero",
-    help: "Puedo ayudarte con:\n• Cómo empezar rápido\n• Crear plantillas personalizadas\n• Tipos de modelos de IA\n• Seguridad y cumplimiento RGPD\n• Tipos de campos\n• Procesamiento en lote\n• Exportar resultados\n• Consejos y mejores prácticas\n\n¿Sobre qué quieres saber más?",
+    whatIsVerbadoc: "**verbadoc enterprises** es una herramienta web profesional que convierte automáticamente documentos no estructurados (PDFs, imágenes, facturas, contratos, etc.) en **datos estructurados** para Excel, bases de datos o sistemas empresariales.\n\n✅ 100% Procesamiento en Europa\n✅ Cumplimiento total GDPR\n✅ Asistente de IA integrado\n✅ Multi-documento inteligente\n✅ Aprende de tus correcciones\n✅ Sin almacenamiento persistente",
+    quickStart: "**INICIO RÁPIDO:**\n\n1️⃣ Sube tu documento (PDF, JPG, PNG)\n2️⃣ Haz clic en '🔍 Clasificar Documento' (Asistente IA)\n3️⃣ La IA configura automáticamente todo\n4️⃣ Haz clic en '🚀 Ejecutar Extracción'\n5️⃣ Valida con '🔍 Validar Datos'\n6️⃣ Exporta en Excel, CSV o JSON\n\n⏱️ Tiempo total: ~15 segundos",
+    aiClassification: "**CLASIFICACIÓN AUTOMÁTICA:**\n\nLa IA analiza visualmente tu documento e identifica el tipo (factura, DNI, contrato, etc.).\n\n✅ Detecta 15+ tipos de documentos\n✅ Configura automáticamente prompt y schema\n✅ Tiempo: 2-5 segundos\n✅ Precisión:\n  • Facturas: 95-98%\n  • DNI/Pasaportes: 90-95%\n  • Contratos: 85-90%\n  • Recetas médicas: 88-92%",
+    aiValidation: "**VALIDACIÓN INTELIGENTE:**\n\nRevisa los datos extraídos para detectar errores.\n\n**Validación Básica (instantánea):**\n✅ Campos vacíos\n✅ Formatos (fechas, emails, CIF/NIF)\n✅ Valores fuera de rango\n\n**Validación Avanzada con IA (2-3 seg):**\n✅ Coherencia matemática (Subtotal + IVA = Total)\n✅ Comparación visual con documento\n✅ Detección OCR mal interpretado\n✅ Sugerencias de corrección",
+    pdfSegmentation: "**SEGMENTACIÓN DE PDFs:**\n\nDetecta múltiples documentos dentro de un mismo PDF.\n\n📄 Funciona con PDFs de 2-50 páginas\n🔍 Identifica cambios de documento\n📊 Extrae cada documento por separado\n⏱️ Tiempo: 10-30 segundos\n\nEjemplo: PDF con 3 facturas → Extrae 3 documentos independientes",
+    templates: "**PLANTILLAS DISPONIBLES:**\n\n📁 **Por Departamento:**\n• Contabilidad: Facturas, gastos, albaranes\n• Finanzas: Informes, estados financieros\n• Marketing: Presupuestos, campañas\n• Legal: Contratos, escrituras\n• RRHH: Nóminas, contratos laborales\n\n✨ **Crear Plantilla Personalizada:**\n1. Panel derecho → 'Mis Modelos'\n2. 'Crear Nueva Plantilla'\n3. Nombre descriptivo\n4. Escribir prompt\n5. Definir campos del schema\n6. Guardar\n\n⚠️ NO uses espacios ni tildes en nombres de campos",
+    models: "**MODELOS DE IA DISPONIBLES:**\n\n🇪🇺 **Genérico** (rápido)\n→ Documentos simples, formularios estándar\n→ Ideal para alto volumen\n→ Tiempo: 3-5 segundos\n\n⭐ **Recomendado** (equilibrado)\n→ Facturas, contratos, informes\n→ Seleccionado por defecto\n→ Tiempo: 5-8 segundos\n\n🚀 **Avanzado** (máxima precisión)\n→ Documentos complejos con múltiples tablas\n→ Para documentos críticos\n→ Tiempo: 10-15 segundos\n\n🇪🇺 Todos procesados en Europa (Brussels, Frankfurt, Dublin)",
+    security: "**SEGURIDAD Y CUMPLIMIENTO:**\n\n🇪🇺 Procesamiento 100% en Europa\n🔒 Cumplimiento RGPD/GDPR\n🏢 Protección datos empresariales\n🔐 Cifrado TLS 1.3\n📜 Certificaciones:\n  • ISO 27001 (Seguridad)\n  • ISO 27018 (Privacidad)\n  • SOC 2 Type II\n\n✅ Tus documentos NO se almacenan\n✅ Procesamiento temporal en memoria\n✅ Borrado automático tras extracción",
+    fieldTypes: "**TIPOS DE CAMPOS:**\n\n• **STRING** - Texto (nombre, dirección, código)\n• **NUMBER** - Números (precio, cantidad, porcentaje)\n• **BOOLEAN** - Verdadero/Falso (sí/no, activo/inactivo)\n• **ARRAY** - Lista simple [\"item1\", \"item2\"]\n• **OBJECT** - Objeto anidado {calle: \"\", ciudad: \"\"}\n• **ARRAY_OF_OBJECTS** - Lista de objetos complejos\n\nEjemplo productos:\n```json\n{\n  \"productos\": [\n    {\"nombre\": \"Laptop\", \"precio\": 899, \"cantidad\": 2},\n    {\"nombre\": \"Mouse\", \"precio\": 25, \"cantidad\": 5}\n  ]\n}\n```",
+    batch: "**PROCESAMIENTO EN LOTE:**\n\n1. Sube todos los archivos similares (hasta 50)\n2. Configura schema con el primer documento\n3. Haz clic en 'Procesar Todos' (panel izquierdo)\n4. ¡Todos se procesan automáticamente!\n\n✅ Ahorra tiempo con documentos repetitivos\n✅ Procesa 100 facturas en minutos\n✅ Exporta todo junto a Excel\n\n⏱️ Tiempo: ~5-8 seg por documento",
+    export: "**EXPORTAR RESULTADOS:**\n\n📊 **Excel (.xlsx)** - Recomendado\n→ Análisis de datos\n→ Gráficos y tablas dinámicas\n→ Fórmulas automáticas\n\n📄 **CSV** - Compatible\n→ Hojas de cálculo simples\n→ Importar a otros sistemas\n\n🔧 **JSON** - Técnico\n→ APIs e integraciones\n→ Sistemas empresariales\n→ Bases de datos\n\n📄 **PDF** - Informes\n→ Compartir resultados\n→ Archivo visual",
+    documentTypes: "**TIPOS DE DOCUMENTOS DETECTADOS:**\n\n✅ Facturas comerciales\n✅ Facturas de proveedor\n✅ Albaranes de entrega\n✅ Contratos laborales\n✅ Contratos de arrendamiento\n✅ DNI/NIE (frontal y completo)\n✅ Pasaportes\n✅ Recetas médicas\n✅ Informes médicos\n✅ Análisis clínicos\n✅ Nóminas\n✅ Certificados empresariales\n✅ Certificados académicos\n✅ Escrituras públicas\n✅ Documentos genéricos",
+    tips: "💡 **CONSEJOS ÚTILES:**\n\n✅ Usa SIEMPRE el Asistente IA (Clasificar Documento)\n✅ Valida los datos antes de exportar\n✅ Prueba con 1 doc antes de procesar 100\n✅ Guarda plantillas para reutilizar\n✅ Modelo Recomendado para docs estándar\n✅ Correcciones → El sistema aprende\n\n❌ **EVITA:**\n❌ Mezclar tipos de documentos diferentes\n❌ Prompts vagos tipo 'extrae todo'\n❌ Documentos > 10 MB\n❌ PDFs protegidos con contraseña\n❌ Imágenes muy borrosas",
+    learning: "**SISTEMA DE APRENDIZAJE:**\n\nCada vez que corriges un error, verbadoc enterprises aprende:\n\n✅ Guarda tu corrección\n✅ Detecta patrones de error\n✅ Aplica correcciones futuras automáticamente\n\n**Mejora de precisión esperada:**\n• Mes 1: 85-87%\n• Mes 3: 91-94%\n• Mes 6: 94-97%\n• Mes 12: 97-99%",
+    pricing: "**GRUPOS DE VOLUMEN:**\n\n📦 Volumen Inicial: Hasta 500 docs/mes\n📦 Volumen Medio: 500-5,000 docs/mes\n📦 Volumen Alto: 5,000+ docs/mes\n📦 Empresarial: Personalizado\n\nContacta al equipo comercial para más información sobre el plan que mejor se adapta a tu organización.",
+    troubleshooting: "**PROBLEMAS COMUNES:**\n\n❌ **Error 'Archivo muy grande'**\n→ Reduce el tamaño a < 10 MB\n→ Usa herramientas de compresión PDF\n\n❌ **'No se detecta texto'**\n→ Asegúrate que el PDF no sea escaneado en baja calidad\n→ Aumenta resolución de escaneo a 300 DPI\n\n❌ **'Datos extraídos incorrectos'**\n→ Usa Validación Inteligente\n→ Cambia a modelo Avanzado\n→ Revisa y corrige manualmente\n\n❌ **'La extracción tarda mucho'**\n→ Normal: 5-15 segundos\n→ Si > 30 seg, recarga la página",
+    interface: "**INTERFAZ DE VERBADOC:**\n\n📍 **Zona Izquierda:** Subir docs, configurar extracción\n📍 **Zona Central:** Vista previa, editor JSON\n📍 **Zona Derecha:** Asistente IA, Plantillas\n📍 **Zona Superior:** Selector modelo, exportación, ayuda\n\n💬 **Chat con Laia:** Botón flotante (yo!)",
+    help: "Puedo ayudarte con:\n\n• ¿Qué es verbadoc enterprises?\n• Inicio rápido paso a paso\n• Clasificación automática de documentos\n• Validación inteligente de datos\n• Segmentación de PDFs multi-documento\n• Crear plantillas personalizadas\n• Modelos de IA disponibles\n• Tipos de documentos detectados\n• Tipos de campos del schema\n• Procesamiento en lote\n• Exportar resultados\n• Seguridad y cumplimiento RGPD\n• Sistema de aprendizaje continuo\n• Solución de problemas\n• Consejos y mejores prácticas\n\n¿Sobre qué quieres saber más?",
 };
 
 const findBestResponse = (userMessage: string): string => {
     const msg = userMessage.toLowerCase();
 
     // Saludos
-    if (msg.match(/hola|buenos|buenas|hey|hi/i)) {
+    if (msg.match(/hola|buenos|buenas|hey|hi|saludos/i)) {
         return LAIA_KNOWLEDGE.greetings[Math.floor(Math.random() * LAIA_KNOWLEDGE.greetings.length)];
     }
 
+    // ¿Qué es verbadoc?
+    if (msg.match(/qué es|que es|para qué|para que|funciona|sirve/i) && msg.match(/verbadoc/i)) {
+        return LAIA_KNOWLEDGE.whatIsVerbadoc;
+    }
+
+    // Interfaz
+    if (msg.match(/interfaz|pantalla|zona|panel|dónde|donde|cómo navegar/i)) {
+        return LAIA_KNOWLEDGE.interface;
+    }
+
     // Inicio rápido
-    if (msg.match(/empezar|comenzar|inicio|rápid|quick|start/i)) {
+    if (msg.match(/empezar|comenzar|inicio|rápid|quick|start|primeros pasos/i)) {
         return LAIA_KNOWLEDGE.quickStart;
     }
 
+    // Clasificación automática
+    if (msg.match(/clasificar|clasificación|detectar tipo|identificar documento|asistente.*ia/i)) {
+        return LAIA_KNOWLEDGE.aiClassification;
+    }
+
+    // Validación
+    if (msg.match(/validar|validación|revisar datos|comprobar|verificar/i)) {
+        return LAIA_KNOWLEDGE.aiValidation;
+    }
+
+    // Segmentación PDF
+    if (msg.match(/segment|multi.*document|múltiples documentos|varios.*pdf|separar.*pdf/i)) {
+        return LAIA_KNOWLEDGE.pdfSegmentation;
+    }
+
+    // Tipos de documentos
+    if (msg.match(/tipos.*documento|qué.*documentos|documentos.*detect|factura|dni|contrato|receta/i) && !msg.match(/campo/i)) {
+        return LAIA_KNOWLEDGE.documentTypes;
+    }
+
     // Plantillas
-    if (msg.match(/plantilla|template|modelo/i) && msg.match(/crear|nueva|hacer|generar/i)) {
-        return LAIA_KNOWLEDGE.createTemplate;
+    if (msg.match(/plantilla|template/i) && msg.match(/crear|nueva|hacer|generar|personalizada/i)) {
+        return LAIA_KNOWLEDGE.templates;
     }
     if (msg.match(/plantilla|template/i)) {
         return LAIA_KNOWLEDGE.templates;
     }
 
     // Modelos de IA
-    if (msg.match(/modelo|ia|inteligencia|gemini|genérico|recomendado|avanzado/i)) {
+    if (msg.match(/modelo|ia|inteligencia|genérico|recomendado|avanzado|cuál.*modelo/i)) {
         return LAIA_KNOWLEDGE.models;
     }
 
     // Seguridad
-    if (msg.match(/seguridad|rgpd|gdpr|cumplimiento|legal|privacidad|europa|certificación/i)) {
+    if (msg.match(/seguridad|rgpd|gdpr|cumplimiento|legal|privacidad|europa|certificación|iso/i)) {
         return LAIA_KNOWLEDGE.security;
     }
 
+    // Sistema de aprendizaje
+    if (msg.match(/aprend|mejora|precisión|entrena/i)) {
+        return LAIA_KNOWLEDGE.learning;
+    }
+
     // Tipos de campos
-    if (msg.match(/campo|tipo|string|number|boolean|array|object/i)) {
+    if (msg.match(/campo|tipo.*dato|string|number|boolean|array|object|schema/i)) {
         return LAIA_KNOWLEDGE.fieldTypes;
     }
 
     // Lote/Batch
-    if (msg.match(/lote|batch|múltiple|muchos|varios documentos/i)) {
+    if (msg.match(/lote|batch|múltiple|muchos|varios.*documento|masiv/i)) {
         return LAIA_KNOWLEDGE.batch;
     }
 
     // Exportar
-    if (msg.match(/exportar|descargar|guardar|excel|csv|json/i)) {
+    if (msg.match(/exportar|descargar|guardar|excel|csv|json|pdf.*result/i)) {
         return LAIA_KNOWLEDGE.export;
+    }
+
+    // Precios
+    if (msg.match(/precio|cost|volumen|plan|cuánto|cuanto|contrat/i)) {
+        return LAIA_KNOWLEDGE.pricing;
+    }
+
+    // Problemas
+    if (msg.match(/problema|error|fallo|no funciona|ayuda.*error|solucion/i)) {
+        return LAIA_KNOWLEDGE.troubleshooting;
     }
 
     // Consejos
@@ -82,20 +135,19 @@ const findBestResponse = (userMessage: string): string => {
     }
 
     // Ayuda general
-    if (msg.match(/ayuda|help|qué puedes|qué sabes/i)) {
+    if (msg.match(/ayuda|help|qué puedes|qué sabes|menú/i)) {
         return LAIA_KNOWLEDGE.help;
     }
 
     // Respuesta por defecto
-    return "Interesante pregunta. Puedo ayudarte con:\n• Inicio rápido\n• Crear plantillas\n• Modelos de IA\n• Seguridad RGPD\n• Procesamiento en lote\n• Exportar resultados\n\n¿Sobre qué quieres saber más específicamente?";
-};
+    return "Interesante pregunta. 🤔\n\nPuedo ayudarte con:\n• ¿Qué es verbadoc enterprises?\n• Inicio rápido\n• Clasificación automática\n• Validación de datos\n• Plantillas y modelos de IA\n• Seguridad RGPD\n• Procesamiento en lote\n• Exportar resultados\n• Solución de problemas\n\n¿Sobre qué quieres saber más específicamente?";};
 
 export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
-            text: '¡Hola! Soy Laia, tu asistente de VerbaDoc Enterprise 🇪🇺\n\n¿En qué puedo ayudarte hoy?',
+            text: '¡Hola! Soy Laia, tu asistente de verbadoc enterprises 🇪🇺\n\nPuedo ayudarte con:\n✨ Inicio rápido\n🤖 Asistente de IA\n📋 Plantillas y modelos\n🔒 Seguridad RGPD\n📊 Exportar resultados\n🛠️ Solución de problemas\n\n¿En qué puedo ayudarte hoy?',
             sender: 'laia',
             timestamp: new Date()
         }
