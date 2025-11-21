@@ -15,8 +15,8 @@ interface ChatbotLaiaProps {
 // Base de conocimiento de Laia basada en las guías de usuario completas
 const LAIA_KNOWLEDGE = {
     greetings: [
-        "¡Hola! Soy Laia, tu asistente virtual de verbadoc enterprises. ¿En qué puedo ayudarte hoy?",
-        "¡Bienvenido/a! Soy Laia. Estoy aquí para ayudarte con verbadoc enterprises. ¿Qué necesitas saber?",
+        "¡Hola! Soy Laia, tu asistente virtual de verbadoc enterprises. Mi nombre es de origen griego y significa 'mujer que se expresa con facilidad'. ¿En qué puedo ayudarte hoy?",
+        "¡Bienvenido/a! Soy Laia, mi nombre es de origen griego y significa 'mujer que se expresa con facilidad'. Estoy aquí para ayudarte con verbadoc enterprises. ¿Qué necesitas saber?",
     ],
     whatIsVerbadoc: "**verbadoc enterprises** es una herramienta web profesional que convierte automáticamente documentos no estructurados (PDFs, imágenes, facturas, contratos, etc.) en **datos estructurados** para Excel, bases de datos o sistemas empresariales.\n\n✅ 100% Procesamiento en Europa\n✅ Cumplimiento total GDPR\n✅ Asistente de IA integrado\n✅ Multi-documento inteligente\n✅ Aprende de tus correcciones\n✅ Sin almacenamiento persistente",
     quickStart: "**INICIO RÁPIDO:**\n\n1️⃣ Sube tu documento (PDF, JPG, PNG)\n2️⃣ Haz clic en '🔍 Clasificar Documento' (Asistente IA)\n3️⃣ La IA configura automáticamente todo\n4️⃣ Haz clic en '🚀 Ejecutar Extracción'\n5️⃣ Valida con '🔍 Validar Datos'\n6️⃣ Exporta en Excel, CSV o JSON\n\n⏱️ Tiempo total: ~15 segundos",
@@ -147,7 +147,7 @@ export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false })
     const [messages, setMessages] = useState<Message[]>([
         {
             id: '1',
-            text: '¡Hola! Soy Laia, tu asistente de verbadoc enterprises 🇪🇺\n\nPuedo ayudarte con:\n✨ Inicio rápido\n🤖 Asistente de IA\n📋 Plantillas y modelos\n🔒 Seguridad RGPD\n📊 Exportar resultados\n🛠️ Solución de problemas\n\n¿En qué puedo ayudarte hoy?',
+            text: '¡Hola! Soy Laia, tu asistente de verbadoc enterprises 🇪🇺\n\nMi nombre es de origen griego y significa "mujer que se expresa con facilidad".\n\nPuedo ayudarte con:\n✨ Inicio rápido\n🤖 Asistente de IA\n📋 Plantillas y modelos\n🔒 Seguridad RGPD\n📊 Exportar resultados\n🛠️ Solución de problemas\n\n¿En qué puedo ayudarte hoy?',
             sender: 'laia',
             timestamp: new Date()
         }
