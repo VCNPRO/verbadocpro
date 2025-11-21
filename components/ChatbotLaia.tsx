@@ -16,7 +16,7 @@ interface ChatbotLaiaProps {
 const LAIA_KNOWLEDGE = {
     greetings: [
         "¡Hola! Soy Laia, tu asistente virtual de verbadoc enterprises. Mi nombre es de origen griego y significa 'mujer que se expresa con facilidad'. ¿En qué puedo ayudarte hoy?",
-        "¡Bienvenido/a! Soy Laia, mi nombre es de origen griego y significa 'mujer que se expresa con facilidad'. Estoy aquí para ayudarte con verbadoc enterprises. ¿Qué necesitas saber?",
+        "¡Bienvenido! Soy Laia, mi nombre es de origen griego y significa 'mujer que se expresa con facilidad'. Estoy aquí para ayudarte con verbadoc enterprises. ¿Qué necesitas saber?",
     ],
     whatIsVerbadoc: "**verbadoc enterprises** es una herramienta web profesional que convierte automáticamente documentos no estructurados (PDFs, imágenes, facturas, contratos, etc.) en **datos estructurados** para Excel, bases de datos o sistemas empresariales.\n\n✅ 100% Procesamiento en Europa\n✅ Cumplimiento total GDPR\n✅ Asistente de IA integrado\n✅ Multi-documento inteligente\n✅ Aprende de tus correcciones\n✅ Sin almacenamiento persistente",
     quickStart: "**INICIO RÁPIDO:**\n\n1️⃣ Sube tu documento (PDF, JPG, PNG)\n2️⃣ Haz clic en '🔍 Clasificar Documento' (Asistente IA)\n3️⃣ La IA configura automáticamente todo\n4️⃣ Haz clic en '🚀 Ejecutar Extracción'\n5️⃣ Valida con '🔍 Validar Datos'\n6️⃣ Exporta en Excel, CSV o JSON\n\n⏱️ Tiempo total: ~15 segundos",
@@ -140,7 +140,7 @@ const findBestResponse = (userMessage: string): string => {
     }
 
     // Respuesta por defecto
-    return "Interesante pregunta. 🤔\n\nPuedo ayudarte con:\n• ¿Qué es verbadoc enterprises?\n• Inicio rápido\n• Clasificación automática\n• Validación de datos\n• Plantillas y modelos de IA\n• Seguridad RGPD\n• Procesamiento en lote\n• Exportar resultados\n• Solución de problemas\n\n¿Sobre qué quieres saber más específicamente?";};
+    return "Puedo ayudarte con:\n• ¿Qué es verbadoc enterprises?\n• Inicio rápido\n• Clasificación automática\n• Validación de datos\n• Plantillas y modelos de IA\n• Seguridad RGPD\n• Procesamiento en lote\n• Exportar resultados\n• Solución de problemas\n\n¿Sobre qué quieres saber más específicamente?";};
 
 export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -224,6 +224,9 @@ export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false })
         // Eliminar variation selectors
         cleaned = cleaned.replace(/[\u{FE00}-\u{FE0F}]/gu, '');
 
+        // Eliminar barras "/" cuando son parte de opciones (a/o, Bienvenido/a, etc.)
+        cleaned = cleaned.replace(/(\w+)\/(\w+)/g, '$1');
+
         // Eliminar bullets y otros símbolos especiales
         cleaned = cleaned.replace(/[•◦▪▫●○■□▶►→⇒←↑↓]/g, '');
 
@@ -234,9 +237,17 @@ export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false })
         cleaned = cleaned.replace(/_{2,}/g, '');           // ___
         cleaned = cleaned.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'); // [text](url)
 
-        // Limpiar múltiples espacios y saltos de línea excesivos
-        cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+        // Convertir saltos de línea en pausas naturales
+        // Doble salto de línea → pausa más larga (. )
+        cleaned = cleaned.replace(/\n\n+/g, '. ');
+        // Salto de línea simple → pausa corta (, )
+        cleaned = cleaned.replace(/\n/g, ', ');
+
+        // Limpiar múltiples espacios
         cleaned = cleaned.replace(/\s{2,}/g, ' ');
+
+        // Limpiar puntuación duplicada
+        cleaned = cleaned.replace(/[.,]{2,}/g, '.');
 
         // Limpiar espacios al inicio y final
         cleaned = cleaned.trim();
