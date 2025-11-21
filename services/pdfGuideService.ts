@@ -247,7 +247,7 @@ export function generateQuickGuidePDF() {
     'No se almacenan datos permanentemente'
   ], [209, 250, 229], [5, 150, 105]);
 
-  doc.save('Verbadoc_Enterprise_Guia_Rapida.pdf');
+  doc.save('verbadoc_enterprises_Guia_Rapida.pdf');
 }
 
 // FULL GUIDE
@@ -457,5 +457,5 @@ export function generateFullGuidePDF() {
     'Cumplimiento total con regulaciones europeas'
   ], [209, 250, 229], [5, 150, 105]);
 
-  doc.save('Verbadoc_Enterprise_Guia_Completa.pdf');
+  doc.save('verbadoc_enterprises_Guia_Completa.pdf');
 }
