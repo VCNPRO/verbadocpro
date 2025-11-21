@@ -211,6 +211,39 @@ export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false })
         scrollToBottom();
     }, [messages]);
 
+    // Función para limpiar texto de emojis y caracteres especiales
+    const cleanTextForSpeech = (text: string): string => {
+        let cleaned = text;
+
+        // Eliminar emojis y símbolos unicode
+        cleaned = cleaned.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F000}-\u{1F02F}]|[\u{1F0A0}-\u{1F0FF}]|[\u{1F100}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F910}-\u{1F96B}]|[\u{1F980}-\u{1F9E0}]/gu, '');
+
+        // Eliminar números con keycaps (1️⃣, 2️⃣, etc.)
+        cleaned = cleaned.replace(/[\u{0030}\u{0031}\u{0032}\u{0033}\u{0034}\u{0035}\u{0036}\u{0037}\u{0038}\u{0039}][\u{FE0F}]?[\u{20E3}]/gu, '');
+
+        // Eliminar variation selectors
+        cleaned = cleaned.replace(/[\u{FE00}-\u{FE0F}]/gu, '');
+
+        // Eliminar bullets y otros símbolos especiales
+        cleaned = cleaned.replace(/[•◦▪▫●○■□▶►→⇒←↑↓]/g, '');
+
+        // Eliminar markdown básico
+        cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '$1'); // **bold**
+        cleaned = cleaned.replace(/\*(.*?)\*/g, '$1');     // *italic*
+        cleaned = cleaned.replace(/`(.*?)`/g, '$1');       // `code`
+        cleaned = cleaned.replace(/_{2,}/g, '');           // ___
+        cleaned = cleaned.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'); // [text](url)
+
+        // Limpiar múltiples espacios y saltos de línea excesivos
+        cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+        cleaned = cleaned.replace(/\s{2,}/g, ' ');
+
+        // Limpiar espacios al inicio y final
+        cleaned = cleaned.trim();
+
+        return cleaned;
+    };
+
     // Función para hablar
     const speak = (text: string) => {
         if (!('speechSynthesis' in window)) {
@@ -223,7 +256,10 @@ export const ChatbotLaia: React.FC<ChatbotLaiaProps> = ({ isLightMode = false })
         // Cancelar cualquier speech en progreso
         speechSynthesis.cancel();
 
-        const utterance = new SpeechSynthesisUtterance(text);
+        // Limpiar el texto de emojis y caracteres especiales
+        const cleanedText = cleanTextForSpeech(text);
+
+        const utterance = new SpeechSynthesisUtterance(cleanedText);
         utterance.lang = 'es-ES';
         utterance.rate = voiceSettings.rate;
         utterance.pitch = voiceSettings.pitch;
