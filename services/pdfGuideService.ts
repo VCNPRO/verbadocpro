@@ -25,7 +25,7 @@ function addHeader(doc: jsPDF, subtitle: string, pageNum: number, totalPages: nu
   doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(255, 255, 255);
-  doc.text('Verbadoc Enterprise', 20, 15);
+  doc.text('verbadoc enterprises', 20, 15);
 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -46,7 +46,7 @@ function addFooter(doc: jsPDF) {
   doc.setTextColor(100, 116, 139);
   doc.setFont('helvetica', 'normal');
   doc.text('100% GDPR - Procesado en Europa', 20, pageHeight - 10);
-  doc.text('verbadoceuropapro.vercel.app', pageWidth - 70, pageHeight - 10);
+  doc.text('verbadoc-enterprises.vercel.app', pageWidth - 70, pageHeight - 10);
 }
 
 // Add section title
@@ -275,7 +275,7 @@ export function generateFullGuidePDF() {
   doc.setFontSize(14);
   doc.setTextColor(100, 116, 139);
   doc.setFont('helvetica', 'normal');
-  doc.text('Verbadoc Enterprise', 20, y);
+  doc.text('verbadoc enterprises', 20, y);
   y += 5;
 
   doc.setFontSize(11);
@@ -369,7 +369,7 @@ export function generateFullGuidePDF() {
   y = addSection(doc, y, '2. GUIA PASO A PASO', COLORS.primary);
 
   const steps = [
-    'PASO 1: Abrir Aplicacion - verbadoceuropapro.vercel.app',
+    'PASO 1: Abrir Aplicacion - verbadoc-enterprises.vercel.app',
     'PASO 2: Subir Documentos - Arrastra archivo o click',
     'PASO 3: Usar Asistente IA - Click "Clasificar Documento"',
     'PASO 4: Ejecutar Extraccion - Click "Ejecutar Extraccion"',
