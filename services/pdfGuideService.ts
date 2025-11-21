@@ -56,7 +56,7 @@ function addSection(doc: jsPDF, y: number, title: string, color: number[]) {
   doc.setFillColor(color[0], color[1], color[2]);
   doc.rect(20, y, pageWidth - 40, 10, 'F');
 
-  doc.setFontSize(11);
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(255, 255, 255);
   doc.text(title, 25, y + 7);
@@ -72,7 +72,7 @@ function addBox(doc: jsPDF, y: number, lines: string[], bgColor: number[], textC
   doc.setFillColor(bgColor[0], bgColor[1], bgColor[2]);
   doc.roundedRect(20, y, pageWidth - 40, height, 2, 2, 'F');
 
-  doc.setFontSize(9);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(textColor[0], textColor[1], textColor[2]);
 
@@ -87,7 +87,7 @@ function addBox(doc: jsPDF, y: number, lines: string[], bgColor: number[], textC
 
 // Add bullet list
 function addBullets(doc: jsPDF, y: number, items: string[]) {
-  doc.setFontSize(9);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(15, 23, 42);
 
@@ -243,7 +243,7 @@ export function generateQuickGuidePDF() {
   y += 5;
   y = addBox(doc, y, [
     'CUMPLIMIENTO GDPR - 100% EUROPEO',
-    'Datos procesados en Europa (Belgica)',
+    'Datos procesados en Europa (Europa)',
     'No se almacenan datos permanentemente'
   ], [209, 250, 229], [5, 150, 105]);
 
@@ -285,7 +285,7 @@ export function generateFullGuidePDF() {
   y = addBox(doc, y, [
     'NUEVO: ASISTENTE IA INTEGRADO',
     'Clasifica, valida y segmenta documentos automaticamente',
-    'IA avanzada en servidores europeos (Google Vertex AI - Belgica)'
+    'IA avanzada 100% procesada en Europa'
   ], [243, 232, 255], [168, 85, 247]);
 
   y += 10;
@@ -329,7 +329,7 @@ export function generateFullGuidePDF() {
 
   y = addBox(doc, y, [
     'Panel inteligente que aparece al subir un documento.',
-    'Utiliza Google Vertex AI en servidores europeos (Belgica)',
+    'IA avanzada procesada 100% en Europa',
     'para garantizar cumplimiento GDPR.'
   ], [248, 250, 252], [15, 23, 42]);
 
@@ -452,7 +452,7 @@ export function generateFullGuidePDF() {
 
   y = addBox(doc, y, [
     '100% EUROPEO',
-    'Datos procesados en Europa (Belgica)',
+    'Datos procesados en Europa (Europa)',
     'No se almacenan datos permanentemente',
     'Cumplimiento total con regulaciones europeas'
   ], [209, 250, 229], [5, 150, 105]);
