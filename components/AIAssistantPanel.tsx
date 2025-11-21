@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { classifyDocument, validateExtractedData } from '../services/aiAgentService.ts';
 import { segmentPDFWithGemini, isPDFFile, getPDFInfo } from '../services/segmentationService.ts';
 import type { SchemaField } from '../types.ts';
+import { BrainIcon } from './Icons';
 
 interface AIAssistantPanelProps {
   file: File | null;
@@ -116,7 +117,9 @@ export function AIAssistantPanel({
   if (!file) {
     return (
       <div className="border rounded-lg p-6 text-center" style={{ backgroundColor: 'hsl(var(--card))', color: 'hsl(var(--card-foreground))' }}>
-        <div className="text-6xl mb-4">🤖</div>
+        <div className="flex justify-center mb-4">
+          <BrainIcon className="w-16 h-16" style={{ color: 'hsl(var(--primary))' }} />
+        </div>
         <h3 className="text-lg font-semibold mb-2">Asistente IA</h3>
         <p className="text-sm" style={{ color: 'hsl(var(--muted-foreground))' }}>
           Sube un documento para activar las funciones inteligentes
@@ -130,7 +133,7 @@ export function AIAssistantPanel({
       {/* Header */}
       <div className="border-b p-4" style={{ backgroundColor: 'hsl(var(--primary) / 0.05)' }}>
         <div className="flex items-center gap-3">
-          <span className="text-3xl">🤖</span>
+          <BrainIcon className="w-8 h-8" style={{ color: 'hsl(var(--primary))' }} />
           <div>
             <h3 className="font-semibold text-lg">Asistente IA</h3>
             <p className="text-xs" style={{ color: 'hsl(var(--muted-foreground))' }}>
