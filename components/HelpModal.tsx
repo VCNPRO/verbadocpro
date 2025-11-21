@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { XIcon, InformationCircleIcon } from './Icons';
-import { generateQuickGuidePDF, generateFullGuidePDF } from '../services/pdfGuideService.ts';
+import { generateQuickGuidePDF } from '../services/pdfGuideService.ts';
 
 interface HelpModalProps {
     isOpen: boolean;
@@ -369,15 +369,16 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
                                 </svg>
                                 Descargar Guía Rápida (PDF)
                             </button>
-                            <button
-                                onClick={() => generateFullGuidePDF()}
+                            <a
+                                href="/docs/Guia_Completa_verbadoc_enterprises.pdf"
+                                download="Guia_Completa_verbadoc_enterprises.pdf"
                                 className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-medium transition-colors text-sm"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                                 Descargar Guía Completa (PDF)
-                            </button>
+                            </a>
                         </div>
 
                         {/* Footer info y botón cerrar */}
