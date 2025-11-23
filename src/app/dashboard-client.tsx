@@ -14,15 +14,7 @@ import {
   Zap,
 } from "lucide-react"
 
-interface DashboardClientProps {
-  user: {
-    userId: string;
-    email: string;
-    role?: 'user' | 'admin';
-  };
-}
-
-export default function DashboardClient({ user }: DashboardClientProps) {
+export default function DashboardClient() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -30,7 +22,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
-            Bienvenido a Verbadoc Enterprise, {user.email}
+            Bienvenido a Verbadoc Enterprise
           </p>
         </div>
 
