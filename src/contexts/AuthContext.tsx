@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 
 interface User {
   id: string;
@@ -29,11 +30,17 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
 
-  // Check authentication on mount
+  // Check authentication on mount, pero no en la página de login
   useEffect(() => {
-    checkAuth();
-  }, []);
+    // Solo verificar auth si no estamos en la página de login
+    if (pathname !== '/login') {
+      checkAuth();
+    } else {
+      setLoading(false);
+    }
+  }, [pathname]);
 
   const checkAuth = async () => {
     try {
@@ -45,10 +52,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const data = await response.json();
         setUser(data.user);
       } else {
+        // 401 es esperado cuando no hay sesión, no es un error
         setUser(null);
       }
     } catch (error) {
-      console.error('Error checking authentication:', error);
+      // Solo loguear errores de red, no errores de autenticación
+      if (process.env.NODE_ENV === 'development') {
+        console.debug('Auth check failed:', error);
+      }
       setUser(null);
     } finally {
       setLoading(false);
