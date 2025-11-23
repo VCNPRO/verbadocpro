@@ -42,12 +42,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Crear usuario
-    const user = await UserDB.create({
-      email,
-      password: hashedPassword,
-      name: name || null,
-      role: 'user'
-    });
+    const user = await UserDB.create(email, hashedPassword, name, 'user');
 
     // Generar JWT
     const jwtSecret = process.env.JWT_SECRET;
