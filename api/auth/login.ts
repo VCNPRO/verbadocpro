@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { UserDB } from '../../src/lib/db';
+import { UserDB } from '../lib/db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS headers

@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { UserDB } from '../../src/lib/db';
+import { UserDB } from '../lib/db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,9 +22,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await UserDB.create(email, hashedPassword, displayName, 'user');
 
-    const token = jwt.sign({ userId: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET!, { expiresIn: '7d' });
     const maxAge = 7 * 24 * 60 * 60;
-    res.setHeader('Set-Cookie', );
+    res.setHeader('Set-Cookie', `auth-token=${token}; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}; Path=/`);
 
     return res.status(201).json({ success: true, user: { uid: user.id, email: user.email, displayName: user.name, role: user.role, createdAt: user.created_at } });
   } catch (error) {
