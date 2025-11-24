@@ -1,7 +1,7 @@
 // DÓNDE: scripts/make-admin.js
 // MISIÓN: Asignar el rol de 'admin' a un usuario por su email.
 
-require('dotenv').config();
+require('dotenv').config({ path: '.env.local' });
 const { sql } = require('@vercel/postgres');
 
 async function makeAdmin(email) {
