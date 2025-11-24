@@ -23,8 +23,8 @@ import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Depa
 import { logActivity } from './src/utils/activityLogger.ts';
 import { AVAILABLE_MODELS, type GeminiModel } from './services/geminiService.ts';
 import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig.ts';
-// MODO MOCK TEMPORAL - Cambiar a './src/contexts/AuthContext.tsx' cuando Firebase esté configurado
-import { AuthProvider, useAuth } from './src/contexts/AuthContext.mock.tsx';
+// Sistema de autenticación real con base de datos
+import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
 import { AuthModal } from './src/components/AuthModal.tsx';
 
 import { Routes, Route, Navigate } from 'react-router-dom';

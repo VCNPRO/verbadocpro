@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-// MODO MOCK TEMPORAL - Cambiar a '../contexts/AuthContext' cuando Firebase esté configurado
-import { useAuth, EuropaDepartment } from '../contexts/AuthContext.mock';
+// Sistema de autenticación real
+import { useAuth, EuropaDepartment } from '../contexts/AuthContext';
 
 interface AuthModalProps {
     isLightMode: boolean;
