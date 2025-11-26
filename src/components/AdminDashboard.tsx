@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { User } from '../../lib/db';
+import { useAuth } from '@/contexts/AuthContext';
+import { User } from '@/lib/db';
 
 export function AdminDashboard({ isLightMode }: { isLightMode: boolean }) {
   const [users, setUsers] = useState<Omit<User, 'password'>[]>([]);

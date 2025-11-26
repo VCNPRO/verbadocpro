@@ -1,31 +1,31 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './src/contexts/AuthContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 // Componentes de la App
-import { FileUploader } from './src/components/FileUploader.tsx';
-import { ExtractionEditor } from './src/components/ExtractionEditor.tsx';
-import { HistoryViewer } from './src/components/HistoryViewer.tsx';
-import { TemplatesPanel } from './src/components/TemplatesPanel.tsx';
-import { PdfViewer } from './src/components/PdfViewer.tsx';
-import { HelpModal } from './src/components/HelpModal.tsx';
-import { SettingsModal } from './src/components/SettingsModal.tsx';
-import { ResultsViewer } from './src/components/ResultsViewer.tsx';
-import { ChatbotLaia } from './src/components/ChatbotLaia.tsx';
-import { AdminDashboard } from './src/components/AdminDashboard.tsx';
-import { AIAssistantPanel } from './src/components/AIAssistantPanel.tsx';
-import { LoginPage } from './src/components/auth/LoginPage.tsx';
-import { RegisterPage } from './src/components/auth/RegisterPage.tsx';
+import { FileUploader } from '@/components/FileUploader.tsx';
+import { ExtractionEditor } from '@/components/ExtractionEditor.tsx';
+import { HistoryViewer } from '@/components/HistoryViewer.tsx';
+import { TemplatesPanel } from '@/components/TemplatesPanel.tsx';
+import { PdfViewer } from '@/components/PdfViewer.tsx';
+import { HelpModal } from '@/components/HelpModal.tsx';
+import { SettingsModal } from '@/components/SettingsModal.tsx';
+import { ResultsViewer } from '@/components/ResultsViewer.tsx';
+import { ChatbotLaia } from '@/components/ChatbotLaia.tsx';
+import { AdminDashboard } from '@/components/AdminDashboard.tsx';
+import { AIAssistantPanel } from '@/components/AIAssistantPanel.tsx';
+import { LoginPage } from '@/components/auth/LoginPage.tsx';
+import { RegisterPage } from '@/components/auth/RegisterPage.tsx';
 
 // Tipos y utilidades
-import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './src/types.ts';
-import { logActivity } from './src/utils/activityLogger.ts';
-import { AVAILABLE_MODELS, type GeminiModel } from './src/services/geminiService.ts';
+import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from '@/types.ts';
+import { logActivity } from '@/utils/activityLogger.ts';
+import { AVAILABLE_MODELS, type GeminiModel } from '@/services/geminiService.ts';
 
 
 // Autenticación
-import { useAuth } from './src/contexts/AuthContext.tsx';
-import { ProtectedRoute, AdminRoute } from './src/components/auth/ProtectedRoute.tsx';
+import { useAuth } from '@/contexts/AuthContext.tsx';
+import { ProtectedRoute, AdminRoute } from '@/components/auth/ProtectedRoute.tsx';
 
 
 function AppContent() {
