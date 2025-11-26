@@ -3,29 +3,29 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './src/contexts/AuthContext';
 
 // Componentes de la App
-import { FileUploader } from './src/components/FileUploader';
-import { ExtractionEditor } from './src/components/ExtractionEditor';
-import { HistoryViewer } from './src/components/HistoryViewer';
-import { TemplatesPanel } from './src/components/TemplatesPanel';
-import { PdfViewer } from './src/components/PdfViewer';
-import { HelpModal } from './src/components/HelpModal';
-import { SettingsModal } from './src/components/SettingsModal';
-import { ResultsViewer } from './src/components/ResultsViewer';
-import { ChatbotLaia } from './src/components/ChatbotLaia';
-import { AdminDashboard } from './src/components/AdminDashboard';
-import { AIAssistantPanel } from './src/components/AIAssistantPanel';
-import { LoginPage } from './src/components/auth/LoginPage';
-import { RegisterPage } from './src/components/auth/RegisterPage';
+import { FileUploader } from './src/components/FileUploader.tsx';
+import { ExtractionEditor } from './src/components/ExtractionEditor.tsx';
+import { HistoryViewer } from './src/components/HistoryViewer.tsx';
+import { TemplatesPanel } from './src/components/TemplatesPanel.tsx';
+import { PdfViewer } from './src/components/PdfViewer.tsx';
+import { HelpModal } from './src/components/HelpModal.tsx';
+import { SettingsModal } from './src/components/SettingsModal.tsx';
+import { ResultsViewer } from './src/components/ResultsViewer.tsx';
+import { ChatbotLaia } from './src/components/ChatbotLaia.tsx';
+import { AdminDashboard } from './src/components/AdminDashboard.tsx';
+import { AIAssistantPanel } from './src/components/AIAssistantPanel.tsx';
+import { LoginPage } from './src/components/auth/LoginPage.tsx';
+import { RegisterPage } from './src/components/auth/RegisterPage.tsx';
 
 // Tipos y utilidades
-import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './src/types';
-import { logActivity } from './src/utils/activityLogger';
-import { AVAILABLE_MODELS, type GeminiModel } from './src/services/geminiService';
+import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './src/types.ts';
+import { logActivity } from './src/utils/activityLogger.ts';
+import { AVAILABLE_MODELS, type GeminiModel } from './src/services/geminiService.ts';
 
 
 // Autenticación
-import { useAuth } from './src/contexts/AuthContext';
-import { ProtectedRoute, AdminRoute } from './src/components/auth/ProtectedRoute';
+import { useAuth } from './src/contexts/AuthContext.tsx';
+import { ProtectedRoute, AdminRoute } from './src/components/auth/ProtectedRoute.tsx';
 
 
 function AppContent() {
