@@ -82,7 +82,7 @@ function AppContent() {
         );
 
         try {
-            const { extractDataFromDocument } = await import('./src/services/geminiService');
+            const { extractDataFromDocument } = await import('@/services/geminiService.ts');
             const extractedData = await extractDataFromDocument(activeFile.file, schema, prompt, selectedModel);
             
             setFiles(currentFiles =>
