@@ -21,7 +21,7 @@ import { RegisterPage } from './src/components/auth/RegisterPage';
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './src/types';
 import { logActivity } from './src/utils/activityLogger';
 import { AVAILABLE_MODELS, type GeminiModel } from './src/services/geminiService';
-import { getDepartamentoById, getDefaultTheme } from './src/utils/departamentosConfig';
+
 
 // Autenticación
 import { useAuth } from './src/contexts/AuthContext';
@@ -38,7 +38,7 @@ function AppContent() {
     const [viewingFile, setViewingFile] = useState<File | null>(null);
     const [isHelpModalOpen, setIsHelpModalOpen] = useState<boolean>(false);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
-    const [currentDepartamento, setCurrentDepartamento] = useState<Departamento>('general');
+    
     const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
     const [showResultsExpanded, setShowResultsExpanded] = useState<boolean>(false);
     const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-1.5-flash-latest');
@@ -47,10 +47,10 @@ function AppContent() {
     const [prompt, setPrompt] = useState<string>('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');
     const [schema, setSchema] = useState<SchemaField[]>([{ id: `field-${Date.now()}`, name: '', type: 'STRING' }]);
 
-    const currentTheme = useMemo(() => {
-        const departamentoInfo = getDepartamentoById(currentDepartamento);
-        return departamentoInfo?.theme || getDefaultTheme();
-    }, [currentDepartamento]);
+    const currentTheme = {
+        primary: 'blue',
+        secondary: 'slate',
+    };
 
     const isLightMode = !isDarkMode;
 
@@ -82,7 +82,7 @@ function AppContent() {
         );
 
         try {
-            const { extractDataFromDocument } = await import('./services/geminiService');
+            const { extractDataFromDocument } = await import('./src/services/geminiService');
             const extractedData = await extractDataFromDocument(activeFile.file, schema, prompt, selectedModel);
             
             setFiles(currentFiles =>
@@ -109,8 +109,7 @@ function AppContent() {
         }
     };
     
-    // Todas las demás funciones de manejo de eventos (handleExtractAll, handleReplay, etc.) van aquí...
-    // ... (Omitido por brevedad, el contenido es el mismo que en el archivo original)
+    // El resto de las funciones de manejo de eventos...
     
     return (
         <div
@@ -175,10 +174,72 @@ function AppContent() {
             </header>
 
             <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-8">
-              {/* Contenido principal de la aplicación */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-16rem)]">
+                <div className="lg:col-span-3 h-full">
+                   <FileUploader
+                      files={files}
+                      setFiles={setFiles}
+                      activeFileId={activeFileId}
+                      onFileSelect={handleFileSelect}
+                      onExtractAll={() => {}}
+                      isLoading={isLoading}
+                      onViewFile={() => {}}
+                      theme={currentTheme}
+                      isLightMode={isLightMode}
+                  />
+                </div>
+                <div className="lg:col-span-6 h-full">
+                  <ExtractionEditor
+                      key={`editor-${selectedTemplate?.id || 'default'}`}
+                      file={activeFile}
+                      template={selectedTemplate}
+                      onUpdateTemplate={() => {}}
+                      onSaveTemplateChanges={() => {}}
+                      schema={schema}
+                      setSchema={setSchema}
+                      prompt={prompt}
+                      setPrompt={setPrompt}
+                      onExtract={handleExtract}
+                      isLoading={isLoading}
+                      theme={currentTheme}
+                      isLightMode={isLightMode}
+                  />
+                </div>
+                <div className="lg:col-span-3 h-full">
+                  <div className="h-full flex flex-col gap-4">
+                      {history.length > 0 && (
+                          <button
+                              onClick={() => setShowResultsExpanded(true)}
+                              className="px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 hover:opacity-90 hover:scale-105 shadow-md"
+                          >
+                              Ver Resultados ({history.length})
+                          </button>
+                      )}
+                      <AIAssistantPanel
+                          file={activeFile?.file || null}
+                          onSchemaGenerated={(schema, prompt) => {
+                              setSchema(schema);
+                              setPrompt(prompt);
+                          }}
+                          onValidationComplete={(validation) => {
+                              console.log('Validación completada:', validation);
+                          }}
+                          extractedData={activeFile?.extractedData}
+                          currentSchema={schema}
+                      />
+                      <div className="flex-1 overflow-auto">
+                          <TemplatesPanel
+                              onSelectTemplate={()=>{}}
+                              currentSchema={schema}
+                              currentPrompt={prompt}
+                              theme={currentTheme}
+                              isLightMode={isLightMode}
+                          />
+                      </div>
+                  </div>
+                </div>
+              </div>
             </main>
-            
-            {/* Footer y otros modales */}
         </div>
     );
 }
