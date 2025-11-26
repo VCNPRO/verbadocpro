@@ -1,35 +1,30 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { kv } from '@vercel/kv';
+import { verifyAdmin } from '../../src/lib/auth';
+import { UserDB } from '../../src/lib/db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // A simple check to see if the request is coming from an authenticated admin.
-  // In a real application, you would use a more robust authentication mechanism.
-  const authHeader = req.headers.authorization;
-  if (authHeader !== `Bearer ${process.env.ADMIN_API_KEY}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', ['GET']);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
-  if (req.method === 'GET') {
-    try {
-      const users = await kv.hgetall('users');
-      return res.status(200).json(users);
-    } catch (error) {
-      return res.status(500).json({ error: 'Failed to fetch users' });
+  try {
+    // Verify that the user is an admin
+    const isAdmin = await verifyAdmin(req);
+    if (!isAdmin) {
+      return res.status(403).json({ error: 'No autorizado' });
     }
-  }
 
-  if (req.method === 'POST') {
-    try {
-      const { userId, quota } = req.body;
-      if (!userId || !quota) {
-        return res.status(400).json({ error: 'Missing userId or quota' });
-      }
-      await kv.hset('users', { [userId]: { quota } });
-      return res.status(200).json({ success: true });
-    } catch (error) {
-      return res.status(500).json({ error: 'Failed to update user' });
-    }
-  }
+    // Fetch all users from the database
+    const users = await UserDB.getAll();
 
-  return res.status(405).json({ error: 'Method not allowed' });
+    // Return the list of users (excluding password hashes)
+    const safeUsers = users.map(({ password, ...user }) => user);
+
+    return res.status(200).json(safeUsers);
+
+  } catch (error: any) {
+    console.error('Error fetching users:', error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
 }

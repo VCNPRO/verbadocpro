@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-// Fix: Use explicit file extension in import.
 import App from './App.tsx';
+import './src/index.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

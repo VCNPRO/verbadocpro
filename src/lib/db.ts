@@ -133,6 +133,17 @@ export const UserDB = {
       ORDER BY created_at DESC
     `;
     return result.rows;
+  },
+
+  // Update user role
+  updateRole: async (id: string, role: 'user' | 'admin'): Promise<User | null> => {
+    const result = await sql<User>`
+      UPDATE users
+      SET role = ${role}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+      RETURNING id, email, password, name, role, client_id, created_at, updated_at
+    `;
+    return result.rows[0] || null;
   }
 };
 
