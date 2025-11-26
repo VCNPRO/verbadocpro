@@ -3,25 +3,25 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './src/contexts/AuthContext';
 
 // Componentes de la App
-import { FileUploader } from './components/FileUploader';
-import { ExtractionEditor } from './components/ExtractionEditor';
-import { HistoryViewer } from './components/HistoryViewer';
-import { TemplatesPanel } from './components/TemplatesPanel';
-import { PdfViewer } from './components/PdfViewer';
-import { HelpModal } from './components/HelpModal';
-import { SettingsModal } from './components/SettingsModal';
-import { ResultsViewer } from './components/ResultsViewer';
-import { ChatbotLaia } from './components/ChatbotLaia';
-import { AdminDashboard } from './components/AdminDashboard';
-import { AIAssistantPanel } from './components/AIAssistantPanel';
-import { LoginPage } from './components/auth/LoginPage';
-import { RegisterPage } from './components/auth/RegisterPage';
+import { FileUploader } from './src/components/FileUploader';
+import { ExtractionEditor } from './src/components/ExtractionEditor';
+import { HistoryViewer } from './src/components/HistoryViewer';
+import { TemplatesPanel } from './src/components/TemplatesPanel';
+import { PdfViewer } from './src/components/PdfViewer';
+import { HelpModal } from './src/components/HelpModal';
+import { SettingsModal } from './src/components/SettingsModal';
+import { ResultsViewer } from './src/components/ResultsViewer';
+import { ChatbotLaia } from './src/components/ChatbotLaia';
+import { AdminDashboard } from './src/components/AdminDashboard';
+import { AIAssistantPanel } from './src/components/AIAssistantPanel';
+import { LoginPage } from './src/components/auth/LoginPage';
+import { RegisterPage } from './src/components/auth/RegisterPage';
 
 // Tipos y utilidades
-import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types';
+import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './src/types';
 import { logActivity } from './src/utils/activityLogger';
-import { AVAILABLE_MODELS, type GeminiModel } from './services/geminiService';
-import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig';
+import { AVAILABLE_MODELS, type GeminiModel } from './src/services/geminiService';
+import { getDepartamentoById, getDefaultTheme } from './src/utils/departamentosConfig';
 
 // Autenticación
 import { useAuth } from './src/contexts/AuthContext';
