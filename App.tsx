@@ -724,18 +724,36 @@ function AppContent() {
                         />
                     </div>
                     <div className="lg:col-span-3 h-full">
-                        <AIAssistantPanel
-                            file={activeFile?.file || null}
-                            onSchemaGenerated={(generatedSchema, generatedPrompt) => {
-                                setSchema(generatedSchema);
-                                setPrompt(generatedPrompt);
-                            }}
-                            onValidationComplete={(validationResult) => {
-                                console.log('Validación completada:', validationResult);
-                            }}
-                            extractedData={activeFile?.extractedData}
-                            currentSchema={schema}
-                        />
+                        <div className="h-full flex flex-col gap-4">
+                            {/* AI Assistant Panel - Top half */}
+                            <div className="flex-1 overflow-auto">
+                                <AIAssistantPanel
+                                    file={activeFile?.file || null}
+                                    onSchemaGenerated={(generatedSchema, generatedPrompt) => {
+                                        setSchema(generatedSchema);
+                                        setPrompt(generatedPrompt);
+                                    }}
+                                    onValidationComplete={(validationResult) => {
+                                        console.log('Validación completada:', validationResult);
+                                    }}
+                                    extractedData={activeFile?.extractedData}
+                                    currentSchema={schema}
+                                />
+                            </div>
+
+                            {/* Templates Panel - Bottom half */}
+                            <div className="flex-1 overflow-auto">
+                                <TemplatesPanel
+                                    onSelectTemplate={handleSelectTemplate}
+                                    currentSchema={schema}
+                                    currentPrompt={prompt}
+                                    onDepartamentoChange={handleDepartamentoChange}
+                                    currentDepartamento={currentDepartamento}
+                                    theme={currentTheme}
+                                    isLightMode={isLightMode}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
