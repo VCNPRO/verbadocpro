@@ -17,6 +17,7 @@ import { SettingsModal } from './components/SettingsModal.tsx';
 import { ResultsViewer } from './components/ResultsViewer.tsx';
 import { ChatbotLaia } from './components/ChatbotLaia.tsx';
 import { AdminDashboard } from './components/AdminDashboard.tsx';
+import { AIAssistantPanel } from './components/AIAssistantPanel.tsx';
 // Fix: Use explicit file extension in import.
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
@@ -51,6 +52,7 @@ function AppContent() {
     const [showResultsExpanded, setShowResultsExpanded] = useState<boolean>(false);
     const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
     const [isDarkMode, setIsDarkMode] = useState<boolean>(true); // Default to dark mode
+    const [activeTab, setActiveTab] = useState<'extractor' | 'historial' | 'plantillas'>('extractor');
 
     // State for the editor, which can be reused across different files
     const [prompt, setPrompt] = useState<string>('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');
@@ -692,70 +694,154 @@ function AppContent() {
                 </div>
             </header>
 
+            {/* Navigation Tabs */}
+            <nav className="border-b transition-colors duration-500 px-4 sm:px-6 lg:px-8" style={{
+                backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
+                borderBottomColor: isDarkMode ? '#475569' : '#e2e8f0'
+            }}>
+                <div className="flex gap-2 py-3">
+                    <button
+                        onClick={() => setActiveTab('extractor')}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
+                        style={{
+                            backgroundColor: activeTab === 'extractor'
+                                ? (isLightMode ? '#3b82f6' : '#06b6d4')
+                                : (isLightMode ? '#f1f5f9' : '#334155'),
+                            color: activeTab === 'extractor' ? '#ffffff' : (isLightMode ? '#475569' : '#94a3b8')
+                        }}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Extractor
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('historial')}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
+                        style={{
+                            backgroundColor: activeTab === 'historial'
+                                ? (isLightMode ? '#3b82f6' : '#06b6d4')
+                                : (isLightMode ? '#f1f5f9' : '#334155'),
+                            color: activeTab === 'historial' ? '#ffffff' : (isLightMode ? '#475569' : '#94a3b8')
+                        }}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Historial
+                        {history.length > 0 && (
+                            <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold" style={{
+                                backgroundColor: isLightMode ? '#10b981' : '#22c55e',
+                                color: '#ffffff'
+                            }}>
+                                {history.length > 99 ? '99+' : history.length}
+                            </span>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('plantillas')}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 text-sm font-medium"
+                        style={{
+                            backgroundColor: activeTab === 'plantillas'
+                                ? (isLightMode ? '#3b82f6' : '#06b6d4')
+                                : (isLightMode ? '#f1f5f9' : '#334155'),
+                            color: activeTab === 'plantillas' ? '#ffffff' : (isLightMode ? '#475569' : '#94a3b8')
+                        }}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                        </svg>
+                        Plantillas
+                    </button>
+                </div>
+            </nav>
+
             <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-16rem)]">
-                    <div className="lg:col-span-3 h-full">
-                         <FileUploader
-                            files={files}
-                            setFiles={setFiles}
-                            activeFileId={activeFileId}
-                            onFileSelect={handleFileSelect}
-                            onExtractAll={handleExtractAll}
-                            isLoading={isLoading}
-                            onViewFile={handleViewFile}
-                            theme={currentTheme}
-                            isLightMode={isLightMode}
-                        />
-                    </div>
-                    <div className="lg:col-span-6 h-full">
-                        <ExtractionEditor
-                            key={`editor-${selectedTemplate?.id || 'default'}`}
-                            file={activeFile}
-                            template={selectedTemplate}
-                            onUpdateTemplate={handleUpdateHealthTemplate}
-                            onSaveTemplateChanges={handleSaveTemplateChanges}
-                            schema={schema}
-                            setSchema={setSchema}
-                            prompt={prompt}
-                            setPrompt={setPrompt}
-                            onExtract={handleExtract}
-                            isLoading={isLoading}
-                            theme={currentTheme}
-                            isLightMode={isLightMode}
-                        />
-                    </div>
-                    <div className="lg:col-span-3 h-full">
-                        <div className="h-full flex flex-col">
-                            {/* Botón para ver resultados en vista expandida */}
-                            {history.length > 0 && (
-                                <button
-                                    onClick={() => setShowResultsExpanded(true)}
-                                    className="mb-2 px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 hover:opacity-90 hover:scale-105 shadow-md"
-                                    style={{
-                                        backgroundColor: isLightMode ? '#2563eb' : '#06b6d4',
-                                        color: '#ffffff'
-                                    }}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    Ver Resultados ({history.length})
-                                </button>
-                            )}
-                            <div className="flex-1">
-                                <TemplatesPanel
-                                    onSelectTemplate={handleSelectTemplate}
-                                    currentSchema={schema}
-                                    currentPrompt={prompt}
-                                    onDepartamentoChange={handleDepartamentoChange}
-                                    currentDepartamento={currentDepartamento}
-                                    theme={currentTheme}
-                                    isLightMode={isLightMode}
-                                />
-                            </div>
+                {/* Tab: Extractor */}
+                {activeTab === 'extractor' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-16rem)]">
+                        {/* File Uploader - 3 columns */}
+                        <div className="lg:col-span-3 h-full">
+                            <FileUploader
+                                files={files}
+                                setFiles={setFiles}
+                                activeFileId={activeFileId}
+                                onFileSelect={handleFileSelect}
+                                onExtractAll={handleExtractAll}
+                                isLoading={isLoading}
+                                onViewFile={handleViewFile}
+                                theme={currentTheme}
+                                isLightMode={isLightMode}
+                            />
+                        </div>
+
+                        {/* Extraction Editor - 6 columns */}
+                        <div className="lg:col-span-6 h-full">
+                            <ExtractionEditor
+                                key={`editor-${selectedTemplate?.id || 'default'}`}
+                                file={activeFile}
+                                template={selectedTemplate}
+                                onUpdateTemplate={handleUpdateHealthTemplate}
+                                onSaveTemplateChanges={handleSaveTemplateChanges}
+                                schema={schema}
+                                setSchema={setSchema}
+                                prompt={prompt}
+                                setPrompt={setPrompt}
+                                onExtract={handleExtract}
+                                isLoading={isLoading}
+                                theme={currentTheme}
+                                isLightMode={isLightMode}
+                            />
+                        </div>
+
+                        {/* AI Assistant Panel - 3 columns */}
+                        <div className="lg:col-span-3 h-full">
+                            <AIAssistantPanel
+                                file={activeFile?.file || null}
+                                onSchemaGenerated={(generatedSchema, generatedPrompt) => {
+                                    setSchema(generatedSchema);
+                                    setPrompt(generatedPrompt);
+                                }}
+                                onValidationComplete={(validationResult) => {
+                                    console.log('Validación completada:', validationResult);
+                                }}
+                                extractedData={activeFile?.extractedData}
+                                currentSchema={schema}
+                            />
                         </div>
                     </div>
-                </div>
+                )}
+
+                {/* Tab: Historial */}
+                {activeTab === 'historial' && (
+                    <div className="mx-auto max-w-7xl">
+                        <ResultsViewer
+                            results={history}
+                            theme={currentTheme}
+                            isLightMode={isLightMode}
+                            onClearHistory={handleClearHistory}
+                            onExportHistory={handleExportHistory}
+                            onExportExcel={handleExportExcel}
+                            onExportAllPDFs={handleExportAllPDFs}
+                            onImportHistory={handleImportHistory}
+                        />
+                    </div>
+                )}
+
+                {/* Tab: Plantillas */}
+                {activeTab === 'plantillas' && (
+                    <div className="mx-auto max-w-7xl">
+                        <TemplatesPanel
+                            onSelectTemplate={handleSelectTemplate}
+                            currentSchema={schema}
+                            currentPrompt={prompt}
+                            onDepartamentoChange={handleDepartamentoChange}
+                            currentDepartamento={currentDepartamento}
+                            theme={currentTheme}
+                            isLightMode={isLightMode}
+                        />
+                    </div>
+                )}
             </main>
 
             <PdfViewer
