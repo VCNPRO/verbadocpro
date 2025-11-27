@@ -576,7 +576,7 @@ function AppContent() {
 
     return (
         <div
-            className="min-h-screen font-sans transition-colors duration-500 flex flex-col"
+            className="min-h-screen font-sans transition-colors duration-500"
             style={{
                 backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff', // Light blue for light mode
                 color: isDarkMode ? '#e2e8f0' : '#0f172a'
@@ -692,8 +692,8 @@ function AppContent() {
                 </div>
             </header>
 
-            <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-16rem)]">
+            <main className="p-4 sm:p-6 lg:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" style={{height: 'calc(100vh - 112px)'}}>
                     <div className="lg:col-span-3 h-full">
                         <FileUploader
                             files={files}
@@ -709,11 +709,9 @@ function AppContent() {
                     </div>
                     <div className="lg:col-span-6 h-full">
                         <ExtractionEditor
-                            key={`editor-${selectedTemplate?.id || 'default'}`}
                             file={activeFile}
                             template={selectedTemplate}
                             onUpdateTemplate={handleUpdateHealthTemplate}
-                            onSaveTemplateChanges={handleSaveTemplateChanges}
                             schema={schema}
                             setSchema={setSchema}
                             prompt={prompt}
@@ -725,12 +723,12 @@ function AppContent() {
                         />
                     </div>
                     <div className="lg:col-span-3 h-full">
-                        <div className="h-full flex flex-col gap-4">
+                        <div className="h-full flex flex-col">
                             {/* Botón para ver resultados en vista expandida */}
                             {history.length > 0 && (
                                 <button
                                     onClick={() => setShowResultsExpanded(true)}
-                                    className="px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 hover:opacity-90 hover:scale-105 shadow-md"
+                                    className="mb-2 px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 hover:opacity-90 hover:scale-105 shadow-md"
                                     style={{
                                         backgroundColor: isLightMode ? '#2563eb' : '#06b6d4',
                                         color: '#ffffff'
