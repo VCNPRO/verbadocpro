@@ -17,6 +17,7 @@ import { SettingsModal } from './components/SettingsModal.tsx';
 import { ResultsViewer } from './components/ResultsViewer.tsx';
 import { ChatbotLaia } from './components/ChatbotLaia.tsx';
 import { AdminDashboard } from './components/AdminDashboard.tsx';
+import { AIAssistantPanel } from './components/AIAssistantPanel.tsx';
 // Fix: Use explicit file extension in import.
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
@@ -723,24 +724,25 @@ function AppContent() {
                         />
                     </div>
                     <div className="lg:col-span-3 h-full">
-                        <div className="h-full flex flex-col">
-                            {/* Botón para ver resultados en vista expandida */}
-                            {history.length > 0 && (
-                                <button
-                                    onClick={() => setShowResultsExpanded(true)}
-                                    className="mb-2 px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 hover:opacity-90 hover:scale-105 shadow-md"
-                                    style={{
-                                        backgroundColor: isLightMode ? '#2563eb' : '#06b6d4',
-                                        color: '#ffffff'
+                        <div className="h-full flex flex-col overflow-auto">
+                            {/* AI Assistant Panel */}
+                            <div className="mb-4">
+                                <AIAssistantPanel
+                                    file={activeFile?.file || null}
+                                    onSchemaGenerated={(generatedSchema, generatedPrompt) => {
+                                        setSchema(generatedSchema);
+                                        setPrompt(generatedPrompt);
                                     }}
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    Ver Resultados ({history.length})
-                                </button>
-                            )}
-                            <div className="flex-1">
+                                    onValidationComplete={(validationResult) => {
+                                        console.log('Validación completada:', validationResult);
+                                    }}
+                                    extractedData={activeFile?.extractedData}
+                                    currentSchema={schema}
+                                />
+                            </div>
+
+                            {/* Templates Panel */}
+                            <div>
                                 <TemplatesPanel
                                     onSelectTemplate={handleSelectTemplate}
                                     currentSchema={schema}
