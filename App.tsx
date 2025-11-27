@@ -692,8 +692,8 @@ function AppContent() {
                 </div>
             </header>
 
-            <main className="p-4 sm:p-6 lg:p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" style={{height: 'calc(100vh - 112px)'}}>
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-8">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[calc(100vh-16rem)]">
                     <div className="lg:col-span-3 h-full">
                         <FileUploader
                             files={files}
@@ -725,12 +725,12 @@ function AppContent() {
                         />
                     </div>
                     <div className="lg:col-span-3 h-full">
-                        <div className="h-full flex flex-col">
+                        <div className="h-full flex flex-col gap-4">
                             {/* Botón para ver resultados en vista expandida */}
                             {history.length > 0 && (
                                 <button
                                     onClick={() => setShowResultsExpanded(true)}
-                                    className="mb-2 px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 hover:opacity-90 hover:scale-105 shadow-md"
+                                    className="px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 hover:opacity-90 hover:scale-105 shadow-md"
                                     style={{
                                         backgroundColor: isLightMode ? '#2563eb' : '#06b6d4',
                                         color: '#ffffff'
