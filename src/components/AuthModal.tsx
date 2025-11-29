@@ -78,7 +78,7 @@ export function AuthModal({ isLightMode }: AuthModalProps) {
                         className="text-3xl font-bold mb-2"
                         style={{ color: accentColor }}
                     >
-                        verbadoc enterprise
+                        VerbadocPro Europa
                     </h1>
                     <p className="text-sm" style={{ color: textColor, opacity: 0.7 }}>
                         Extracción Inteligente de Datos
