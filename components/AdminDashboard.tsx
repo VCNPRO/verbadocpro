@@ -92,7 +92,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ isLightMode = fa
                     <div>
                         <h1 className="text-3xl font-bold mb-2">Panel de Administración</h1>
                         <p className="text-sm" style={{ color: isLightMode ? '#6b7280' : '#94a3b8' }}>
-                            VerbaDoc Enterprise • Sistema de Control
+                            VerbadocPro Europa • Sistema de Control
                         </p>
                     </div>
                     <div className="flex gap-3">

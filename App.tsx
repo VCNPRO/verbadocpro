@@ -598,7 +598,7 @@ function AppContent() {
                                 style={{
                                     color: isLightMode ? '#1e3a8a' : '#f1f5f9'
                                 }}
-                            >verbadoc enterprise</h1>
+                            >VerbadocPro Europa</h1>
                             <p
                                 className="text-sm font-sans transition-colors duration-500"
                                 style={{
