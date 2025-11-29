@@ -1,8 +1,8 @@
-# 📘 Guía de Usuario - Verbadoc Enterprise
+# 📘 Guía de Usuario - verbadoc pro europa
 
 ## 🎯 ¿Qué es esta herramienta?
 
-**Verbadoc Enterprise** es una aplicación web profesional que extrae información de documentos (PDFs, imágenes, textos) de forma automática usando Inteligencia Artificial avanzada.
+**verbadoc pro europa** es una aplicación web profesional que extrae información de documentos (PDFs, imágenes, textos) de forma automática usando Inteligencia Artificial avanzada.
 
 **En palabras simples:** Subes un documento (como una factura, contrato o formulario), el **Asistente IA** lo analiza automáticamente, y obtienes los datos organizados en formato Excel o CSV.
 

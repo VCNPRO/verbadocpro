@@ -1,4 +1,4 @@
-# 🤖 Guía del Agente IA - VerbaDoc Enterprise
+# 🤖 Guía del Agente IA - verbadoc pro europa
 
 ## 📋 Tabla de Contenidos
 
@@ -14,7 +14,7 @@
 
 ## 🎯 Introducción
 
-El **Agente IA de VerbaDoc Enterprise** transforma el procesamiento manual de documentos en un sistema inteligente y automatizado. El sistema aprende de tus correcciones y mejora continuamente.
+El **Agente IA de verbadoc pro europa** transforma el procesamiento manual de documentos en un sistema inteligente y automatizado. El sistema aprende de tus correcciones y mejora continuamente.
 
 ### ¿Qué hace el Agente IA?
 

@@ -1,4 +1,4 @@
-# ⚡ Guía Rápida - Verbadoc Enterprise
+# ⚡ Guía Rápida - verbadoc pro europa
 
 ## 🚀 Empieza en 3 Minutos
 
@@ -172,4 +172,4 @@ El asistente puede ayudarte a entender qué salió mal:
 
 ---
 
-**Verbadoc Enterprise** - Extracción profesional de datos con IA
+**verbadoc pro europa** - Extracción profesional de datos con IA

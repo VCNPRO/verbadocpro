@@ -1,4 +1,4 @@
-# 📘 Guía Completa de Usuario - verbadoc enterprises
+# 📘 Guía Completa de Usuario - verbadoc pro europa
 
 **Extracción Inteligente de Datos con Inteligencia Artificial 100% Europea**
 
@@ -6,9 +6,9 @@
 
 ## 📖 Índice
 
-1. [¿Qué es verbadoc enterprises?](#qué-es-verbadoc-enterprises)
+1. [¿Qué es verbadoc pro europa?](#qué-es-verbadoc-enterprises)
 2. [Primeros Pasos](#primeros-pasos)
-3. [Cómo Usar verbadoc enterprises - Paso a Paso](#cómo-usar-verbadoc-enterprises---paso-a-paso)
+3. [Cómo Usar verbadoc pro europa - Paso a Paso](#cómo-usar-verbadoc-enterprises---paso-a-paso)
 4. [El Asistente de IA - Funcionalidades Explicadas](#el-asistente-de-ia---funcionalidades-explicadas)
 5. [Modelos de IA Disponibles](#modelos-de-ia-disponibles)
 6. [Gestión de Archivos y Plantillas](#gestión-de-archivos-y-plantillas)
@@ -20,19 +20,19 @@
 
 ---
 
-## 🎯 ¿Qué es verbadoc enterprises?
+## 🎯 ¿Qué es verbadoc pro europa?
 
-**verbadoc enterprises** es una herramienta web profesional que convierte automáticamente documentos no estructurados (PDFs, imágenes, facturas, contratos, etc.) en **datos estructurados** que puedes usar directamente en Excel, bases de datos o sistemas empresariales.
+**verbadoc pro europa** es una herramienta web profesional que convierte automáticamente documentos no estructurados (PDFs, imágenes, facturas, contratos, etc.) en **datos estructurados** que puedes usar directamente en Excel, bases de datos o sistemas empresariales.
 
-### ¿Qué hace verbadoc enterprises?
+### ¿Qué hace verbadoc pro europa?
 
-Imagina que tienes 100 facturas en PDF. En lugar de teclear manualmente todos los datos, subes los archivos a verbadoc enterprises y en pocos minutos obtienes:
+Imagina que tienes 100 facturas en PDF. En lugar de teclear manualmente todos los datos, subes los archivos a verbadoc pro europa y en pocos minutos obtienes:
 - ✅ Una tabla Excel con todos los datos extraídos (cliente, fecha, productos, total)
 - ✅ Archivos JSON o CSV para integrar en tu sistema
 - ✅ Validación automática de que los datos son correctos
 - ✅ Clasificación inteligente del tipo de documento
 
-### ¿Para quién es verbadoc enterprises?
+### ¿Para quién es verbadoc pro europa?
 
 - 💼 **Contabilidad**: Extraer datos de facturas, recibos, albaranes
 - 👔 **RRHH**: Procesar nóminas, contratos laborales, CVs
@@ -41,7 +41,7 @@ Imagina que tienes 100 facturas en PDF. En lugar de teclear manualmente todos lo
 - 📊 **Marketing**: Procesar presupuestos, análisis de campañas
 - 🏥 **Salud**: Recetas médicas, informes clínicos, análisis
 
-### ¿Qué hace diferente a verbadoc enterprises?
+### ¿Qué hace diferente a verbadoc pro europa?
 
 ✅ **100% Procesamiento en Europa** - Tus datos nunca salen de la UE
 ✅ **Cumplimiento total con GDPR** - Certificaciones ISO 27001, SOC 2
@@ -50,7 +50,7 @@ Imagina que tienes 100 facturas en PDF. En lugar de teclear manualmente todos lo
 ✅ **Aprende de tus correcciones** - Se vuelve más preciso con el uso
 ✅ **Sin almacenamiento persistente** - No guardamos tus documentos en servidores
 
-### ¿Qué NO hace verbadoc enterprises?
+### ¿Qué NO hace verbadoc pro europa?
 
 ❌ No es un OCR simple (es mucho más inteligente)
 ❌ No almacena tus documentos (procesamiento temporal)
@@ -61,10 +61,10 @@ Imagina que tienes 100 facturas en PDF. En lugar de teclear manualmente todos lo
 
 ## 🚀 Primeros Pasos
 
-### Paso 1: Acceder a verbadoc enterprises
+### Paso 1: Acceder a verbadoc pro europa
 
 1. Abre tu navegador (Chrome, Firefox, Edge recomendados)
-2. Ve a: **https://verbadoc-enterprises.vercel.app**
+2. Ve a: **https://www.verbadocpro.eu**
 3. Si es tu primera vez, haz clic en **"Registrarse"**
 4. Introduce tu email corporativo y crea una contraseña
 5. Verifica tu email
@@ -103,7 +103,7 @@ Cuando entras, ves **3 zonas principales**:
 
 ### Paso 3: Planes y Volúmenes
 
-verbadoc enterprises ofrece diferentes **grupos de contratación según volumen**:
+verbadoc pro europa ofrece diferentes **grupos de contratación según volumen**:
 
 - **Volumen Inicial**: Hasta 500 documentos/mes
 - **Volumen Medio**: Entre 500 y 5,000 documentos/mes
@@ -114,7 +114,7 @@ Contacta con el equipo comercial para conocer el plan que mejor se adapta a tu o
 
 ---
 
-## 📝 Cómo Usar verbadoc enterprises - Paso a Paso
+## 📝 Cómo Usar verbadoc pro europa - Paso a Paso
 
 ### MODO BÁSICO: Sin Asistente de IA
 
@@ -391,7 +391,7 @@ Cada vez que corriges un error:
 
 ## 🤖 El Asistente de IA - Funcionalidades Explicadas
 
-El **Asistente de IA** es el corazón de verbadoc enterprises. Aquí explicamos en detalle cada una de sus funcionalidades.
+El **Asistente de IA** es el corazón de verbadoc pro europa. Aquí explicamos en detalle cada una de sus funcionalidades.
 
 ### 1. 🔍 Clasificación Automática de Documentos
 
@@ -581,7 +581,7 @@ Si solo quieres escribir el **prompt** (en lenguaje natural) y que la IA genere 
 
 ## 🎯 Modelos de IA Disponibles
 
-verbadoc enterprises ofrece **3 modelos de IA** seleccionables según tus necesidades:
+verbadoc pro europa ofrece **3 modelos de IA** seleccionables según tus necesidades:
 
 ### Comparativa Rápida
 
@@ -736,7 +736,7 @@ Las **plantillas** son configuraciones guardadas (prompt + schema) que puedes re
 
 ##### **1. Plantillas Predefinidas** (Incluidas)
 
-verbadoc enterprises incluye **15+ plantillas** listas para usar:
+verbadoc pro europa incluye **15+ plantillas** listas para usar:
 
 **Contabilidad:**
 - Factura Comercial
@@ -777,7 +777,7 @@ Puedes crear tus propias plantillas para reutilizarlas en el futuro.
 
 ## 📥 Descargar y Exportar Resultados
 
-verbadoc enterprises permite exportar los datos extraídos en **4 formatos**:
+verbadoc pro europa permite exportar los datos extraídos en **4 formatos**:
 
 ### 1. 📄 JSON
 
@@ -860,7 +860,7 @@ Verás una barra de progreso en tiempo real con información sobre documentos pr
 
 ```
 100 facturas manuales → 8 horas de trabajo
-100 facturas con verbadoc enterprises → 10 minutos
+100 facturas con verbadoc pro europa → 10 minutos
 Ahorro: ~95% del tiempo
 ```
 
@@ -911,7 +911,7 @@ Ahorro: ~95% del tiempo
 
 ### ¿Qué idiomas soporta?
 
-verbadoc enterprises soporta **múltiples idiomas**, incluyendo:
+verbadoc pro europa soporta **múltiples idiomas**, incluyendo:
 
 - Español (ES) 🇪🇸
 - Català (CA) 🇪🇸
@@ -940,7 +940,7 @@ No necesitas seleccionar idioma manualmente - la IA lo detecta automáticamente.
 
 ### ¿Se guardan mis documentos en servidores?
 
-**NO**. verbadoc enterprises tiene una política de **no almacenamiento**:
+**NO**. verbadoc pro europa tiene una política de **no almacenamiento**:
 
 - ✅ **Archivos originales**: Se eliminan automáticamente tras procesamiento
 - ✅ **Datos extraídos**: Se guardan en tu navegador (localStorage) durante 30 días
@@ -952,7 +952,7 @@ No necesitas seleccionar idioma manualmente - la IA lo detecta automáticamente.
 
 ### ¿Mis datos están seguros?
 
-**Sí**. verbadoc enterprises cumple con **GDPR** (protección de datos europea):
+**Sí**. verbadoc pro europa cumple con **GDPR** (protección de datos europea):
 
 - 🔒 **Cifrado de extremo a extremo**: TLS 1.3
 - 🇪🇺 **100% procesamiento en Europa**: Región de Bélgica
@@ -964,7 +964,7 @@ No necesitas seleccionar idioma manualmente - la IA lo detecta automáticamente.
 
 ### ¿Puedo procesar documentos escaneados?
 
-**Sí**, verbadoc enterprises incluye **OCR integrado** (Reconocimiento Óptico de Caracteres).
+**Sí**, verbadoc pro europa incluye **OCR integrado** (Reconocimiento Óptico de Caracteres).
 
 Procesa:
 - ✅ PDFs escaneados (sin texto seleccionable)
@@ -982,7 +982,7 @@ Procesa:
 
 ### ¿Puedo procesar documentos de varias páginas?
 
-**Sí**, verbadoc enterprises soporta:
+**Sí**, verbadoc pro europa soporta:
 - ✅ PDFs multi-página (hasta 100+ páginas)
 - ✅ Documentos que contienen múltiples documentos independientes
 
@@ -1063,7 +1063,7 @@ Depende del **modelo** y **calidad del documento**:
 
 ### 🌐 Recursos Útiles
 
-- **Aplicación**: https://verbadoc-enterprises.vercel.app
+- **Aplicación**: https://www.verbadocpro.eu
 - **Documentación Técnica**: Disponible en la aplicación
 - **Código Fuente**: Repositorio privado
 
@@ -1071,14 +1071,33 @@ Depende del **modelo** y **calidad del documento**:
 
 ### 💬 Chat de Ayuda (Laia)
 
-Dentro de la aplicación, tienes acceso a **Laia**, nuestro asistente virtual:
+Dentro de la aplicación, tienes acceso a **Laia**, nuestro asistente virtual inteligente:
 
-- Responde preguntas básicas
-- Ayuda con configuración
-- Explica funcionalidades
-- Disponible 24/7
+**¿Qué puede hacer Laia?**
+- 💡 Explicar todas las funcionalidades de verbadoc pro europa
+- 🚀 Guiarte paso a paso en el inicio rápido
+- 🤖 Explicar la clasificación automática y validación de datos
+- 📄 Ayudarte con tipos de documentos soportados
+- 🔧 Enseñarte a crear plantillas personalizadas
+- 📊 Explicar modelos de IA disponibles (Genérico, Recomendado, Avanzado)
+- 📥 Ayudarte con exportación de resultados
+- 🔒 Responder sobre seguridad y cumplimiento GDPR
+- 🛠️ Solucionar problemas comunes
+- 💡 Darte consejos y mejores prácticas
 
-Haz clic en el ícono de chat 💬 en la esquina inferior derecha.
+**Cómo usar Laia:**
+1. Haz clic en el ícono de chat 💬 en la esquina inferior derecha
+2. Escribe tu pregunta en lenguaje natural
+3. Laia responde instantáneamente con información contextual
+
+**Ejemplos de preguntas:**
+- "¿Qué es verbadoc pro europa?"
+- "¿Cómo empiezo?"
+- "¿Qué tipos de documentos puedo procesar?"
+- "¿Cómo crear una plantilla?"
+- "¿Qué modelo de IA debo usar?"
+
+Laia está disponible 24/7 y aprende continuamente para ayudarte mejor.
 
 ---
 
@@ -1183,7 +1202,7 @@ Haz clic en el ícono de chat 💬 en la esquina inferior derecha.
 
 **Proceso:**
 1. Escanea las 50 facturas (o pide PDFs a proveedores)
-2. Sube todas a verbadoc enterprises
+2. Sube todas a verbadoc pro europa
 3. Usa plantilla "Factura de Proveedor" (predefinida)
 4. Click en "Procesar Todos"
 5. Espera ~8 minutos
@@ -1203,7 +1222,7 @@ Haz clic en el ícono de chat 💬 en la esquina inferior derecha.
 **Proceso:**
 1. Sube el PDF multi-documento
 2. Click en "🔍 Buscar Documentos"
-3. verbadoc enterprises detecta 3 documentos
+3. verbadoc pro europa detecta 3 documentos
 4. Click en "Procesar Todos"
 5. Cada documento se clasifica y extrae automáticamente
 6. Exporta todo a Excel
@@ -1233,7 +1252,7 @@ Haz clic en el ícono de chat 💬 en la esquina inferior derecha.
 
 **Proceso:**
 1. Escanea las 100 recetas
-2. Sube todas a verbadoc enterprises
+2. Sube todas a verbadoc pro europa
 3. Usa plantilla "Receta Médica" (predefinida)
 4. Procesa con modelo "Genérico" (son formularios simples)
 5. Exporta a Excel
@@ -1273,9 +1292,9 @@ Haz clic en el ícono de chat 💬 en la esquina inferior derecha.
 
 ---
 
-**© 2025 verbadoc enterprises - Extracción Inteligente de Datos con IA 100% Europea**
+**© 2025 verbadoc pro europa - Extracción Inteligente de Datos con IA 100% Europea**
 
-**Web**: https://verbadoc-enterprises.vercel.app
+**Web**: https://www.verbadocpro.eu
 **Soporte**: soporte@verbadoc.eu
 **Ventas**: ventas@verbadoc.eu
 
