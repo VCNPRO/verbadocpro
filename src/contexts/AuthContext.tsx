@@ -6,7 +6,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<any>;
-  logout: () => void;
+  logout: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<any>;
 }
 
@@ -76,13 +76,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = () => {
-    // We don't need to make an API call for logout with httpOnly cookies.
-    // The server can't clear it directly. The user can log in again to get a new cookie.
-    // For a better UX, we could have a /api/auth/logout that sets an expired cookie,
-    // but for now, just clearing the state is enough for the UI to react.
-    setUser(null);
-    // You might want to redirect the user to the login page here.
+  const logout = async () => {
+    try {
+      // Llamar a la API para limpiar la cookie httpOnly
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.error('Error during logout:', error);
+    } finally {
+      // Limpiar estado
+      setUser(null);
+      // Recargar la página para mostrar el modal de login
+      window.location.href = '/';
+    }
   };
 
   return (

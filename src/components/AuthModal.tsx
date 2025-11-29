@@ -24,7 +24,7 @@ export function AuthModal({ isLightMode }: AuthModalProps) {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { signup, login } = useAuth();
+    const { register, login } = useAuth();
 
     const backgroundColor = isLightMode ? '#ffffff' : '#1e293b';
     const textColor = isLightMode ? '#1f2937' : '#f1f5f9';
@@ -44,7 +44,7 @@ export function AuthModal({ isLightMode }: AuthModalProps) {
                 if (!displayName.trim()) {
                     throw new Error('Por favor ingresa tu nombre');
                 }
-                await signup(email, password, displayName, department);
+                await register(displayName, email, password);
             }
         } catch (err: any) {
             console.error('Error de autenticación:', err);
