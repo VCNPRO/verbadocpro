@@ -4,6 +4,12 @@
       "maxDuration": 900
     }
   },
+  "crons": [
+    {
+      "path": "/api/process-queue",
+      "schedule": "* * * * *"
+    }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "devCommand": "vite --port $PORT"
 }
