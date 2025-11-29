@@ -31,36 +31,80 @@
 
 ### Paso 1: Configurar Vercel KV
 
-1. **Ir a Vercel Dashboard:**
+**IMPORTANTE:** Vercel ahora gestiona KV a través del **Marketplace**. Puedes usar una base de datos existente o crear una nueva.
+
+1. **Ir a Storage del proyecto:**
    ```
-   https://vercel.com/solammedia-9886s-projects/verbadoc_enterprise
+   https://vercel.com/solammedia-9886s-projects/verbadoc_enterprise/stores
    ```
 
-2. **Storage → Create Database → KV**
-   - Nombre: `verbadoc-queue`
-   - Región: `Europe` (iad1 o cdg1)
-   - Clic en "Create"
+2. **Conectar base de datos KV:**
 
-3. **Copiar variables de entorno:**
-   Vercel mostrará automáticamente:
-   ```
-   KV_URL=...
-   KV_REST_API_URL=...
-   KV_REST_API_TOKEN=...
-   KV_REST_API_READ_ONLY_TOKEN=...
+   **Opción A - Usar base de datos existente:**
+   - Si ves una base de datos KV existente (ej: `upstash-kv-cyan-lamp`)
+   - Haz clic en ella
+   - Busca el botón **"Connect to Project"** o **"Link Project"**
+   - Selecciona el proyecto: `verbadoc_enterprise`
+   - **MUY IMPORTANTE:** Marca todos los environments:
+     - ✅ Production
+     - ✅ Preview
+     - ✅ Development
+   - Haz clic en "Connect"
+
+   **Opción B - Crear nueva desde Marketplace:**
+   - Verás un aviso: "KV and Postgres are now available through the Marketplace"
+   - Haz clic en **"Browse Marketplace"** o **"Create Database"**
+   - Busca **"Upstash Redis"** o **"KV"**
+   - Haz clic en **"Add Integration"**
+   - Configuración:
+     - Project: `verbadoc_enterprise`
+     - Database Name: `verbadoc-queue`
+     - Region: **Europe** (EU-WEST-1 Dublin o EU-CENTRAL-1 Frankfurt)
+     - Environments: **Production**, **Preview**, **Development**
+   - Haz clic en "Create"
+
+3. **Verificar variables de entorno añadidas:**
+
+   Ejecuta en terminal:
+   ```bash
+   cd verbadoc_europa_pro
+   vercel env ls | grep KV
    ```
 
-4. **Ya están automáticamente añadidas al proyecto** ✅
-   (Vercel las añade automáticamente al crear el KV)
+   Deberías ver **4 variables**:
+   ```
+   KV_URL                        Encrypted    Production, Preview, Development
+   KV_REST_API_URL              Encrypted    Production, Preview, Development
+   KV_REST_API_TOKEN            Encrypted    Production, Preview, Development
+   KV_REST_API_READ_ONLY_TOKEN  Encrypted    Production, Preview, Development
+   ```
+
+4. **¡Variables añadidas automáticamente!** ✅
+   (Vercel las añade automáticamente al conectar/crear el KV)
 
 ### Paso 2: Configurar CRON_SECRET
+
+**Opción A - Usando Vercel CLI (Recomendado):**
 
 1. **Generar un secret aleatorio:**
    ```bash
    openssl rand -hex 32
    ```
 
-2. **Añadir a Vercel:**
+2. **Añadir a Vercel via CLI:**
+   ```bash
+   cd verbadoc_europa_pro
+   vercel env add CRON_SECRET production
+   ```
+   - Pega el secret generado cuando te lo pida
+   - Repite para `preview` y `development` si lo necesitas
+
+3. **Verificar que se añadió:**
+   ```bash
+   vercel env ls | grep CRON_SECRET
+   ```
+
+**Opción B - Usando Dashboard:**
    - Vercel Dashboard → Settings → Environment Variables
    - Nombre: `CRON_SECRET`
    - Valor: (el generado arriba)
@@ -248,10 +292,10 @@ Guardar métricas:
 
 - [x] ✅ APIs creadas (queue-document, process-queue, document-status)
 - [x] ✅ Vercel Cron configurado en vercel.json
-- [ ] ⏳ Vercel KV database creada
-- [ ] ⏳ CRON_SECRET generado y añadido
-- [ ] ⏳ Re-deploy realizado
-- [ ] ⏳ Frontend actualizado para usar cola
+- [x] ✅ Vercel KV database conectada (upstash-kv-cyan-lamp)
+- [x] ✅ CRON_SECRET generado y añadido (via CLI)
+- [x] ✅ Re-deploy realizado
+- [ ] ⏳ Frontend actualizado para usar cola (opcional)
 - [ ] ⏳ Pruebas realizadas
 
 ---
