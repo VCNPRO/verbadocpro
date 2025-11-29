@@ -326,7 +326,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, i
                     {/* Version Info */}
                     <div className="text-center pt-4 border-t-2" style={{ borderColor }}>
                         <p className="text-sm" style={{ color: isLightMode ? '#6b7280' : '#94a3b8' }}>
-                            VerbadocPro Europa v1.0 • Última actualización: Febrero 2025
+                            verbadoc pro europa v1.0 • Última actualización: Febrero 2025
                         </p>
                         <p className="text-xs mt-1" style={{ color: isLightMode ? '#9ca3af' : '#64748b' }}>
                             Para consultas sobre cumplimiento legal: legal@verbadoc.eu
