@@ -45,14 +45,63 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ files, setFiles, act
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFiles = (fileList: FileList) => {
-        const newFiles = Array.from(fileList).map(file => ({
-            id: `file-${Date.now()}-${Math.random()}`,
-            file,
-            status: 'pendiente' as const,
-        }));
-        setFiles(currentFiles => [...currentFiles, ...newFiles]);
-        if (!activeFileId && newFiles.length > 0) {
-            onFileSelect(newFiles[0].id);
+        const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
+        const MAX_PAGES_ESTIMATE = 500;
+
+        // Validar archivos
+        const validFiles: File[] = [];
+        const invalidFiles: string[] = [];
+
+        Array.from(fileList).forEach(file => {
+            // Validar tamaño
+            if (file.size > MAX_FILE_SIZE) {
+                invalidFiles.push(
+                    `"${file.name}" (${formatBytes(file.size)}) excede el límite de 100 MB`
+                );
+                return;
+            }
+
+            // Advertencia para archivos grandes (>50 MB o ~250 páginas)
+            const estimatedPages = Math.ceil(file.size / 204800); // 200 KB/pág
+            if (estimatedPages > MAX_PAGES_ESTIMATE) {
+                const confirm = window.confirm(
+                    `⚠️ Documento grande detectado: "${file.name}"\n\n` +
+                    `Tamaño: ${formatBytes(file.size)}\n` +
+                    `Páginas estimadas: ~${estimatedPages}\n\n` +
+                    `El procesamiento puede tardar hasta ${Math.ceil(estimatedPages * 2 / 60)} minutos.\n\n` +
+                    `¿Deseas continuar?`
+                );
+                if (!confirm) {
+                    return;
+                }
+            }
+
+            validFiles.push(file);
+        });
+
+        // Mostrar errores si hay archivos inválidos
+        if (invalidFiles.length > 0) {
+            alert(
+                `❌ Archivos rechazados (límite: 100 MB):\n\n` +
+                invalidFiles.join('\n') +
+                `\n\nPor favor:\n` +
+                `• Divide el documento en partes más pequeñas\n` +
+                `• Comprime el PDF (elimina imágenes innecesarias)\n` +
+                `• Contacta con soporte si necesitas procesar documentos más grandes`
+            );
+        }
+
+        // Agregar solo archivos válidos
+        if (validFiles.length > 0) {
+            const newFiles = validFiles.map(file => ({
+                id: `file-${Date.now()}-${Math.random()}`,
+                file,
+                status: 'pendiente' as const,
+            }));
+            setFiles(currentFiles => [...currentFiles, ...newFiles]);
+            if (!activeFileId && newFiles.length > 0) {
+                onFileSelect(newFiles[0].id);
+            }
         }
     };
 
