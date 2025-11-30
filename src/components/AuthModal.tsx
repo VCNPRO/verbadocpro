@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // Sistema de autenticación real
-import { useAuth, EuropaDepartment } from '../contexts/AuthContext';
+import { useAuth, EuropaDepartment } from '../contexts/AuthContext.mock';
 
 interface AuthModalProps {
     isLightMode: boolean;
@@ -24,7 +24,7 @@ export function AuthModal({ isLightMode }: AuthModalProps) {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const { register, login } = useAuth();
+    const { signup, login } = useAuth();
 
     const backgroundColor = isLightMode ? '#ffffff' : '#1e293b';
     const textColor = isLightMode ? '#1f2937' : '#f1f5f9';
@@ -44,7 +44,7 @@ export function AuthModal({ isLightMode }: AuthModalProps) {
                 if (!displayName.trim()) {
                     throw new Error('Por favor ingresa tu nombre');
                 }
-                await register(displayName, email, password);
+                await signup(email, password, displayName, department);
             }
         } catch (err: any) {
             console.error('Error de autenticación:', err);

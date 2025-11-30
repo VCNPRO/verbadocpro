@@ -24,21 +24,21 @@ import { logActivity } from './src/utils/activityLogger.ts';
 import { AVAILABLE_MODELS, type GeminiModel } from './services/geminiService.ts';
 import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig.ts';
 // ✅ Sistema de autenticación real activado
-import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext.mock.tsx';
 import { AuthModal } from './src/components/AuthModal.tsx';
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
-    const { user } = useAuth();
-    if (user?.role !== 'admin') {
+    const { currentUser } = useAuth();
+    if (currentUser?.role !== 'admin') {
         return <Navigate to="/" />;
     }
     return children;
 }
 
 function AppContent() {
-    const { user, loading, logout } = useAuth();
+    const { currentUser, userProfile, logout } = useAuth();
 
     const [files, setFiles] = useState<UploadedFile[]>([]);
     const [activeFileId, setActiveFileId] = useState<string | null>(null);
@@ -571,7 +571,7 @@ function AppContent() {
     };
 
     // Mostrar modal de autenticación si no hay usuario
-// Mostrar loader mientras se verifica la autenticación    if (loading) {        return (            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff' }}>                <div className="text-center">                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>                    <p className="mt-4 text-gray-500">Cargando...</p>                </div>            </div>        );    }    // Mostrar modal de autenticación si no hay usuario    if (!user) {        return <AuthModal isLightMode={!isDarkMode} />;    }
+// Mostrar loader mientras se verifica la autenticación    if (loading) {        return (            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff' }}>                <div className="text-center">                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>                    <p className="mt-4 text-gray-500">Cargando...</p>                </div>            </div>        );    }    // Mostrar modal de autenticación si no hay usuario    if (!currentUser) {        return <AuthModal />;    }
 
     return (
         <div
