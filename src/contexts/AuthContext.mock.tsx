@@ -271,6 +271,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         clearCurrentUserSession();
         console.log("🔴 LOGOUT COMPLETADO - Usuario limpiado");
         setCurrentUser(null);
+        
+        // Forzar recarga para mostrar modal de login
+        window.location.reload();
         setUserProfile(null);
     }
 
