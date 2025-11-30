@@ -286,25 +286,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     // Cargar sesión al iniciar
-useEffect(() => {
+    useEffect(() => {
         const loadSession = () => {
-            let currentUid = getCurrentUserSession();
-            console.log("🟡 LOAD SESSION - currentUid:", currentUid);
-            
-            // Limpiar usuarios test por defecto (migration cleanup)
-            let users = getAllUsers();
-            const testUserIndex = users.findIndex(u => u.email === 'test@example.com');
-            if (testUserIndex !== -1) {
-                console.log("🧹 Eliminando usuario test@example.com de localStorage");
-                users.splice(testUserIndex, 1);
-                saveAllUsers(users);
-                
-                // Si el usuario actual era test@example.com, hacer logout
-                if (currentUid && users.find(u => u.uid === currentUid)?.email === 'test@example.com') {
-                    clearCurrentUserSession();
-                    currentUid = null;
-                }
-            }
+            const currentUid = getCurrentUserSession();
 
             if (currentUid) {
                 if (currentUid === 'admin') {
@@ -353,7 +337,6 @@ useEffect(() => {
                     setCurrentUser(mockUser);
                     setUserProfile(profile);
                 } else {
-                    // Usuario no encontrado, limpiar sesión
                     clearCurrentUserSession();
                 }
             }
