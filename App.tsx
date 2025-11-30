@@ -21,6 +21,7 @@ import { AIAssistantPanel } from './components/AIAssistantPanel.tsx';
 // Fix: Use explicit file extension in import.
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
+import { cleanupOldLocalStorageData } from './src/utils/cleanOldData.ts';
 import { AVAILABLE_MODELS, type GeminiModel } from './services/geminiService.ts';
 import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig.ts';
 // ✅ Sistema de autenticación real activado
@@ -927,6 +928,8 @@ function AppContent() {
 }
 
 function App() {
+    // Limpieza automática de datos antiguos
+    cleanupOldLocalStorageData();
     return (
         <AuthProvider>
             <AppContent />
