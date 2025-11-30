@@ -571,7 +571,22 @@ function AppContent() {
     };
 
     // Mostrar modal de autenticación si no hay usuario
-// Mostrar loader mientras se verifica la autenticación    if (loading) {        return (            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff' }}>                <div className="text-center">                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>                    <p className="mt-4 text-gray-500">Cargando...</p>                </div>            </div>        );    }    // Mostrar modal de autenticación si no hay usuario    if (!currentUser) {        return <AuthModal />;    }
+    // Mostrar loader mientras se verifica la autenticación
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff' }}>
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                    <p className="mt-4 text-gray-500">Cargando...</p>
+                </div>
+            </div>
+        );
+    }
+    
+    // Mostrar modal de autenticación si no hay usuario
+    if (!currentUser) {
+        return <AuthModal />;
+    }
 
     return (
         <div
