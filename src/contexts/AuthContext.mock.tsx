@@ -252,6 +252,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     // Logout (MOCK)
     async function logout() {
+        console.log("🔴 LOGOUT INICIADO - Función logout llamada");
         // Log activity before logout
         if (currentUser && userProfile) {
             logActivity(
@@ -268,6 +269,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         await new Promise(resolve => setTimeout(resolve, 300));
 
         clearCurrentUserSession();
+        console.log("🔴 LOGOUT COMPLETADO - Usuario limpiado");
         setCurrentUser(null);
         setUserProfile(null);
     }
