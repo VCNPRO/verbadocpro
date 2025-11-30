@@ -927,9 +927,10 @@ function AppContent() {
     );
 }
 
+// Limpieza automática de datos antiguos (ejecutar ANTES de renderizar)
+cleanupOldLocalStorageData();
+
 function App() {
-    // Limpieza automática de datos antiguos
-    cleanupOldLocalStorageData();
     return (
         <AuthProvider>
             <AppContent />
