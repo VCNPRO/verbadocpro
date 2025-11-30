@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { UserDB } from './db';
+import { UserDB } from './db.js';
 
 export interface JWTPayload {
   userId: string;
