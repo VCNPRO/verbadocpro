@@ -290,29 +290,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const loadSession = () => {
             let currentUid = getCurrentUserSession();
 
-            // If no user is logged in, create and log in a default user
-            if (!currentUid) {
-                let users = getAllUsers();
-                let defaultUser = users.find(u => u.email === 'test@example.com');
-
-                if (!defaultUser) {
-                    defaultUser = {
-                        uid: `user_${Date.now()}`,
-                        email: 'test@example.com',
-                        password: 'password',
-                        displayName: 'Test User',
-                        department: 'general',
-                        createdAt: new Date().toISOString(),
-                        lastLogin: new Date().toISOString(),
-                        role: 'user',
-                    };
-                    users.push(defaultUser);
-                    saveAllUsers(users);
-                }
-                
-                currentUid = defaultUser.uid;
-                setCurrentUserSession(currentUid);
-            }
+            //             // If no user is logged in, create and log in a default user
+            //             if (!currentUid) {
+            //                 let users = getAllUsers();
+            //                 let defaultUser = users.find(u => u.email === 'test@example.com');
+            // 
+            //                 if (!defaultUser) {
+            //                     defaultUser = {
+            //                         uid: `user_${Date.now()}`,
+            //                         email: 'test@example.com',
+            //                         password: 'password',
+            //                         displayName: 'Test User',
+            //                         department: 'general',
+            //                         createdAt: new Date().toISOString(),
+            //                         lastLogin: new Date().toISOString(),
+            //                         role: 'user',
+            //                     };
+            //                     users.push(defaultUser);
+            //                     saveAllUsers(users);
+            //                 }
+            //                 
+            //                 currentUid = defaultUser.uid;
+            //                 setCurrentUserSession(currentUid);
+            //             }
 
             if (currentUid) {
                 if (currentUid === 'admin') {
