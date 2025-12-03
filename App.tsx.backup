@@ -1,26 +1,34 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
+// Fix: Use explicit file extension in import.
 import { FileUploader } from './components/FileUploader.tsx';
+// Fix: Use explicit file extension in import.
 import { ExtractionEditor } from './components/ExtractionEditor.tsx';
+// Fix: Use explicit file extension in import.
 import { HistoryViewer } from './components/HistoryViewer.tsx';
+// Fix: Use explicit file extension in import.
 import { TemplatesPanel } from './components/TemplatesPanel.tsx';
+// Fix: Use explicit file extension in import.
 import { PdfViewer } from './components/PdfViewer.tsx';
+// Fix: Use explicit file extension in import.
 import { HelpModal } from './components/HelpModal.tsx';
 import { SettingsModal } from './components/SettingsModal.tsx';
+// Fix: Use explicit file extension in import.
 import { ResultsViewer } from './components/ResultsViewer.tsx';
 import { ChatbotLaia } from './components/ChatbotLaia.tsx';
-import AdminDashboard from './src/components/AdminDashboard.tsx'; // Importar el nuevo componente
+import { AdminDashboard } from './components/AdminDashboard.tsx';
 import { AIAssistantPanel } from './components/AIAssistantPanel.tsx';
+// Fix: Use explicit file extension in import.
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
 import { AVAILABLE_MODELS, type GeminiModel } from './services/geminiService.ts';
 import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig.ts';
+// ✅ Sistema de autenticación real activado
 import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
 import { AuthModal } from './src/components/AuthModal.tsx';
 
-// Importar componentes de enrutamiento
-import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
-// El componente ProtectedRoute se mantiene sin cambios
 function ProtectedRoute({ children }: { children: JSX.Element }) {
     const { user } = useAuth();
     if (user?.role !== 'admin') {
@@ -29,8 +37,7 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
     return children;
 }
 
-// El contenido principal de la aplicación ahora es un componente separado
-function MainApplication() {
+function AppContent() {
     const { user, loading, logout } = useAuth();
 
     const [files, setFiles] = useState<UploadedFile[]>([]);
@@ -46,16 +53,20 @@ function MainApplication() {
     const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
     const [isDarkMode, setIsDarkMode] = useState<boolean>(true); // Default to dark mode
 
+    // State for the editor, which can be reused across different files
     const [prompt, setPrompt] = useState<string>('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');
     const [schema, setSchema] = useState<SchemaField[]>([{ id: `field-${Date.now()}`, name: '', type: 'STRING' }]);
 
+    // Obtener el tema basado en el departamento actual
     const currentTheme = useMemo(() => {
         const departamentoInfo = getDepartamentoById(currentDepartamento);
         return departamentoInfo?.theme || getDefaultTheme();
     }, [currentDepartamento]);
 
+    // Determinar si estamos en modo claro
     const isLightMode = !isDarkMode;
 
+    // Cargar historial desde localStorage al iniciar
     useEffect(() => {
         try {
             const savedHistory = localStorage.getItem('verbadoc-history');
@@ -69,6 +80,7 @@ function MainApplication() {
         }
     }, []);
 
+    // Guardar historial en localStorage cada vez que cambie
     useEffect(() => {
         try {
             localStorage.setItem('verbadoc-history', JSON.stringify(history));
@@ -83,22 +95,27 @@ function MainApplication() {
     const handleFileSelect = (id: string | null) => {
         setActiveFileId(id);
     };
-
+    
     const handleExtract = async () => {
         if (!activeFile) return;
 
         setIsLoading(true);
+        // Reset status for the current file
         setFiles(currentFiles =>
             currentFiles.map(f => f.id === activeFile.id ? { ...f, status: 'procesando', error: undefined, extractedData: undefined } : f)
         );
 
         try {
             let extractedData: object;
+
+            // Check if file is JSON
             if (activeFile.file.name.toLowerCase().endsWith('.json')) {
+                // Read and parse JSON directly
                 const text = await activeFile.file.text();
                 extractedData = JSON.parse(text);
                 console.log('📄 JSON file processed directly:', activeFile.file.name);
             } else {
+                // Lazy import the service for non-JSON files
                 const { extractDataFromDocument } = await import('./services/geminiService.ts');
                 extractedData = await extractDataFromDocument(activeFile.file, schema, prompt, selectedModel);
             }
@@ -111,7 +128,7 @@ function MainApplication() {
                 id: `hist-${Date.now()}`,
                 fileId: activeFile.id,
                 fileName: activeFile.file.name,
-                schema: JSON.parse(JSON.stringify(schema)),
+                schema: JSON.parse(JSON.stringify(schema)), // Deep copy schema
                 extractedData: extractedData,
                 timestamp: new Date().toISOString(),
             };
@@ -126,13 +143,14 @@ function MainApplication() {
             setIsLoading(false);
         }
     };
-    
-        const handleExtractAll = async () => {
+
+    const handleExtractAll = async () => {
         const pendingFiles = files.filter(f => f.status === 'pendiente' || f.status === 'error');
         if (pendingFiles.length === 0) return;
 
         setIsLoading(true);
 
+        // Lazy import the service (only if needed for non-JSON files)
         const nonJsonFiles = pendingFiles.filter(f => !f.file.name.toLowerCase().endsWith('.json'));
         let extractDataFromDocument: any = null;
         if (nonJsonFiles.length > 0) {
@@ -141,6 +159,7 @@ function MainApplication() {
         }
 
         for (const file of pendingFiles) {
+            // Reset status for the current file
             setFiles(currentFiles =>
                 currentFiles.map(f => f.id === file.id ? { ...f, status: 'procesando', error: undefined, extractedData: undefined } : f)
             );
@@ -148,9 +167,12 @@ function MainApplication() {
             try {
                 let extractedData: object;
 
+                // Check if file is JSON
                 if (file.file.name.toLowerCase().endsWith('.json')) {
+                    // Read and parse JSON directly
                     const text = await file.file.text();
                     extractedData = JSON.parse(text);
+                    console.log('📄 JSON file processed directly:', file.file.name);
                 } else {
                     extractedData = await extractDataFromDocument(file.file, schema, prompt, selectedModel);
                 }
@@ -163,7 +185,7 @@ function MainApplication() {
                     id: `hist-${Date.now()}-${file.id}`,
                     fileId: file.id,
                     fileName: file.file.name,
-                    schema: JSON.parse(JSON.stringify(schema)),
+                    schema: JSON.parse(JSON.stringify(schema)), // Deep copy schema
                     extractedData: extractedData,
                     timestamp: new Date().toISOString(),
                 };
@@ -178,14 +200,16 @@ function MainApplication() {
         }
 
         setIsLoading(false);
-        setShowResultsExpanded(true); 
+        setShowResultsExpanded(true); // Mostrar resultados automáticamente
     };
     
     const handleReplay = (result: ExtractionResult) => {
+        // Find if the file still exists in the current batch
         const originalFile = files.find(f => f.id === result.fileId);
         if (originalFile) {
             setActiveFileId(originalFile.id);
-            setSchema(JSON.parse(JSON.stringify(result.schema))); 
+            setSchema(JSON.parse(JSON.stringify(result.schema))); // Deep copy schema
+            // You might want to reuse the prompt as well if it were saved in history
         } else {
              alert(`El archivo original "${result.fileName}" ya no está en el lote actual. Cargue el archivo de nuevo para reutilizar esta extracción.`);
         }
@@ -224,6 +248,7 @@ function MainApplication() {
             setPrompt('Extrae la información clave del siguiente documento de Europa.');
             console.log('✅ Health template aplicada - Schema:', newSchema.length, 'campos');
         } else {
+            // Validar que template.schema existe y es un array
             if (!template.schema || !Array.isArray(template.schema)) {
                 console.error('❌ Error: La plantilla no tiene un schema válido', template);
                 alert('Error: Esta plantilla no tiene un esquema válido. Por favor, verifica la plantilla.');
@@ -242,17 +267,21 @@ function MainApplication() {
             setCurrentDepartamento(template.departamento);
         }
 
+        // Mostrar notificación visual
         console.log('🎯 Estado actualizado - Revisa el panel central');
     };
 
     const handleSaveTemplateChanges = (templateId: string, updatedPrompt: string, updatedSchema: SchemaField[]) => {
         console.log('💾 App.tsx - Guardando cambios en plantilla:', templateId);
+
+        // Buscar la plantilla original
         const originalTemplate = selectedTemplate;
         if (!originalTemplate) {
             console.error('❌ No hay plantilla seleccionada');
             return;
         }
 
+        // Si es una plantilla predefinida (no custom), crear una copia personalizada
         if (!originalTemplate.custom) {
             const newCustomTemplate = {
                 id: `custom-${Date.now()}`,
@@ -267,15 +296,23 @@ function MainApplication() {
             };
 
             console.log('📋 Creando copia personalizada:', newCustomTemplate.name);
+
+            // Obtener plantillas personalizadas del localStorage
             const stored = localStorage.getItem('customTemplates_europa');
             const customTemplates = stored ? JSON.parse(stored) : [];
+
+            // Agregar la nueva plantilla
             const updatedTemplates = [...customTemplates, newCustomTemplate];
             localStorage.setItem('customTemplates_europa', JSON.stringify(updatedTemplates));
+
             console.log('✅ Copia guardada exitosamente como plantilla personalizada');
+
+            // Seleccionar la nueva plantilla
             setSelectedTemplate(newCustomTemplate);
             return;
         }
 
+        // Si es una plantilla personalizada, actualizarla
         const stored = localStorage.getItem('customTemplates_europa');
         if (!stored) {
             console.error('❌ No se encontraron plantillas personalizadas');
@@ -296,6 +333,8 @@ function MainApplication() {
 
         localStorage.setItem('customTemplates_europa', JSON.stringify(updatedTemplates));
         console.log('✅ Plantilla personalizada actualizada exitosamente');
+
+        // Actualizar la plantilla seleccionada en el estado
         const updatedTemplate = updatedTemplates.find((t: any) => t.id === templateId);
         if (updatedTemplate) {
             setSelectedTemplate(updatedTemplate);
@@ -328,6 +367,7 @@ function MainApplication() {
         setSelectedTemplate(newTemplate);
     };
 
+    // Limpiar todo el historial
     const handleClearHistory = () => {
         if (confirm('¿Estás seguro de que deseas eliminar todo el historial? Esta acción no se puede deshacer.')) {
             setHistory([]);
@@ -336,6 +376,7 @@ function MainApplication() {
         }
     };
 
+    // Exportar historial como JSON
     const handleExportHistory = () => {
         if (history.length === 0) {
             alert('No hay historial para exportar');
@@ -353,6 +394,7 @@ function MainApplication() {
         console.log('📥 Historial exportado');
     };
 
+    // Exportar historial como Excel
     const handleExportExcel = async (transposed: boolean = false) => {
         if (history.length === 0) {
             alert('No hay historial para exportar');
@@ -362,6 +404,7 @@ function MainApplication() {
         try {
             const XLSX = await import('xlsx');
 
+            // 1. Recopilar todos los campos únicos de todos los documentos en el historial
             const allFieldPaths = new Set<string>();
             const flattenObject = (obj: any, prefix = ''): any => {
                 let result: any = {};
@@ -372,17 +415,22 @@ function MainApplication() {
                     if (value && typeof value === 'object' && !Array.isArray(value)) {
                         Object.assign(result, flattenObject(value, newKey));
                     } else if (Array.isArray(value)) {
+                        // Manejar arrays correctamente
                         if (value.length === 0) {
                             result[newKey] = '';
                         } else if (typeof value[0] === 'object' && value[0] !== null) {
+                            // Array de objetos: expandir el primer elemento inline
                             if (value.length === 1) {
+                                // Si solo hay un elemento, expandir sus propiedades
                                 Object.assign(result, flattenObject(value[0], newKey));
                             } else {
+                                // Si hay múltiples elementos, expandir todos con índices
                                 value.forEach((item, idx) => {
                                     Object.assign(result, flattenObject(item, `${newKey}[${idx}]`));
                                 });
                             }
                         } else {
+                            // Array de primitivos: unir con saltos de línea
                             result[newKey] = value.join('\n');
                         }
                     } else {
@@ -405,7 +453,11 @@ function MainApplication() {
             let fileName: string;
 
             if (transposed) {
+                // FORMATO VERTICAL/TRANSPUESTO: Campos como filas, documentos como columnas
+                // 2. Preparar la cabecera: 'Campo' + nombres de los documentos
                 const header = ['Campo', ...flattenedHistoryData.map(data => data.fileName)];
+
+                // 3. Preparar las filas de datos
                 excelData = [header];
 
                 sortedFieldPaths.forEach(fieldPath => {
@@ -420,7 +472,11 @@ function MainApplication() {
                 sheetName = 'Resultados Pivotados';
                 fileName = `verbadoc-resultados-pivotados-${new Date().toISOString().split('T')[0]}.xlsx`;
             } else {
+                // FORMATO HORIZONTAL: Campos como columnas, documentos como filas
+                // 2. Preparar la cabecera: 'Archivo' + nombres de los campos
                 const header = ['Archivo', ...sortedFieldPaths];
+
+                // 3. Preparar las filas de datos (cada documento es una fila)
                 excelData = [header];
 
                 flattenedHistoryData.forEach(data => {
@@ -436,15 +492,18 @@ function MainApplication() {
                 fileName = `verbadoc-resultados-${new Date().toISOString().split('T')[0]}.xlsx`;
             }
 
+            // Crear una nueva hoja de cálculo y añadir los datos
             const worksheet = XLSX.utils.aoa_to_sheet(excelData);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
 
+            // Auto-size columns (opcional, puede ser costoso para muchas columnas)
             const maxColWidths = excelData[0].map((_, colIdx) =>
                 Math.max(...excelData.map(row => (row[colIdx] ? String(row[colIdx]).length : 0)))
             );
-            worksheet['!cols'] = maxColWidths.map(w => ({ wch: Math.min(w + 2, 50) })); 
+            worksheet['!cols'] = maxColWidths.map(w => ({ wch: Math.min(w + 2, 50) })); // +2 para padding, max 50
 
+            // Generar el archivo Excel y descargarlo
             XLSX.writeFile(workbook, fileName);
 
             console.log(`📊 Historial exportado como Excel ${transposed ? 'pivotado' : 'horizontal'}`);
@@ -454,22 +513,25 @@ function MainApplication() {
         }
     };
 
+    // Exportar todos los PDFs del historial (un PDF por documento)
     const handleExportAllPDFs = () => {
         if (history.length === 0) {
             alert('No hay historial para exportar');
             return;
         }
 
+        // Importar las funciones necesarias dinámicamente
         import('./utils/exportUtils.ts').then(({downloadPDF}) => {
             history.forEach((entry, index) => {
+                // Pequeño delay entre descargas para evitar problemas en el navegador
                 setTimeout(() => {
                     downloadPDF(
                         entry.extractedData,
                         `${entry.fileName.replace(/\.[^/.]+$/, '')}_extraccion`,
                         entry.schema,
-                        true 
+                        true // Siempre formato vertical
                     );
-                }, index * 300); 
+                }, index * 300); // 300ms de delay entre cada PDF
             });
 
             console.log(`📄 Exportando ${history.length} PDFs...`);
@@ -477,6 +539,7 @@ function MainApplication() {
         });
     };
 
+    // Importar historial desde JSON
     const handleImportHistory = () => {
         const input = document.createElement('input');
         input.type = 'file';
@@ -507,15 +570,127 @@ function MainApplication() {
         input.click();
     };
 
+    // Mostrar modal de autenticación si no hay usuario
+// Mostrar loader mientras se verifica la autenticación    if (loading) {        return (            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff' }}>                <div className="text-center">                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>                    <p className="mt-4 text-gray-500">Cargando...</p>                </div>            </div>        );    }    // Mostrar modal de autenticación si no hay usuario    if (!user) {        return <AuthModal isLightMode={!isDarkMode} />;    }
+
     return (
         <div
             className="min-h-screen font-sans transition-colors duration-500"
             style={{
-                backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff',
+                backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff', // Light blue for light mode
                 color: isDarkMode ? '#e2e8f0' : '#0f172a'
             }}
         >
-            {/* El Header ahora es parte del layout principal y siempre visible */}
+            <header
+                className="backdrop-blur-sm border-b-2 sticky top-0 z-10 transition-colors duration-500 shadow-md"
+                style={{
+                    backgroundColor: isDarkMode ? 'rgba(2, 6, 23, 0.7)' : 'rgba(255, 255, 255, 0.8)',
+                    borderBottomColor: isDarkMode ? 'rgba(51, 65, 85, 0.5)' : 'rgba(59, 130, 246, 0.5)'
+                }}
+            >
+                <div className="px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-baseline gap-3">
+                            <h1
+                                className="text-3xl font-bold font-orbitron tracking-wider transition-colors duration-500"
+                                style={{
+                                    color: isLightMode ? '#1e3a8a' : '#f1f5f9'
+                                }}
+                            >verbadoc pro europa</h1>
+                            <p
+                                className="text-sm font-sans transition-colors duration-500"
+                                style={{
+                                    color: isLightMode ? '#475569' : '#94a3b8'
+                                }}
+                            >
+                                Extracción Inteligente de Datos
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            {/* Theme Toggle Button */}
+                            <button
+                                onClick={() => setIsDarkMode(!isDarkMode)}
+                                className="flex items-center gap-2 px-3 py-2 border-2 rounded-lg transition-all duration-500 hover:shadow-lg hover:scale-105"
+                                style={{
+                                    backgroundColor: isLightMode ? '#ffffff' : '#1e293b',
+                                    borderColor: isLightMode ? '#3b82f6' : '#475569',
+                                    color: isLightMode ? '#1e3a8a' : '#fbbf24'
+                                }}
+                                title={isDarkMode ? "Cambiar a modo día" : "Cambiar a modo noche"}
+                            >
+                                {isDarkMode ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                    </svg>
+                                )}
+                            </button>
+                            {/* Selector de Modelo IA */}
+                            <div className="flex items-center gap-2">
+                                <label
+                                    htmlFor="model-select"
+                                    className="text-xs font-medium hidden sm:inline"
+                                    style={{ color: isLightMode ? '#1e3a8a' : '#94a3b8' }}
+                                >
+                                    Modelo IA:
+                                </label>
+                                <select
+                                    id="model-select"
+                                    value={selectedModel}
+                                    onChange={(e) => setSelectedModel(e.target.value as GeminiModel)}
+                                    className="text-sm px-3 py-1.5 rounded-md border-2 focus:outline-none focus:ring-2 transition-all"
+                                    style={{
+                                        backgroundColor: isLightMode ? '#f9fafb' : '#1e293b',
+                                        borderColor: isLightMode ? '#3b82f6' : '#475569',
+                                        color: isLightMode ? '#1e3a8a' : '#f1f5f9'
+                                    }}
+                                >
+                                    {AVAILABLE_MODELS.map(model => (
+                                        <option key={model.id} value={model.id}>
+                                            {model.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <button
+                            onClick={() => setIsHelpModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 border-2 rounded-lg text-sm transition-all duration-500 font-bold shadow-lg hover:shadow-xl hover:scale-105"
+                            style={{
+                                backgroundColor: isLightMode ? '#2563eb' : '#0891b2',
+                                borderColor: isLightMode ? '#1d4ed8' : '#06b6d4',
+                                color: '#ffffff'
+                            }}
+                            title="Ayuda y Guía de Usuario"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="hidden sm:inline">Ayuda</span>
+                        </button>
+
+                            {/* Logout Button */}
+                            <button
+                                onClick={logout}
+                                className="flex items-center gap-2 px-3 py-2 border-2 rounded-lg transition-all duration-500 hover:shadow-lg hover:scale-105"
+                                style={{
+                                    backgroundColor: isLightMode ? '#ffffff' : '#1e293b',
+                                    borderColor: isLightMode ? '#ef4444' : '#475569',
+                                    color: isLightMode ? '#dc2626' : '#f87171'
+                                }}
+                                title="Cerrar Sesión"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
             <main className="p-4 sm:p-6 lg:p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" style={{height: 'calc(100vh - 112px)'}}>
                     <div className="lg:col-span-3 h-full">
@@ -548,6 +723,7 @@ function MainApplication() {
                     </div>
                     <div className="lg:col-span-3 h-full">
                         <div className="h-full flex flex-col overflow-auto">
+                            {/* AI Assistant Panel */}
                             <div className="mb-4">
                                 <AIAssistantPanel
                                     file={activeFile?.file || null}
@@ -562,6 +738,8 @@ function MainApplication() {
                                     currentSchema={schema}
                                 />
                             </div>
+
+                            {/* Templates Panel */}
                             <div>
                                 <TemplatesPanel
                                     onSelectTemplate={handleSelectTemplate}
@@ -577,10 +755,24 @@ function MainApplication() {
                     </div>
                 </div>
             </main>
-            {/* Estos modales y viewers se mantienen fuera del <main> para que puedan superponerse a toda la app */}
-            <PdfViewer file={viewingFile} onClose={handleCloseViewer} />
-            <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)} />
-            <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} isLightMode={isLightMode} />
+
+            <PdfViewer
+                file={viewingFile}
+                onClose={handleCloseViewer}
+            />
+
+            <HelpModal
+                isOpen={isHelpModalOpen}
+                onClose={() => setIsHelpModalOpen(false)}
+            />
+
+            <SettingsModal
+                isOpen={isSettingsModalOpen}
+                onClose={() => setIsSettingsModalOpen(false)}
+                isLightMode={isLightMode}
+            />
+
+            {/* Modal expandido de resultados */}
             {showResultsExpanded && history.length > 0 && (
                 <div
                     className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
@@ -588,9 +780,12 @@ function MainApplication() {
                 >
                     <div
                         className="w-full max-w-6xl h-[90vh] rounded-lg shadow-2xl overflow-hidden"
-                        style={{ backgroundColor: isLightMode ? '#ffffff' : '#1e293b' }}
+                        style={{
+                            backgroundColor: isLightMode ? '#ffffff' : '#1e293b'
+                        }}
                         onClick={(e) => e.stopPropagation()}
                     >
+                        {/* Header del modal */}
                         <div
                             className="flex items-center justify-between p-4 border-b"
                             style={{
@@ -599,6 +794,9 @@ function MainApplication() {
                             }}
                         >
                             <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: isLightMode ? '#1e3a8a' : '#f1f5f9' }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: isLightMode ? '#2563eb' : '#06b6d4' }}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
                                 Resultados de Extracción
                             </h2>
                             <button
@@ -614,6 +812,8 @@ function MainApplication() {
                                 </svg>
                             </button>
                         </div>
+
+                        {/* Contenido del modal */}
                         <div className="h-[calc(90vh-72px)] overflow-hidden">
                             <ResultsViewer
                                 results={history}
@@ -629,88 +829,7 @@ function MainApplication() {
                     </div>
                 </div>
             )}
-            <ChatbotLaia isLightMode={isLightMode} />
-        </div>
-    );
-}
-
-// AppContent ahora envuelve el layout y el enrutador
-function AppContent() {
-    const { user, loading, logout } = useAuth();
-    const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
-    const isLightMode = !isDarkMode;
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff' }}>
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-4 text-gray-500">Cargando...</p>
-                </div>
-            </div>
-        );
-    }
-    if (!user) {
-        return <AuthModal isLightMode={!isDarkMode} />;
-    }
-
-    return (
-        <div
-            className="min-h-screen font-sans transition-colors duration-500"
-             style={{
-                backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff',
-                color: isDarkMode ? '#e2e8f0' : '#0f172a'
-            }}
-        >
-            <header
-                className="backdrop-blur-sm border-b-2 sticky top-0 z-10 transition-colors duration-500 shadow-md"
-                 style={{
-                    backgroundColor: isDarkMode ? 'rgba(2, 6, 23, 0.7)' : 'rgba(255, 255, 255, 0.8)',
-                    borderBottomColor: isDarkMode ? 'rgba(51, 65, 85, 0.5)' : 'rgba(59, 130, 246, 0.5)'
-                }}
-            >
-                <div className="px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-baseline gap-3">
-                            <Link to="/" className="text-3xl font-bold font-orbitron tracking-wider transition-colors duration-500" style={{ color: isLightMode ? '#1e3a8a' : '#f1f5f9' }}>verbadoc pro europa</Link>
-                            <p className="text-sm font-sans transition-colors duration-500" style={{ color: isLightMode ? '#475569' : '#94a3b8' }}>Extracción Inteligente de Datos</p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                             {user.role === 'admin' && (
-                                <Link to="/admin" className="text-sm font-bold text-yellow-400 hover:text-yellow-300">
-                                    Panel Admin
-                                </Link>
-                            )}
-                            <button onClick={() => setIsDarkMode(!isDarkMode)} className="flex items-center gap-2 px-3 py-2 border-2 rounded-lg transition-all duration-500 hover:shadow-lg hover:scale-105" style={{ backgroundColor: isLightMode ? '#ffffff' : '#1e293b', borderColor: isLightMode ? '#3b82f6' : '#475569', color: isLightMode ? '#1e3a8a' : '#fbbf24' }} title={isDarkMode ? "Cambiar a modo día" : "Cambiar a modo noche"}>
-                                {isDarkMode ? ( <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg> ) : ( <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg> )}
-                            </button>
-                            <div className="flex items-center gap-2">
-                                <label htmlFor="model-select" className="text-xs font-medium hidden sm:inline" style={{ color: isLightMode ? '#1e3a8a' : '#94a3b8' }}>Modelo IA:</label>
-                                <select id="model-select"  className="text-sm px-3 py-1.5 rounded-md border-2 focus:outline-none focus:ring-2 transition-all" style={{ backgroundColor: isLightMode ? '#f9fafb' : '#1e293b', borderColor: isLightMode ? '#3b82f6' : '#475569', color: isLightMode ? '#1e3a8a' : '#f1f5f9' }} >
-                                    {AVAILABLE_MODELS.map(model => ( <option key={model.id} value={model.id}> {model.name} </option> ))}
-                                </select>
-                            </div>
-                            <button onClick={() => {}} className="flex items-center gap-2 px-4 py-2 border-2 rounded-lg text-sm transition-all duration-500 font-bold shadow-lg hover:shadow-xl hover:scale-105" style={{ backgroundColor: isLightMode ? '#2563eb' : '#0891b2', borderColor: isLightMode ? '#1d4ed8' : '#06b6d4', color: '#ffffff' }} title="Ayuda y Guía de Usuario" >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span className="hidden sm:inline">Ayuda</span>
-                            </button>
-                            <button onClick={logout} className="flex items-center gap-2 px-3 py-2 border-2 rounded-lg transition-all duration-500 hover:shadow-lg hover:scale-105" style={{ backgroundColor: isLightMode ? '#ffffff' : '#1e293b', borderColor: isLightMode ? '#ef4444' : '#475569', color: isLightMode ? '#dc2626' : '#f87171' }} title="Cerrar Sesión" >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <Routes>
-                <Route path="/" element={<MainApplication />} />
-                <Route path="/admin" element={
-                    <ProtectedRoute>
-                        <AdminDashboard />
-                    </ProtectedRoute>
-                } />
-            </Routes>
-            
+            {/* Footer */}
             <footer
                 className="border-t-2 py-6 px-8 mt-auto"
                 style={{
@@ -720,38 +839,92 @@ function AppContent() {
             >
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                        {/* Company Info */}
                         <div>
-                            <h4 className="font-bold mb-2" style={{ color: isLightMode ? '#1e3a8a' : '#10b981' }}>verbadoc</h4>
-                            <p className="text-sm" style={{ color: isLightMode ? '#475569' : '#94a3b8' }}>Extracción inteligente de datos con IA procesada en Europa</p>
+                            <h4 className="font-bold mb-2" style={{ color: isLightMode ? '#1e3a8a' : '#10b981' }}>
+                                verbadoc
+                            </h4>
+                            <p className="text-sm" style={{ color: isLightMode ? '#475569' : '#94a3b8' }}>
+                                Extracción inteligente de datos con IA procesada en Europa
+                            </p>
                         </div>
+
+                        {/* Legal Links */}
                         <div>
-                            <h4 className="font-bold mb-2" style={{ color: isLightMode ? '#1e3a8a' : '#10b981' }}>Legal</h4>
+                            <h4 className="font-bold mb-2" style={{ color: isLightMode ? '#1e3a8a' : '#10b981' }}>
+                                Legal
+                            </h4>
                             <div className="space-y-1">
-                                <a href="#" onClick={(e) => { e.preventDefault(); }} className="block text-sm hover:underline transition-colors" style={{ color: isLightMode ? '#475569' : '#94a3b8' }}>Política de Privacidad</a>
-                                <a href="#" onClick={(e) => { e.preventDefault(); }} className="block text-sm hover:underline transition-colors" style={{ color: isLightMode ? '#475569' : '#94a3b8' }}>Términos y Condiciones</a>
-                                <a href="#" onClick={(e) => { e.preventDefault(); }} className="block text-sm hover:underline transition-colors" style={{ color: isLightMode ? '#475569' : '#94a3b8' }}>Cumplimiento RGPD</a>
+                                <a
+                                    href="#"
+                                    onClick={(e) => { e.preventDefault(); setIsSettingsModalOpen(true); }}
+                                    className="block text-sm hover:underline transition-colors"
+                                    style={{ color: isLightMode ? '#475569' : '#94a3b8' }}
+                                >
+                                    Política de Privacidad
+                                </a>
+                                <a
+                                    href="#"
+                                    onClick={(e) => { e.preventDefault(); setIsSettingsModalOpen(true); }}
+                                    className="block text-sm hover:underline transition-colors"
+                                    style={{ color: isLightMode ? '#475569' : '#94a3b8' }}
+                                >
+                                    Términos y Condiciones
+                                </a>
+                                <a
+                                    href="#"
+                                    onClick={(e) => { e.preventDefault(); setIsSettingsModalOpen(true); }}
+                                    className="block text-sm hover:underline transition-colors"
+                                    style={{ color: isLightMode ? '#475569' : '#94a3b8' }}
+                                >
+                                    Cumplimiento RGPD
+                                </a>
                             </div>
                         </div>
+
+                        {/* Contact */}
                         <div>
-                            <h4 className="font-bold mb-2" style={{ color: isLightMode ? '#1e3a8a' : '#10b981' }}>Contacto</h4>
+                            <h4 className="font-bold mb-2" style={{ color: isLightMode ? '#1e3a8a' : '#10b981' }}>
+                                Contacto
+                            </h4>
                             <div className="space-y-1">
-                                <a href="mailto:legal@verbadoc.com" className="block text-sm hover:underline transition-colors" style={{ color: isLightMode ? '#475569' : '#94a3b8' }}>legal@verbadoc.com</a>
-                                <a href="mailto:soporte@verbadoc.com" className="block text-sm hover:underline transition-colors" style={{ color: isLightMode ? '#475569' : '#94a3b8' }}>soporte@verbadoc.com</a>
+                                <a
+                                    href="mailto:legal@verbadoc.com"
+                                    className="block text-sm hover:underline transition-colors"
+                                    style={{ color: isLightMode ? '#475569' : '#94a3b8' }}
+                                >
+                                    legal@verbadoc.com
+                                </a>
+                                <a
+                                    href="mailto:soporte@verbadoc.com"
+                                    className="block text-sm hover:underline transition-colors"
+                                    style={{ color: isLightMode ? '#475569' : '#94a3b8' }}
+                                >
+                                    soporte@verbadoc.com
+                                </a>
                             </div>
                         </div>
                     </div>
+
+                    {/* Copyright */}
                     <div className="border-t pt-4" style={{ borderTopColor: isLightMode ? '#e5e7eb' : '#334155' }}>
                         <div className="flex flex-col md:flex-row justify-between items-center gap-2">
-                            <p className="text-xs" style={{ color: isLightMode ? '#64748b' : '#64748b' }}>© 2025 verbadoc. Todos los derechos reservados. • Procesamiento 100% en Europa 🇪🇺</p>
-                            <p className="text-xs" style={{ color: isLightMode ? '#64748b' : '#64748b' }}>v2.0 • Powered by Google Gemini AI (Bélgica)</p>
+                            <p className="text-xs" style={{ color: isLightMode ? '#64748b' : '#64748b' }}>
+                                © 2025 verbadoc. Todos los derechos reservados. • Procesamiento 100% en Europa 🇪🇺
+                            </p>
+                            <p className="text-xs" style={{ color: isLightMode ? '#64748b' : '#64748b' }}>
+                                v2.0 • Powered by Google Gemini AI (Bélgica)
+                            </p>
                         </div>
                     </div>
                 </div>
             </footer>
+
+            {/* Chatbot Laia */}
+            <ChatbotLaia isLightMode={isLightMode} />
         </div>
     );
 }
-
 
 function App() {
     return (
