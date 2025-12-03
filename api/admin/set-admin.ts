@@ -26,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Update user role in the database
-    const updatedUser = await UserDB.updateRole(userId, role);
+    const updatedUser = await UserDB.update(userId, { role });
 
     if (!updatedUser) {
         return res.status(404).json({ error: 'Usuario no encontrado' });
