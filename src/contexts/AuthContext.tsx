@@ -77,16 +77,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
+    console.log("Logout function called");
     try {
       // Llamar a la API para limpiar la cookie httpOnly
       await fetch('/api/auth/logout', {
         method: 'POST',
         credentials: 'include'
       });
+      console.log("Logout API call successful");
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('Error during logout API call:', error);
     } finally {
       // Limpiar estado
+      console.log("Setting user to null and redirecting");
       setUser(null);
       // Recargar la página para mostrar el modal de login
       window.location.href = '/';
