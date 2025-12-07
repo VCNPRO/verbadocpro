@@ -1000,18 +1000,6 @@ import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
             <ChatbotLaia isLightMode={isLightMode} />
         </div>
     );
-// Limpieza automática de localStorage (ejecutar al cargar el módulo)
-const CLEANUP_VERSION_KEY = 'verbadoc_cleanup_version';
-const CURRENT_CLEANUP_VERSION = '2';
-const lastCleanupVersion = localStorage.getItem(CLEANUP_VERSION_KEY);
-if (lastCleanupVersion !== CURRENT_CLEANUP_VERSION) {
-    console.log('🧹 Limpiando datos antiguos de localStorage...');
-    localStorage.removeItem('currentUserId');
-    localStorage.setItem(CLEANUP_VERSION_KEY, CURRENT_CLEANUP_VERSION);
-    console.log('✅ Limpieza completada. Recargando...');
-    window.location.reload();
-}
-
 }
 
 function App() {
