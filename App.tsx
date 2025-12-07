@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 // Fix: Use explicit file extension in import.
 import { FileUploader } from './components/FileUploader.tsx';
@@ -25,15 +24,40 @@ import { AVAILABLE_MODELS, type GeminiModel, transcribeDocument, transcribeHandw
 import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig.ts';
 // ✅ Sistema de autenticación real activado
 import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
-// ... (imports)
+import { AuthModal } from './src/components/AuthModal.tsx';
 
-// ... (AppContent function)
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+    const { user } = useAuth();
+    if (user?.role !== 'admin') {
+        return <Navigate to="/" />;
+    }
+    return children;
+}
+
+function AppContent() {
+    const { user, loading, logout } = useAuth();
+
+    const [files, setFiles] = useState<UploadedFile[]>([]);
+    const [activeFileId, setActiveFileId] = useState<string | null>(null);
+    const [history, setHistory] = useState<ExtractionResult[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [viewingFile, setViewingFile] = useState<File | null>(null);
+    const [isHelpModalOpen, setIsHelpModalOpen] = useState<boolean>(false);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+    const [currentDepartamento, setCurrentDepartamento] = useState<Departamento>('general');
+    const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
+    const [showResultsExpanded, setShowResultsExpanded] = useState<boolean>(false);
+    const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
+    const [isDarkMode, setIsDarkMode] = useState<boolean>(true); // Default to dark mode
+
     const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
     const [isHtrTranscribing, setIsHtrTranscribing] = useState<boolean>(false);
     const [isGeneratingMetadata, setIsGeneratingMetadata] = useState<boolean>(false);
 
     // State for the editor, which can be reused across different files
-    const [prompt, setPrompt] = useState<string>('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');
+    const [prompt, setPrompt] = useState<string>('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');        
     const [schema, setSchema] = useState<SchemaField[]>([{ id: `field-${Date.now()}`, name: '', type: 'STRING' }]);
 
     // Obtener el tema basado en el departamento actual
@@ -74,7 +98,7 @@ import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
     const handleFileSelect = (id: string | null) => {
         setActiveFileId(id);
     };
-    
+
     const handleExtract = async () => {
         if (!activeFile) return;
 
@@ -100,7 +124,7 @@ import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
             }
 
             setFiles(currentFiles =>
-                currentFiles.map(f => f.id === activeFile.id ? { ...f, status: 'completado', extractedData: extractedData, error: undefined } : f)
+                currentFiles.map(f => f.id === activeFile.id ? { ...f, status: 'completado', extractedData: extractedData, error: undefined } : f)   
             );
 
             const newHistoryEntry: ExtractionResult = {
@@ -159,7 +183,7 @@ import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
                 }
 
                 setFiles(currentFiles =>
-                    currentFiles.map(f => f.id === file.id ? { ...f, status: 'completado', extractedData: extractedData, error: undefined } : f)
+                    currentFiles.map(f => f.id === file.id ? { ...f, status: 'completado', extractedData: extractedData, error: undefined } : f)     
                 );
 
                 const newHistoryEntry: ExtractionResult = {
@@ -628,7 +652,20 @@ import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
     };
 
     // Mostrar modal de autenticación si no hay usuario
-// Mostrar loader mientras se verifica la autenticación    if (loading) {        return (            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff' }}>                <div className="text-center">                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>                    <p className="mt-4 text-gray-500">Cargando...</p>                </div>            </div>        );    }    // Mostrar modal de autenticación si no hay usuario    if (!user) {        return <AuthModal isLightMode={!isDarkMode} />;    }
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff' }}>
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                    <p className="mt-4 text-gray-500">Cargando...</p>
+                </div>
+            </div>
+        );
+    }
+    // Mostrar modal de autenticación si no hay usuario
+    if (!user) {
+        return <AuthModal isLightMode={!isDarkMode} />;
+    }
 
     return (
         <div
