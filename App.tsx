@@ -1,17 +1,18 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 // Fix: Use explicit file extension in import.
-import { FileUploader } from './components/FileUploader.tsx';        
+import { FileUploader } from './components/FileUploader.tsx';
 // Fix: Use explicit file extension in import.
 import { ExtractionEditor } from './components/ExtractionEditor.tsx';
 // Fix: Use explicit file extension in import.
-import { HistoryViewer } from './components/HistoryViewer.tsx';      
+import { HistoryViewer } from './components/HistoryViewer.tsx';
 // Fix: Use explicit file extension in import.
-import { TemplatesPanel } from './components/TemplatesPanel.tsx';    
+import { TemplatesPanel } from './components/TemplatesPanel.tsx';
 // Fix: Use explicit file extension in import.
 import { PdfViewer } from './components/PdfViewer.tsx';
 // Fix: Use explicit file extension in import.
 import { HelpModal } from './components/HelpModal.tsx';
-import { SettingsModal } from './components/SettingsModal.tsx';      
+import { SettingsModal } from './components/SettingsModal.tsx';
 // Fix: Use explicit file extension in import.
 import { ResultsViewer } from './components/ResultsViewer.tsx';
 import { ChatbotLaia } from './components/ChatbotLaia.tsx';
@@ -54,10 +55,9 @@ function AppContent() {
 
     const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
     const [isHtrTranscribing, setIsHtrTranscribing] = useState<boolean>(false);
-    const [isGeneratingMetadata, setIsGeneratingMetadata] = useState<boolean>(false);
 
     // State for the editor, which can be reused across different files
-    const [prompt, setPrompt] = useState<string>('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');        
+    const [prompt, setPrompt] = useState<string>('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');
     const [schema, setSchema] = useState<SchemaField[]>([{ id: `field-${Date.now()}`, name: '', type: 'STRING' }]);
 
     // Obtener el tema basado en el departamento actual
@@ -98,7 +98,7 @@ function AppContent() {
     const handleFileSelect = (id: string | null) => {
         setActiveFileId(id);
     };
-
+    
     const handleExtract = async () => {
         if (!activeFile) return;
 
@@ -124,7 +124,7 @@ function AppContent() {
             }
 
             setFiles(currentFiles =>
-                currentFiles.map(f => f.id === activeFile.id ? { ...f, status: 'completado', extractedData: extractedData, error: undefined } : f)   
+                currentFiles.map(f => f.id === activeFile.id ? { ...f, status: 'completado', extractedData: extractedData, error: undefined } : f)
             );
 
             const newHistoryEntry: ExtractionResult = {
@@ -183,7 +183,7 @@ function AppContent() {
                 }
 
                 setFiles(currentFiles =>
-                    currentFiles.map(f => f.id === file.id ? { ...f, status: 'completado', extractedData: extractedData, error: undefined } : f)     
+                    currentFiles.map(f => f.id === file.id ? { ...f, status: 'completado', extractedData: extractedData, error: undefined } : f)
                 );
 
                 const newHistoryEntry: ExtractionResult = {
@@ -216,16 +216,12 @@ function AppContent() {
         try {
             const text = await transcribeDocument(activeFile.file, selectedModel);
             
-            setIsGeneratingMetadata(true);
-            const metadata = await generateMetadata(text, selectedModel);
-
             const newHistoryEntry: ExtractionResult = {
                 id: `hist-${Date.now()}`,
                 type: 'transcription',
                 fileId: activeFile.id,
                 fileName: activeFile.file.name,
                 transcription: text,
-                metadata: metadata,
                 timestamp: new Date().toISOString(),
             };
             setHistory(currentHistory => [newHistoryEntry, ...currentHistory]);
@@ -236,10 +232,9 @@ function AppContent() {
             
             setShowResultsExpanded(true);
         } catch (error) {
-            alert(`Error en la transcripción o generación de metadatos: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+            alert(`Error en la transcripción: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         } finally {
             setIsTranscribing(false);
-            setIsGeneratingMetadata(false);
         }
     };
 
@@ -250,16 +245,12 @@ function AppContent() {
         try {
             const text = await transcribeHandwrittenDocument(activeFile.file, 'gemini-2.5-pro');
             
-            setIsGeneratingMetadata(true);
-            const metadata = await generateMetadata(text, 'gemini-2.5-pro');
-
             const newHistoryEntry: ExtractionResult = {
                 id: `hist-${Date.now()}`,
                 type: 'transcription',
                 fileId: activeFile.id,
                 fileName: activeFile.file.name,
                 transcription: text,
-                metadata: metadata,
                 timestamp: new Date().toISOString(),
             };
             setHistory(currentHistory => [newHistoryEntry, ...currentHistory]);
@@ -270,13 +261,12 @@ function AppContent() {
             
             setShowResultsExpanded(true);
         } catch (error) {
-            alert(`Error en la transcripción HTR o generación de metadatos: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+            alert(`Error en la transcripción HTR: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         } finally {
             setIsHtrTranscribing(false);
-            setIsGeneratingMetadata(false);
         }
     };
-
+    
     const handleReplay = (result: ExtractionResult) => {
         if (result.type === 'transcription') {
             alert('No se puede re-ejecutar una transcripción. Vuelve a ejecutar la acción desde el editor.');
@@ -652,20 +642,7 @@ function AppContent() {
     };
 
     // Mostrar modal de autenticación si no hay usuario
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff' }}>
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-4 text-gray-500">Cargando...</p>
-                </div>
-            </div>
-        );
-    }
-    // Mostrar modal de autenticación si no hay usuario
-    if (!user) {
-        return <AuthModal isLightMode={!isDarkMode} />;
-    }
+// Mostrar loader mientras se verifica la autenticación    if (loading) {        return (            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff' }}>                <div className="text-center">                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>                    <p className="mt-4 text-gray-500">Cargando...</p>                </div>            </div>        );    }    // Mostrar modal de autenticación si no hay usuario    if (!user) {        return <AuthModal isLightMode={!isDarkMode} />;    }
 
     return (
         <div
@@ -825,12 +802,11 @@ function AppContent() {
                             prompt={prompt}
                             setPrompt={setPrompt}
                             onExtract={handleExtract}
-                            isLoading={isLoading || isTranscribing || isHtrTranscribing || isGeneratingMetadata}
+                            isLoading={isLoading || isTranscribing || isHtrTranscribing}
                             onFullTranscription={handleFullTranscription}
                             isTranscribing={isTranscribing}
                             onHtrTranscription={handleHtrTranscription}
                             isHtrTranscribing={isHtrTranscribing}
-                            isGeneratingMetadata={isGeneratingMetadata}
                             theme={currentTheme}
                             isLightMode={isLightMode}
                         />
@@ -1038,13 +1014,23 @@ function AppContent() {
             <ChatbotLaia isLightMode={isLightMode} />
         </div>
     );
+// Limpieza automática de localStorage (ejecutar al cargar el módulo)
+const CLEANUP_VERSION_KEY = 'verbadoc_cleanup_version';
+const CURRENT_CLEANUP_VERSION = '2';
+const lastCleanupVersion = localStorage.getItem(CLEANUP_VERSION_KEY);
+if (lastCleanupVersion !== CURRENT_CLEANUP_VERSION) {
+    console.log('🧹 Limpiando datos antiguos de localStorage...');
+    localStorage.removeItem('currentUserId');
+    localStorage.setItem(CLEANUP_VERSION_KEY, CURRENT_CLEANUP_VERSION);
+    console.log('✅ Limpieza completada. Recargando...');
+    window.location.reload();
+}
+
 }
 
 function App() {
     return (
-        <AuthProvider>
-            <AppContent />
-        </AuthProvider>
+        <AppContent />
     );
 }
 
