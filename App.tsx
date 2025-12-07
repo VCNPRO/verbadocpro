@@ -23,7 +23,7 @@ import { TranscriptionModal } from './components/TranscriptionModal.tsx';
 // Fix: Use explicit file extension in import.
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
-import { AVAILABLE_MODELS, type GeminiModel, transcribeDocument } from './services/geminiService.ts';
+import { AVAILABLE_MODELS, type GeminiModel, transcribeDocument, transcribeHandwrittenDocument } from './services/geminiService.ts';
 import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig.ts';
 // ✅ Sistema de autenticación real activado
 import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
@@ -58,6 +58,7 @@ function AppContent() {
     const [isTranscriptionModalOpen, setIsTranscriptionModalOpen] = useState<boolean>(false);
     const [transcriptionText, setTranscriptionText] = useState<string>('');
     const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
+    const [isHtrTranscribing, setIsHtrTranscribing] = useState<boolean>(false);
 
     // State for the editor, which can be reused across different files
     const [prompt, setPrompt] = useState<string>('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');
@@ -224,6 +225,24 @@ function AppContent() {
             alert(`Error en la transcripción: ${errorMessage}`);
         } finally {
             setIsTranscribing(false);
+        }
+    };
+
+    const handleHtrTranscription = async () => {
+        if (!activeFile) return;
+
+        setIsHtrTranscribing(true);
+        setTranscriptionText(''); // Clear previous transcription
+
+        try {
+            const text = await transcribeHandwrittenDocument(activeFile.file, selectedModel);
+            setTranscriptionText(text);
+            setIsTranscriptionModalOpen(true);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Un error desconocido ocurrió.';
+            alert(`Error en la transcripción HTR: ${errorMessage}`);
+        } finally {
+            setIsHtrTranscribing(false);
         }
     };
     
@@ -740,9 +759,11 @@ function AppContent() {
                             prompt={prompt}
                             setPrompt={setPrompt}
                             onExtract={handleExtract}
-                            isLoading={isLoading || isTranscribing}
+                            isLoading={isLoading || isTranscribing || isHtrTranscribing}
                             onFullTranscription={handleFullTranscription}
                             isTranscribing={isTranscribing}
+                            onHtrTranscription={handleHtrTranscription}
+                            isHtrTranscribing={isHtrTranscribing}
                             theme={currentTheme}
                             isLightMode={isLightMode}
                         />

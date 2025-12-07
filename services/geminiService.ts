@@ -331,6 +331,43 @@ export const transcribeDocument = async (
     }
 };
 
+// Transcribir documento manuscrito (HTR)
+export const transcribeHandwrittenDocument = async (
+    file: File,
+    modelId: GeminiModel = 'gemini-2.5-pro'
+): Promise<string> => {
+    const generativePart = await fileToGenerativePart(file);
+    const prompt = `Este documento contiene texto manuscrito. Transcríbelo con la mayor precisión posible, prestando especial atención a la caligrafía, la estructura y los saltos de línea. No resumas ni alteres el contenido. Devuelve únicamente el texto transcrito.`;
+
+    console.log(`✍️  Transcribiendo (HTR): ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+    console.log(`🤖 Modelo: ${modelId}`);
+    console.log(`🇪🇺 Región: europe-west1 (Bélgica)`);
+
+    try {
+        const result = await callVertexAIAPI('extract', {
+            model: modelId,
+            contents: {
+                role: 'user',
+                parts: [
+                    { text: prompt },
+                    generativePart
+                ]
+            },
+        });
+
+        console.log(`✅ Transcripción (HTR) completada`);
+        console.log(`📍 Procesado en: ${result.location || 'europe-west1'}`);
+
+        return result.text.trim();
+    } catch (error) {
+        console.error('Error al llamar a Vertex AI para HTR:', error);
+        if (error instanceof Error) {
+            throw new Error(`Error de Vertex AI (HTR): ${error.message}`);
+        }
+        throw new Error('Ocurrió un error desconocido al comunicarse con Vertex AI para HTR.');
+    }
+};
+
 // Buscar imagen en documento
 export const searchImageInDocument = async (
     documentFile: File,
