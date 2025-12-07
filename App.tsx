@@ -575,7 +575,7 @@ function AppContent() {
 
     return (
         <div
-            className="min-h-screen font-sans transition-colors duration-500"
+            className="min-h-screen font-sans transition-colors duration-500 flex flex-col"
             style={{
                 backgroundColor: isDarkMode ? '#0f172a' : '#f0f9ff', // Light blue for light mode
                 color: isDarkMode ? '#e2e8f0' : '#0f172a'
@@ -691,8 +691,8 @@ function AppContent() {
                 </div>
             </header>
 
-            <main className="p-4 sm:p-6 lg:p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" style={{height: 'calc(100vh - 112px)'}}>
+            <main className="p-4 sm:p-6 lg:p-8 flex-grow">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
                     <div className="lg:col-span-3 h-full">
                         <FileUploader
                             files={files}
