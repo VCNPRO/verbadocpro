@@ -5,6 +5,7 @@ export interface UploadedFile {
   file: File;
   status: UploadedFileStatus;
   extractedData?: object;
+  transcription?: string;
   error?: string;
 }
 
@@ -162,11 +163,13 @@ export interface SchemaField {
 
 export interface ExtractionResult {
     id: string;
+    type: 'extraction' | 'transcription';
     fileId: string;
     fileName: string;
-    schema: SchemaField[];
-    extractedData: object;
     timestamp: string;
+    extractedData?: object; // Para extracciones
+    schema?: SchemaField[];   // Para extracciones
+    transcription?: string; // Para transcripciones
 }
 
 export type Departamento = 'contabilidad' | 'finanzas' | 'marketing' | 'legal' | 'rrhh' | 'general';

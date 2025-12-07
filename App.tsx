@@ -19,8 +19,6 @@ import { ChatbotLaia } from './components/ChatbotLaia.tsx';
 import { AdminDashboard } from './components/AdminDashboard.tsx';
 import { AIAssistantPanel } from './components/AIAssistantPanel.tsx';
 // Fix: Use explicit file extension in import.
-import { TranscriptionModal } from './components/TranscriptionModal.tsx';
-// Fix: Use explicit file extension in import.
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
 import { AVAILABLE_MODELS, type GeminiModel, transcribeDocument, transcribeHandwrittenDocument } from './services/geminiService.ts';
@@ -55,8 +53,6 @@ function AppContent() {
     const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
     const [isDarkMode, setIsDarkMode] = useState<boolean>(true); // Default to dark mode
 
-    const [isTranscriptionModalOpen, setIsTranscriptionModalOpen] = useState<boolean>(false);
-    const [transcriptionText, setTranscriptionText] = useState<string>('');
     const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
     const [isHtrTranscribing, setIsHtrTranscribing] = useState<boolean>(false);
 
@@ -133,6 +129,7 @@ function AppContent() {
 
             const newHistoryEntry: ExtractionResult = {
                 id: `hist-${Date.now()}`,
+                type: 'extraction',
                 fileId: activeFile.id,
                 fileName: activeFile.file.name,
                 schema: JSON.parse(JSON.stringify(schema)), // Deep copy schema
@@ -140,6 +137,7 @@ function AppContent() {
                 timestamp: new Date().toISOString(),
             };
             setHistory(currentHistory => [newHistoryEntry, ...currentHistory]);
+            setShowResultsExpanded(true);
 
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Un error desconocido ocurrió.';
@@ -190,6 +188,7 @@ function AppContent() {
 
                 const newHistoryEntry: ExtractionResult = {
                     id: `hist-${Date.now()}-${file.id}`,
+                    type: 'extraction',
                     fileId: file.id,
                     fileName: file.file.name,
                     schema: JSON.parse(JSON.stringify(schema)), // Deep copy schema
@@ -214,15 +213,26 @@ function AppContent() {
         if (!activeFile) return;
 
         setIsTranscribing(true);
-        setTranscriptionText(''); // Clear previous transcription
-
         try {
             const text = await transcribeDocument(activeFile.file, selectedModel);
-            setTranscriptionText(text);
-            setIsTranscriptionModalOpen(true);
+            
+            const newHistoryEntry: ExtractionResult = {
+                id: `hist-${Date.now()}`,
+                type: 'transcription',
+                fileId: activeFile.id,
+                fileName: activeFile.file.name,
+                transcription: text,
+                timestamp: new Date().toISOString(),
+            };
+            setHistory(currentHistory => [newHistoryEntry, ...currentHistory]);
+
+            setFiles(currentFiles =>
+                currentFiles.map(f => f.id === activeFile.id ? { ...f, transcription: text } : f)
+            );
+            
+            setShowResultsExpanded(true);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Un error desconocido ocurrió.';
-            alert(`Error en la transcripción: ${errorMessage}`);
+            alert(`Error en la transcripción: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         } finally {
             setIsTranscribing(false);
         }
@@ -232,27 +242,43 @@ function AppContent() {
         if (!activeFile) return;
 
         setIsHtrTranscribing(true);
-        setTranscriptionText(''); // Clear previous transcription
-
         try {
-            const text = await transcribeHandwrittenDocument(activeFile.file, selectedModel);
-            setTranscriptionText(text);
-            setIsTranscriptionModalOpen(true);
+            const text = await transcribeHandwrittenDocument(activeFile.file, 'gemini-2.5-pro');
+            
+            const newHistoryEntry: ExtractionResult = {
+                id: `hist-${Date.now()}`,
+                type: 'transcription',
+                fileId: activeFile.id,
+                fileName: activeFile.file.name,
+                transcription: text,
+                timestamp: new Date().toISOString(),
+            };
+            setHistory(currentHistory => [newHistoryEntry, ...currentHistory]);
+
+            setFiles(currentFiles =>
+                currentFiles.map(f => f.id === activeFile.id ? { ...f, transcription: text } : f)
+            );
+            
+            setShowResultsExpanded(true);
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Un error desconocido ocurrió.';
-            alert(`Error en la transcripción HTR: ${errorMessage}`);
+            alert(`Error en la transcripción HTR: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         } finally {
             setIsHtrTranscribing(false);
         }
     };
     
     const handleReplay = (result: ExtractionResult) => {
-        // Find if the file still exists in the current batch
+        if (result.type === 'transcription') {
+            alert('No se puede re-ejecutar una transcripción. Vuelve a ejecutar la acción desde el editor.');
+            return;
+        }
+        
         const originalFile = files.find(f => f.id === result.fileId);
         if (originalFile) {
             setActiveFileId(originalFile.id);
-            setSchema(JSON.parse(JSON.stringify(result.schema))); // Deep copy schema
-            // You might want to reuse the prompt as well if it were saved in history
+            if (result.schema) {
+                setSchema(JSON.parse(JSON.stringify(result.schema)));
+            }
         } else {
              alert(`El archivo original "${result.fileName}" ya no está en el lote actual. Cargue el archivo de nuevo para reutilizar esta extracción.`);
         }
@@ -567,18 +593,20 @@ function AppContent() {
         import('./utils/exportUtils.ts').then(({downloadPDF}) => {
             history.forEach((entry, index) => {
                 // Pequeño delay entre descargas para evitar problemas en el navegador
-                setTimeout(() => {
-                    downloadPDF(
-                        entry.extractedData,
-                        `${entry.fileName.replace(/\.[^/.]+$/, '')}_extraccion`,
-                        entry.schema,
-                        true // Siempre formato vertical
-                    );
-                }, index * 300); // 300ms de delay entre cada PDF
+                if (entry.type === 'extraction' && entry.extractedData) {
+                    setTimeout(() => {
+                        downloadPDF(
+                            entry.extractedData,
+                            `${entry.fileName.replace(/\.[^/.]+$/, '')}_extraccion`,
+                            entry.schema,
+                            true // Siempre formato vertical
+                        );
+                    }, index * 300); // 300ms de delay entre cada PDF
+                }
             });
 
-            console.log(`📄 Exportando ${history.length} PDFs...`);
-            alert(`Se descargarán ${history.length} PDFs en formato vertical`);
+            console.log(`📄 Exportando PDFs de extracciones...`);
+            alert(`Se descargarán los PDFs de las extracciones de datos.`);
         });
     };
 
@@ -802,14 +830,6 @@ function AppContent() {
                     </div>
                 </div>
             </main>
-
-            <TranscriptionModal
-                isOpen={isTranscriptionModalOpen}
-                onClose={() => setIsTranscriptionModalOpen(false)}
-                text={transcriptionText}
-                filename={activeFile?.file.name || 'transcripcion'}
-                isLightMode={isLightMode}
-            />
 
             <PdfViewer
                 file={viewingFile}
