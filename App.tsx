@@ -727,6 +727,21 @@ function AppContent() {
                                 </select>
                             </div>
                             <button
+                                onClick={() => setShowResultsExpanded(true)}
+                                className="flex items-center gap-2 px-4 py-2 border-2 rounded-lg text-sm transition-all duration-500 font-bold shadow-lg hover:shadow-xl hover:scale-105"
+                                style={{
+                                    backgroundColor: isLightMode ? '#3b82f6' : '#06b6d4',
+                                    borderColor: isLightMode ? '#1d4ed8' : '#0891b2',
+                                    color: '#ffffff'
+                                }}
+                                title="Ver Historial de Resultados"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                </svg>
+                                <span className="hidden sm:inline">Resultados</span>
+                            </button>
+                            <button
                             onClick={() => setIsHelpModalOpen(true)}
                             className="flex items-center gap-2 px-4 py-2 border-2 rounded-lg text-sm transition-all duration-500 font-bold shadow-lg hover:shadow-xl hover:scale-105"
                             style={{
