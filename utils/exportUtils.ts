@@ -5,6 +5,63 @@ import * as XLSX from 'xlsx';
 import type { SchemaField } from '../types.ts';
 
 /**
+ * Descarga un texto plano como un archivo PDF.
+ * @param text El texto a exportar.
+ * @param filename El nombre del archivo (sin extensión).
+ */
+export const downloadTextAsPDF = (text: string, filename: string) => {
+    const pdf = new jsPDF();
+    
+    // Establecer metadatos
+    pdf.setProperties({
+        title: `${filename}`,
+        subject: 'Transcripción de documento',
+        author: 'VerbaDoc Pro',
+    });
+
+    // Establecer fuente y tamaño
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(10);
+
+    // Dividir el texto en líneas que quepan en la página
+    const margin = 15;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const usableWidth = pageWidth - (2 * margin);
+    const lines = pdf.splitTextToSize(text, usableWidth);
+
+    // Añadir el texto, manejando saltos de página
+    let cursorY = margin;
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const lineHeight = pdf.getLineHeight() / pdf.internal.scaleFactor;
+
+    for (let i = 0; i < lines.length; i++) {
+        if (cursorY + lineHeight > pageHeight - margin) {
+            pdf.addPage();
+            cursorY = margin;
+        }
+        pdf.text(lines[i], margin, cursorY);
+        cursorY += lineHeight;
+    }
+
+    // Generar y descargar el Blob
+    const blob = pdf.output('blob');
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${filename}.pdf`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Limpiar URL después de la descarga
+    setTimeout(() => URL.revokeObjectURL(url), 100);
+};
+
+
+/**
  * Extrae el orden de campos del schema de forma recursiva
  */
 const getFieldOrderFromSchema = (schema: SchemaField[], prefix = ''): string[] => {

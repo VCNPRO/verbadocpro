@@ -19,9 +19,11 @@ import { ChatbotLaia } from './components/ChatbotLaia.tsx';
 import { AdminDashboard } from './components/AdminDashboard.tsx';
 import { AIAssistantPanel } from './components/AIAssistantPanel.tsx';
 // Fix: Use explicit file extension in import.
+import { TranscriptionModal } from './components/TranscriptionModal.tsx';
+// Fix: Use explicit file extension in import.
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
-import { AVAILABLE_MODELS, type GeminiModel } from './services/geminiService.ts';
+import { AVAILABLE_MODELS, type GeminiModel, transcribeDocument } from './services/geminiService.ts';
 import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig.ts';
 // ✅ Sistema de autenticación real activado
 import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
@@ -52,6 +54,10 @@ function AppContent() {
     const [showResultsExpanded, setShowResultsExpanded] = useState<boolean>(false);
     const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
     const [isDarkMode, setIsDarkMode] = useState<boolean>(true); // Default to dark mode
+
+    const [isTranscriptionModalOpen, setIsTranscriptionModalOpen] = useState<boolean>(false);
+    const [transcriptionText, setTranscriptionText] = useState<string>('');
+    const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
 
     // State for the editor, which can be reused across different files
     const [prompt, setPrompt] = useState<string>('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');
@@ -201,6 +207,24 @@ function AppContent() {
 
         setIsLoading(false);
         setShowResultsExpanded(true); // Mostrar resultados automáticamente
+    };
+
+    const handleFullTranscription = async () => {
+        if (!activeFile) return;
+
+        setIsTranscribing(true);
+        setTranscriptionText(''); // Clear previous transcription
+
+        try {
+            const text = await transcribeDocument(activeFile.file, selectedModel);
+            setTranscriptionText(text);
+            setIsTranscriptionModalOpen(true);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Un error desconocido ocurrió.';
+            alert(`Error en la transcripción: ${errorMessage}`);
+        } finally {
+            setIsTranscribing(false);
+        }
     };
     
     const handleReplay = (result: ExtractionResult) => {
@@ -716,7 +740,9 @@ function AppContent() {
                             prompt={prompt}
                             setPrompt={setPrompt}
                             onExtract={handleExtract}
-                            isLoading={isLoading}
+                            isLoading={isLoading || isTranscribing}
+                            onFullTranscription={handleFullTranscription}
+                            isTranscribing={isTranscribing}
                             theme={currentTheme}
                             isLightMode={isLightMode}
                         />
@@ -755,6 +781,14 @@ function AppContent() {
                     </div>
                 </div>
             </main>
+
+            <TranscriptionModal
+                isOpen={isTranscriptionModalOpen}
+                onClose={() => setIsTranscriptionModalOpen(false)}
+                text={transcriptionText}
+                filename={activeFile?.file.name || 'transcripcion'}
+                isLightMode={isLightMode}
+            />
 
             <PdfViewer
                 file={viewingFile}

@@ -20,7 +20,9 @@ interface ExtractionEditorProps {
     prompt: string;
     setPrompt: React.Dispatch<React.SetStateAction<string>>;
     onExtract: (modelId?: GeminiModel) => void;
-    isLoading: boolean;
+    isLoading?: boolean;
+    onFullTranscription?: () => void;
+    isTranscribing?: boolean;
     theme?: any;
     isLightMode?: boolean;
 }
@@ -46,7 +48,7 @@ const EXAMPLE_SCHEMA: SchemaField[] = [
 ];
 
 
-export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, template, onUpdateTemplate, onSaveTemplateChanges, schema, setSchema, prompt, setPrompt, onExtract, isLoading, theme, isLightMode }) => {
+export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, template, onUpdateTemplate, onSaveTemplateChanges, schema, setSchema, prompt, setPrompt, onExtract, isLoading, onFullTranscription, isTranscribing, theme, isLightMode }) => {
     const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
     const [isSearchingImage, setIsSearchingImage] = useState(false);
     const [imageSearchResult, setImageSearchResult] = useState<any>(null);
@@ -396,6 +398,24 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
                 )}
 
                 <button
+                    onClick={onFullTranscription}
+                    disabled={isLoading || !file}
+                    className="w-full flex items-center justify-center gap-2 text-white font-bold py-3 px-4 rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 mb-3"
+                    style={{
+                        backgroundColor: isLightMode ? '#1d4ed8' : '#1e40af'
+                    }}
+                >
+                    {isTranscribing ? (
+                        <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Transcribiendo...
+                        </>
+                    ) : (
+                        `Transcripción Completa`
+                    )}
+                </button>
+
+                <button
                     onClick={() => onExtract(selectedModel)}
                     disabled={isLoading || !file || hasSchemaErrors || schema.length === 0}
                     className="w-full flex items-center justify-center gap-2 text-white font-bold py-3 px-4 rounded-md transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
@@ -403,13 +423,13 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
                         backgroundColor: accentColor
                     }}
                 >
-                    {isLoading ? (
+                    {isLoading && !isTranscribing ? (
                         <>
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             Extrayendo Datos con {AVAILABLE_MODELS.find(m => m.id === selectedModel)?.name}...
                         </>
                     ) : (
-                        `Ejecutar Extracción con ${AVAILABLE_MODELS.find(m => m.id === selectedModel)?.name}`
+                        `Ejecutar Extracción con Plantilla`
                     )}
                 </button>
                 {hasSchemaErrors && (

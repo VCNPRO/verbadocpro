@@ -293,6 +293,44 @@ export const extractDataFromDocument = async (
     }
 };
 
+// Transcribir documento completo
+export const transcribeDocument = async (
+    file: File,
+    modelId: GeminiModel = 'gemini-2.5-flash'
+): Promise<string> => {
+    const generativePart = await fileToGenerativePart(file);
+    const prompt = `Extrae el texto completo de este documento. Mantén la estructura original, incluyendo párrafos y saltos de línea. No resumas ni alteres el contenido. Devuelve únicamente el texto extraído.`;
+
+    console.log(`📄 Transcribiendo: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+    console.log(`🤖 Modelo: ${modelId}`);
+    console.log(`🇪🇺 Región: europe-west1 (Bélgica)`);
+
+    try {
+        const result = await callVertexAIAPI('extract', {
+            model: modelId,
+            contents: {
+                role: 'user',
+                parts: [
+                    { text: prompt },
+                    generativePart
+                ]
+            },
+            // No se especifica responseMimeType para obtener texto plano
+        });
+
+        console.log(`✅ Transcripción completada`);
+        console.log(`📍 Procesado en: ${result.location || 'europe-west1'}`);
+
+        return result.text.trim();
+    } catch (error) {
+        console.error('Error al llamar a Vertex AI para transcribir:', error);
+        if (error instanceof Error) {
+            throw new Error(`Error de Vertex AI: ${error.message}`);
+        }
+        throw new Error('Ocurrió un error desconocido al comunicarse con Vertex AI.');
+    }
+};
+
 // Buscar imagen en documento
 export const searchImageInDocument = async (
     documentFile: File,
