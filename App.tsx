@@ -1,17 +1,17 @@
 import React, { useState, useMemo, useEffect } from 'react';
 // Fix: Use explicit file extension in import.
-import { FileUploader } from './components/FileUploader.tsx';
+import { FileUploader } from './components/FileUploader.tsx';        
 // Fix: Use explicit file extension in import.
 import { ExtractionEditor } from './components/ExtractionEditor.tsx';
 // Fix: Use explicit file extension in import.
-import { HistoryViewer } from './components/HistoryViewer.tsx';
+import { HistoryViewer } from './components/HistoryViewer.tsx';      
 // Fix: Use explicit file extension in import.
-import { TemplatesPanel } from './components/TemplatesPanel.tsx';
+import { TemplatesPanel } from './components/TemplatesPanel.tsx';    
 // Fix: Use explicit file extension in import.
 import { PdfViewer } from './components/PdfViewer.tsx';
 // Fix: Use explicit file extension in import.
 import { HelpModal } from './components/HelpModal.tsx';
-import { SettingsModal } from './components/SettingsModal.tsx';
+import { SettingsModal } from './components/SettingsModal.tsx';      
 // Fix: Use explicit file extension in import.
 import { ResultsViewer } from './components/ResultsViewer.tsx';
 import { ChatbotLaia } from './components/ChatbotLaia.tsx';
@@ -20,7 +20,7 @@ import { AIAssistantPanel } from './components/AIAssistantPanel.tsx';
 // Fix: Use explicit file extension in import.
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
-import { AVAILABLE_MODELS, type GeminiModel, transcribeDocument, transcribeHandwrittenDocument, generateMetadata } from './services/geminiService.ts';
+import { AVAILABLE_MODELS, type GeminiModel, transcribeDocument, transcribeHandwrittenDocument } from './services/geminiService.ts';
 import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig.ts';
 // ✅ Sistema de autenticación real activado
 import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
@@ -276,7 +276,7 @@ function AppContent() {
             setIsGeneratingMetadata(false);
         }
     };
-    
+
     const handleReplay = (result: ExtractionResult) => {
         if (result.type === 'transcription') {
             alert('No se puede re-ejecutar una transcripción. Vuelve a ejecutar la acción desde el editor.');
@@ -830,6 +830,7 @@ function AppContent() {
                             isTranscribing={isTranscribing}
                             onHtrTranscription={handleHtrTranscription}
                             isHtrTranscribing={isHtrTranscribing}
+                            isGeneratingMetadata={isGeneratingMetadata}
                             theme={currentTheme}
                             isLightMode={isLightMode}
                         />
