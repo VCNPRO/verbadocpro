@@ -368,6 +368,56 @@ export const transcribeHandwrittenDocument = async (
     }
 };
 
+// Generar metadatos a partir de texto
+export const generateMetadata = async (
+    text: string,
+    modelId: GeminiModel = 'gemini-2.5-flash'
+): Promise<{ title: string; summary: string; keywords: string[] }> => {
+    const prompt = `A partir del siguiente texto, genera metadatos útiles.
+
+Texto:
+---
+${text.substring(0, 8000)}...
+---
+
+INSTRUCCIONES:
+1.  **Título:** Crea un título breve y descriptivo que resuma el documento.
+2.  **Resumen:** Escribe un resumen conciso de 2-3 frases sobre el contenido principal.
+3.  **Palabras Clave:** Extrae entre 5 y 10 palabras o frases clave que representen los temas principales.
+
+Devuelve la respuesta únicamente en formato JSON con la siguiente estructura:
+{
+  "title": "string",
+  "summary": "string",
+  "keywords": ["string"]
+}`;
+
+    console.log(`🧠 Generando metadatos con el modelo: ${modelId}`);
+
+    try {
+        const result = await callVertexAIAPI('extract', {
+            model: modelId,
+            contents: {
+                role: 'user',
+                parts: [{ text: prompt }]
+            },
+            config: {
+                responseMimeType: 'application/json',
+            },
+        });
+
+        console.log(`✅ Metadatos generados`);
+        const jsonStr = result.text.trim();
+        return JSON.parse(jsonStr);
+    } catch (error) {
+        console.error('Error al generar metadatos:', error);
+        if (error instanceof Error) {
+            throw new Error(`Error de Vertex AI (Metadata): ${error.message}`);
+        }
+        throw new Error('Ocurrió un error desconocido al generar los metadatos.');
+    }
+};
+
 // Buscar imagen en documento
 export const searchImageInDocument = async (
     documentFile: File,

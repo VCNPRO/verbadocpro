@@ -170,6 +170,13 @@ export interface ExtractionResult {
     extractedData?: object; // Para extracciones
     schema?: SchemaField[];   // Para extracciones
     transcription?: string; // Para transcripciones
+    metadata?: Metadata; // Para metadatos generados
+}
+
+export interface Metadata {
+  title: string;
+  summary: string;
+  keywords: string[];
 }
 
 export type Departamento = 'contabilidad' | 'finanzas' | 'marketing' | 'legal' | 'rrhh' | 'general';

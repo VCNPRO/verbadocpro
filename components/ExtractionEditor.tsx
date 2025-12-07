@@ -25,6 +25,7 @@ interface ExtractionEditorProps {
     isTranscribing?: boolean;
     onHtrTranscription?: () => void;
     isHtrTranscribing?: boolean;
+    isGeneratingMetadata?: boolean;
     theme?: any;
     isLightMode?: boolean;
 }
@@ -50,7 +51,7 @@ const EXAMPLE_SCHEMA: SchemaField[] = [
 ];
 
 
-export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, template, onUpdateTemplate, onSaveTemplateChanges, schema, setSchema, prompt, setPrompt, onExtract, isLoading, onFullTranscription, isTranscribing, onHtrTranscription, isHtrTranscribing, theme, isLightMode }) => {
+export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, template, onUpdateTemplate, onSaveTemplateChanges, schema, setSchema, prompt, setPrompt, onExtract, isLoading, onFullTranscription, isTranscribing, onHtrTranscription, isHtrTranscribing, isGeneratingMetadata, theme, isLightMode }) => {
     const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
     const [isSearchingImage, setIsSearchingImage] = useState(false);
     const [imageSearchResult, setImageSearchResult] = useState<any>(null);
@@ -413,6 +414,11 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                 Transcribiendo...
                             </>
+                        ) : isGeneratingMetadata && !isTranscribing && !isHtrTranscribing ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Generando metadatos...
+                            </>
                         ) : (
                             `Transcripción Completa`
                         )}
@@ -430,6 +436,11 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
                                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                 Transcribiendo HTR...
                             </>
+                        ) : isGeneratingMetadata && !isTranscribing && !isHtrTranscribing ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                Generando metadatos...
+                            </>
                         ) : (
                             `Transcribir Manuscrito (HTR)`
                         )}
@@ -444,7 +455,7 @@ export const ExtractionEditor: React.FC<ExtractionEditorProps> = ({ file, templa
                         backgroundColor: accentColor
                     }}
                 >
-                    {isLoading && !isTranscribing && !isHtrTranscribing ? (
+                    {isLoading && !isTranscribing && !isHtrTranscribing && !isGeneratingMetadata ? (
                         <>
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             Extrayendo Datos con {AVAILABLE_MODELS.find(m => m.id === selectedModel)?.name}...

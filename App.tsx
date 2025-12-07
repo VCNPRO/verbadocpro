@@ -21,40 +21,16 @@ import { AIAssistantPanel } from './components/AIAssistantPanel.tsx';
 // Fix: Use explicit file extension in import.
 import type { UploadedFile, ExtractionResult, SchemaField, SchemaFieldType, Departamento } from './types.ts';
 import { logActivity } from './src/utils/activityLogger.ts';
-import { AVAILABLE_MODELS, type GeminiModel, transcribeDocument, transcribeHandwrittenDocument } from './services/geminiService.ts';
+import { AVAILABLE_MODELS, type GeminiModel, transcribeDocument, transcribeHandwrittenDocument, generateMetadata } from './services/geminiService.ts';
 import { getDepartamentoById, getDefaultTheme } from './utils/departamentosConfig.ts';
 // ✅ Sistema de autenticación real activado
 import { AuthProvider, useAuth } from './src/contexts/AuthContext.tsx';
-import { AuthModal } from './src/components/AuthModal.tsx';
+// ... (imports)
 
-import { Routes, Route, Navigate } from 'react-router-dom';
-
-function ProtectedRoute({ children }: { children: JSX.Element }) {
-    const { user } = useAuth();
-    if (user?.role !== 'admin') {
-        return <Navigate to="/" />;
-    }
-    return children;
-}
-
-function AppContent() {
-    const { user, loading, logout } = useAuth();
-
-    const [files, setFiles] = useState<UploadedFile[]>([]);
-    const [activeFileId, setActiveFileId] = useState<string | null>(null);
-    const [history, setHistory] = useState<ExtractionResult[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [viewingFile, setViewingFile] = useState<File | null>(null);
-    const [isHelpModalOpen, setIsHelpModalOpen] = useState<boolean>(false);
-    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
-    const [currentDepartamento, setCurrentDepartamento] = useState<Departamento>('general');
-    const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
-    const [showResultsExpanded, setShowResultsExpanded] = useState<boolean>(false);
-    const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
-    const [isDarkMode, setIsDarkMode] = useState<boolean>(true); // Default to dark mode
-
+// ... (AppContent function)
     const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
     const [isHtrTranscribing, setIsHtrTranscribing] = useState<boolean>(false);
+    const [isGeneratingMetadata, setIsGeneratingMetadata] = useState<boolean>(false);
 
     // State for the editor, which can be reused across different files
     const [prompt, setPrompt] = useState<string>('Extrae la información clave del siguiente documento según el esquema JSON proporcionado.');
@@ -216,12 +192,16 @@ function AppContent() {
         try {
             const text = await transcribeDocument(activeFile.file, selectedModel);
             
+            setIsGeneratingMetadata(true);
+            const metadata = await generateMetadata(text, selectedModel);
+
             const newHistoryEntry: ExtractionResult = {
                 id: `hist-${Date.now()}`,
                 type: 'transcription',
                 fileId: activeFile.id,
                 fileName: activeFile.file.name,
                 transcription: text,
+                metadata: metadata,
                 timestamp: new Date().toISOString(),
             };
             setHistory(currentHistory => [newHistoryEntry, ...currentHistory]);
@@ -232,9 +212,10 @@ function AppContent() {
             
             setShowResultsExpanded(true);
         } catch (error) {
-            alert(`Error en la transcripción: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+            alert(`Error en la transcripción o generación de metadatos: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         } finally {
             setIsTranscribing(false);
+            setIsGeneratingMetadata(false);
         }
     };
 
@@ -245,12 +226,16 @@ function AppContent() {
         try {
             const text = await transcribeHandwrittenDocument(activeFile.file, 'gemini-2.5-pro');
             
+            setIsGeneratingMetadata(true);
+            const metadata = await generateMetadata(text, 'gemini-2.5-pro');
+
             const newHistoryEntry: ExtractionResult = {
                 id: `hist-${Date.now()}`,
                 type: 'transcription',
                 fileId: activeFile.id,
                 fileName: activeFile.file.name,
                 transcription: text,
+                metadata: metadata,
                 timestamp: new Date().toISOString(),
             };
             setHistory(currentHistory => [newHistoryEntry, ...currentHistory]);
@@ -261,9 +246,10 @@ function AppContent() {
             
             setShowResultsExpanded(true);
         } catch (error) {
-            alert(`Error en la transcripción HTR: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+            alert(`Error en la transcripción HTR o generación de metadatos: ${error instanceof Error ? error.message : 'Error desconocido'}`);
         } finally {
             setIsHtrTranscribing(false);
+            setIsGeneratingMetadata(false);
         }
     };
     
@@ -802,7 +788,7 @@ function AppContent() {
                             prompt={prompt}
                             setPrompt={setPrompt}
                             onExtract={handleExtract}
-                            isLoading={isLoading || isTranscribing || isHtrTranscribing}
+                            isLoading={isLoading || isTranscribing || isHtrTranscribing || isGeneratingMetadata}
                             onFullTranscription={handleFullTranscription}
                             isTranscribing={isTranscribing}
                             onHtrTranscription={handleHtrTranscription}

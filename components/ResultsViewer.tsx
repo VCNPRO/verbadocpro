@@ -184,14 +184,40 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
                         
                         {/* VISTA PARA TRANSCRIPCIÓN */}
                         {selectedResult.type === 'transcription' && (
-                            <div>
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    <button onClick={handleDownloadTranscriptionPDF} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: isLightMode ? '#dc2626' : '#ef4444', color: '#ffffff' }} title="Descargar PDF"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>Descargar PDF</button>
-                                    <button onClick={handleDownloadTranscriptionTXT} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: isLightMode ? '#2563eb' : '#3b82f6', color: '#ffffff' }}><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>Descargar TXT</button>
-                                    <button onClick={handleCopyToClipboard} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: isLightMode ? '#6ee7b7' : 'rgba(100, 116, 139, 0.5)', color: isLightMode ? '#064e3b' : '#f1f5f9', borderWidth: '1px', borderStyle: 'solid', borderColor: borderColor }}><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copiar Texto</button>
-                                </div>
-                                <div className="p-4 rounded-lg border transition-colors overflow-auto" style={{ backgroundColor: isLightMode ? '#f9fafb' : 'rgba(15, 23, 42, 0.5)', borderColor: borderColor, maxHeight: '50vh' }}>
-                                    <pre className="whitespace-pre-wrap text-sm" style={{ color: isLightMode ? '#334155' : '#cbd5e1' }}>{selectedResult.transcription}</pre>
+                            <div className="space-y-4">
+                                {selectedResult.metadata && (
+                                    <div className="p-3 rounded-lg border" style={{ backgroundColor: isLightMode ? '#f0f9ff' : 'rgba(30, 41, 59, 0.8)', borderColor: borderColor }}>
+                                        <h4 className="text-sm font-bold mb-2" style={{ color: textColor }}>Metadatos Generados</h4>
+                                        <div className="space-y-2 text-sm">
+                                            <div>
+                                                <strong style={{ color: textSecondary }}>Título:</strong>
+                                                <p style={{ color: textColor }}>{selectedResult.metadata.title}</p>
+                                            </div>
+                                            <div>
+                                                <strong style={{ color: textSecondary }}>Resumen:</strong>
+                                                <p style={{ color: textColor }}>{selectedResult.metadata.summary}</p>
+                                            </div>
+                                            <div>
+                                                <strong style={{ color: textSecondary }}>Palabras Clave:</strong>
+                                                <div className="flex flex-wrap gap-2 mt-1">
+                                                    {selectedResult.metadata.keywords.map((kw, i) => (
+                                                        <span key={i} className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: isLightMode ? '#dbeafe' : '#1e3a8a', color: isLightMode ? '#1e3a8a' : '#dbeafe' }}>{kw}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                <div>
+                                    <h4 className="text-sm font-bold mb-2" style={{ color: textColor }}>Transcripción Completa</h4>
+                                    <div className="flex flex-wrap gap-2 mb-2">
+                                        <button onClick={handleDownloadTranscriptionPDF} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: isLightMode ? '#dc2626' : '#ef4444', color: '#ffffff' }} title="Descargar PDF"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>Descargar PDF</button>
+                                        <button onClick={handleDownloadTranscriptionTXT} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: isLightMode ? '#2563eb' : '#3b82f6', color: '#ffffff' }}><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>Descargar TXT</button>
+                                        <button onClick={handleCopyToClipboard} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: isLightMode ? '#6ee7b7' : 'rgba(100, 116, 139, 0.5)', color: isLightMode ? '#064e3b' : '#f1f5f9', borderWidth: '1px', borderStyle: 'solid', borderColor: borderColor }}><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copiar Texto</button>
+                                    </div>
+                                    <div className="p-4 rounded-lg border transition-colors overflow-auto" style={{ backgroundColor: isLightMode ? '#f9fafb' : 'rgba(15, 23, 42, 0.5)', borderColor: borderColor, maxHeight: '45vh' }}>
+                                        <pre className="whitespace-pre-wrap text-sm" style={{ color: isLightMode ? '#334155' : '#cbd5e1' }}>{selectedResult.transcription}</pre>
+                                    </div>
                                 </div>
                             </div>
                         )}
