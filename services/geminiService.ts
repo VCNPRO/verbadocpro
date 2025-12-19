@@ -96,7 +96,11 @@ const convertSchemaToVertexAI = (schema: SchemaField[]): VertexAISchema => {
     };
 };
 
-export type GeminiModel = 'gemini-2.5-flash' | 'gemini-2.5-flash-lite' | 'gemini-2.5-pro';
+export type GeminiModel =
+    | 'gemini-2.0-flash-exp'
+    | 'gemini-2.5-flash'
+    | 'gemini-2.5-flash-lite'
+    | 'gemini-2.5-pro';
 
 export interface ModelInfo {
     id: GeminiModel;
@@ -104,20 +108,29 @@ export interface ModelInfo {
     description: string;
     bestFor: string;
     costPerDoc?: string;
+    experimental?: boolean;
 }
 
 export const AVAILABLE_MODELS: ModelInfo[] = [
+    {
+        id: 'gemini-2.0-flash-exp',
+        name: '🚀 Último Modelo (2.0) 🇪🇺',
+        description: 'Modelo experimental más reciente y rápido de Google',
+        bestFor: 'Máxima velocidad, documentos de todo tipo, multimodal avanzado',
+        costPerDoc: '~$0.0008/doc (2× más barato que 2.5-flash)',
+        experimental: true
+    },
     {
         id: 'gemini-2.5-flash-lite',
         name: 'Genérico 🇪🇺',
         description: 'Modelo económico procesado en Europa (Bélgica)',
         bestFor: 'Documentos simples, formularios, recetas médicas',
-        costPerDoc: '~$0.0005/doc (3× más barato)'
+        costPerDoc: '~$0.0005/doc (más económico)'
     },
     {
         id: 'gemini-2.5-flash',
-        name: 'Recomendado 🇪🇺',
-        description: 'Modelo rápido procesado en Europa (Bélgica)',
+        name: 'Estable 🇪🇺',
+        description: 'Modelo estable y probado procesado en Europa (Bélgica)',
         bestFor: 'Documentos médicos estándar, informes clínicos',
         costPerDoc: '~$0.0016/doc'
     },
@@ -162,7 +175,7 @@ const callVertexAIAPI = async (endpoint: string, body: any): Promise<any> => {
 // Generar schema desde prompt
 export const generateSchemaFromPrompt = async (
     prompt: string,
-    modelId: GeminiModel = 'gemini-2.5-flash'
+    modelId: GeminiModel = 'gemini-2.0-flash-exp'
 ): Promise<SchemaField[]> => {
     const analysisPrompt = `Analiza el siguiente prompt de extracción de datos y genera una lista de campos JSON que se necesitan extraer.
 
@@ -238,7 +251,7 @@ export const extractDataFromDocument = async (
     file: File,
     schema: SchemaField[],
     prompt: string,
-    modelId: GeminiModel = 'gemini-2.5-flash'
+    modelId: GeminiModel = 'gemini-2.0-flash-exp'
 ): Promise<object> => {
     const generativePart = await fileToGenerativePart(file);
 
@@ -296,7 +309,7 @@ export const extractDataFromDocument = async (
 // Transcribir documento completo
 export const transcribeDocument = async (
     file: File,
-    modelId: GeminiModel = 'gemini-2.5-flash'
+    modelId: GeminiModel = 'gemini-2.0-flash-exp'
 ): Promise<string> => {
     const generativePart = await fileToGenerativePart(file);
     const prompt = `Extrae el texto completo de este documento. Mantén la estructura original, incluyendo párrafos y saltos de línea. No resumas ni alteres el contenido. Devuelve únicamente el texto extraído.`;
@@ -371,7 +384,7 @@ export const transcribeHandwrittenDocument = async (
 // Generar metadatos a partir de texto
 export const generateMetadata = async (
     text: string,
-    modelId: GeminiModel = 'gemini-2.5-flash'
+    modelId: GeminiModel = 'gemini-2.0-flash-exp'
 ): Promise<{ title: string; summary: string; keywords: string[] }> => {
     const prompt = `A partir del siguiente texto, genera metadatos útiles.
 
@@ -422,7 +435,7 @@ Devuelve la respuesta únicamente en formato JSON con la siguiente estructura:
 export const searchImageInDocument = async (
     documentFile: File,
     referenceImageFile: File,
-    modelId: GeminiModel = 'gemini-2.5-flash'
+    modelId: GeminiModel = 'gemini-2.0-flash-exp'
 ): Promise<{ found: boolean; description: string; location?: string; confidence?: string }> => {
     const documentPart = await fileToGenerativePart(documentFile);
     const referencePart = await fileToGenerativePart(referenceImageFile);

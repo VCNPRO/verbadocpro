@@ -7,13 +7,14 @@ export const DEPARTAMENTOS: DepartamentoInfo[] = [
         name: 'General',
         description: 'Plantillas para uso general',
         icon: '🏢',
+        recommendedModel: 'gemini-2.0-flash-exp',
     },
     {
         id: 'contabilidad',
         name: 'Contabilidad',
         description: 'Plantillas para facturas, recibos y otros documentos contables',
         icon: '🧾',
-        recommendedModel: 'gemini-2.5-flash',
+        recommendedModel: 'gemini-2.0-flash-exp',
     },
     {
         id: 'finanzas',
@@ -27,7 +28,7 @@ export const DEPARTAMENTOS: DepartamentoInfo[] = [
         name: 'Marketing',
         description: 'Plantillas para informes de campañas, análisis de redes sociales y otros documentos de marketing',
         icon: '📈',
-        recommendedModel: 'gemini-2.5-flash',
+        recommendedModel: 'gemini-2.0-flash-exp',
     },
     {
         id: 'legal',
@@ -41,7 +42,7 @@ export const DEPARTAMENTOS: DepartamentoInfo[] = [
         name: 'Recursos Humanos',
         description: 'Plantillas para currículums, cartas de oferta y otros documentos de recursos humanos',
         icon: '👥',
-        recommendedModel: 'gemini-2.5-flash',
+        recommendedModel: 'gemini-2.0-flash-exp',
     },
 ];
 

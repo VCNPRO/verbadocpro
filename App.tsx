@@ -50,7 +50,7 @@ function AppContent() {
     const [currentDepartamento, setCurrentDepartamento] = useState<Departamento>('general');
     const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
     const [showResultsExpanded, setShowResultsExpanded] = useState<boolean>(false);
-    const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.5-flash');
+    const [selectedModel, setSelectedModel] = useState<GeminiModel>('gemini-2.0-flash-exp');
     const [isDarkMode, setIsDarkMode] = useState<boolean>(true); // Default to dark mode
 
     const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
