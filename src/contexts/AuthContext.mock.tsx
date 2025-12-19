@@ -95,162 +95,171 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Registro de nuevo usuario (MOCK)
+    // Registro de nuevo usuario - Now uses secure backend API
     async function signup(email: string, password: string, displayName: string, department: EuropaDepartment) {
-        // Simular delay de red
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const users = getAllUsers();
-
-        // Verificar si el email ya existe
-        if (users.find(u => u.email === email)) {
-            throw new Error('auth/email-already-in-use');
-        }
-
-        // Crear nuevo usuario
-        const newUser: StoredUser = {
-            uid: `user_${Date.now()}`,
-            email,
-            password, // SOLO PARA MOCK - NUNCA hacer esto en producción
-            displayName,
-            department,
-            createdAt: new Date().toISOString(),
-            lastLogin: new Date().toISOString(),
-            role: 'user',
-        };
-
-        users.push(newUser);
-        saveAllUsers(users);
-
-        // Register user in KV database
         try {
-            await fetch('/api/users/register', {
+            // Call real backend API with bcrypt hashing
+            const response = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    userId: newUser.uid,
-                    email: newUser.email,
-                    displayName: newUser.displayName,
-                    department: newUser.department,
+                    email,
+                    password,
+                    name: displayName
                 }),
+                credentials: 'include', // Important for httpOnly cookies
             });
-        } catch (error) {
-            console.error('Failed to register user in KV:', error);
-        }
 
-        // Establecer sesión
-        setCurrentUserSession(newUser.uid);
-
-        // Actualizar estado
-        const mockUser: MockFirebaseUser = {
-            uid: newUser.uid,
-            email: newUser.email,
-            displayName: newUser.displayName,
-            role: newUser.role,
-        };
-
-        const profile: UserProfile = {
-            uid: newUser.uid,
-            email: newUser.email,
-            displayName: newUser.displayName,
-            department: newUser.department,
-            createdAt: new Date(newUser.createdAt),
-            lastLogin: new Date(newUser.lastLogin),
-            role: newUser.role,
-        };
-
-        setCurrentUser(mockUser);
-        setUserProfile(profile);
-
-        // Log activity
-        logActivity(
-            newUser.uid,
-            newUser.email,
-            newUser.displayName,
-            'REGISTRO',
-            `Usuario registrado en departamento: ${department}`,
-            department
-        );
-    }
-
-    // Login (MOCK)
-    async function login(email: string, password: string) {
-        // Simular delay de red
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        const users = getAllUsers();
-        const user = users.find(u => u.email === email);
-
-        if (!user) {
-            // Special case for admin user
-            if (email === import.meta.env.VITE_ADMIN_USERNAME && password === import.meta.env.VITE_ADMIN_PASSWORD) {
-                const adminUser: MockFirebaseUser = {
-                    uid: 'admin',
-                    email: import.meta.env.VITE_ADMIN_USERNAME,
-                    displayName: 'Admin',
-                    role: 'admin',
-                };
-                const adminProfile: UserProfile = {
-                    uid: 'admin',
-                    email: import.meta.env.VITE_ADMIN_USERNAME,
-                    displayName: 'Admin',
-                    department: 'general',
-                    createdAt: new Date(),
-                    lastLogin: new Date(),
-                    role: 'admin',
-                };
-                setCurrentUser(adminUser);
-                setUserProfile(adminProfile);
-                setCurrentUserSession('admin');
-                return;
+            if (!response.ok) {
+                const errorData = await response.json();
+                // Map backend errors to frontend format
+                if (errorData.error?.includes('ya existe') || errorData.error?.includes('already exists')) {
+                    throw new Error('auth/email-already-in-use');
+                }
+                throw new Error(errorData.error || 'auth/registration-failed');
             }
-            throw new Error('auth/user-not-found');
+
+            const data = await response.json();
+            const apiUser = data.user;
+
+            // Map backend user to frontend format
+            const mockUser: MockFirebaseUser = {
+                uid: apiUser.id,
+                email: apiUser.email,
+                displayName: apiUser.name || displayName,
+                role: apiUser.role,
+            };
+
+            const profile: UserProfile = {
+                uid: apiUser.id,
+                email: apiUser.email,
+                displayName: apiUser.name || displayName,
+                department: department,
+                createdAt: new Date(apiUser.created_at || Date.now()),
+                lastLogin: new Date(),
+                role: apiUser.role,
+            };
+
+            // Store minimal data in localStorage (department only, NO passwords)
+            const users = getAllUsers();
+            const newLocalUser: StoredUser = {
+                uid: apiUser.id,
+                email: apiUser.email,
+                password: '', // Never store passwords
+                displayName: profile.displayName,
+                department: department,
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                role: apiUser.role,
+            };
+            users.push(newLocalUser);
+            saveAllUsers(users);
+
+            setCurrentUserSession(apiUser.id);
+            setCurrentUser(mockUser);
+            setUserProfile(profile);
+
+            // Log activity
+            logActivity(
+                apiUser.id,
+                apiUser.email,
+                profile.displayName,
+                'REGISTRO',
+                `Usuario registrado de forma segura en departamento: ${department}`,
+                department
+            );
+
+            return;
+        } catch (error: any) {
+            throw error;
         }
-
-        if (user.password !== password) {
-            throw new Error('auth/wrong-password');
-        }
-
-        // Actualizar lastLogin
-        user.lastLogin = new Date().toISOString();
-        saveAllUsers(users);
-
-        // Establecer sesión
-        setCurrentUserSession(user.uid);
-
-        // Actualizar estado
-        const mockUser: MockFirebaseUser = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            role: user.role,
-        };
-
-        const profile: UserProfile = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            department: user.department,
-            createdAt: new Date(user.createdAt),
-            lastLogin: new Date(user.lastLogin),
-            role: user.role,
-        };
-
-        setCurrentUser(mockUser);
-        setUserProfile(profile);
-
-        // Log activity
-        logActivity(
-            user.uid,
-            user.email,
-            user.displayName,
-            'LOGIN',
-            'Usuario inició sesión',
-            user.department
-        );
     }
 
-    // Logout (MOCK)
+    // Login - Now uses backend API for security
+    async function login(email: string, password: string) {
+        try {
+            // Call real backend API
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include', // Important for httpOnly cookies
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'auth/login-failed');
+            }
+
+            const data = await response.json();
+            const apiUser = data.user;
+
+            // Map backend user to frontend format
+            const mockUser: MockFirebaseUser = {
+                uid: apiUser.id,
+                email: apiUser.email,
+                displayName: apiUser.name || apiUser.email.split('@')[0],
+                role: apiUser.role,
+            };
+
+            // Get department from localStorage or default to 'general'
+            const users = getAllUsers();
+            const localUser = users.find(u => u.email === email);
+            const department: EuropaDepartment = localUser?.department || 'general';
+
+            const profile: UserProfile = {
+                uid: apiUser.id,
+                email: apiUser.email,
+                displayName: apiUser.name || apiUser.email.split('@')[0],
+                department: department,
+                createdAt: new Date(apiUser.created_at || Date.now()),
+                lastLogin: new Date(),
+                role: apiUser.role,
+            };
+
+            // Update localStorage for backwards compatibility
+            if (!localUser) {
+                const newLocalUser: StoredUser = {
+                    uid: apiUser.id,
+                    email: apiUser.email,
+                    password: '', // No longer store passwords
+                    displayName: profile.displayName,
+                    department: department,
+                    createdAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString(),
+                    role: apiUser.role,
+                };
+                users.push(newLocalUser);
+                saveAllUsers(users);
+            } else {
+                // Update lastLogin
+                localUser.lastLogin = new Date().toISOString();
+                localUser.password = ''; // Clear old insecure passwords
+                saveAllUsers(users);
+            }
+
+            setCurrentUserSession(apiUser.id);
+            setCurrentUser(mockUser);
+            setUserProfile(profile);
+
+            // Log activity
+            logActivity(
+                apiUser.id,
+                apiUser.email,
+                profile.displayName,
+                'LOGIN',
+                'Usuario inició sesión de forma segura',
+                department
+            );
+
+            return;
+        } catch (error: any) {
+            // If backend fails, throw error (no fallback to insecure localStorage)
+            throw error;
+        }
+    }
+
+    // Logout - Now calls backend API to clear httpOnly cookie
     async function logout() {
         console.log("🔴 LOGOUT INICIADO - Función logout llamada");
         // Log activity before logout
@@ -265,8 +274,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
             );
         }
 
-        // Simular delay de red
-        await new Promise(resolve => setTimeout(resolve, 300));
+        try {
+            // Call logout API to clear httpOnly cookie
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include',
+            });
+        } catch (error) {
+            console.error('Logout API call failed:', error);
+            // Continue with local logout even if API fails
+        }
 
         clearCurrentUserSession();
         console.log("🔴 LOGOUT COMPLETADO - Usuario limpiado");
@@ -285,63 +302,59 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return userProfile.department === department || department === 'general';
     }
 
-    // Cargar sesión al iniciar
+    // Cargar sesión al iniciar - Now verifies with backend API
     useEffect(() => {
-        const loadSession = () => {
-            const currentUid = getCurrentUserSession();
+        const loadSession = async () => {
+            try {
+                // Verify session with backend using httpOnly cookie
+                const response = await fetch('/api/auth/verify', {
+                    credentials: 'include',
+                });
 
-            if (currentUid) {
-                if (currentUid === 'admin') {
-                    const adminUser: MockFirebaseUser = {
-                        uid: 'admin',
-                        email: import.meta.env.VITE_ADMIN_USERNAME,
-                        displayName: 'Admin',
-                        role: 'admin',
-                    };
-                    const adminProfile: UserProfile = {
-                        uid: 'admin',
-                        email: import.meta.env.VITE_ADMIN_USERNAME,
-                        displayName: 'Admin',
-                        department: 'general',
-                        createdAt: new Date(),
-                        lastLogin: new Date(),
-                        role: 'admin',
-                    };
-                    setCurrentUser(adminUser);
-                    setUserProfile(adminProfile);
-                    setLoading(false);
-                    return;
-                }
+                if (response.ok) {
+                    const data = await response.json();
+                    const apiUser = data.user;
 
-                const users = getAllUsers();
-                const user = users.find(u => u.uid === currentUid);
+                    // Get department from localStorage
+                    const users = getAllUsers();
+                    const localUser = users.find(u => u.uid === apiUser.id || u.email === apiUser.email);
+                    const department: EuropaDepartment = localUser?.department || 'general';
 
-                if (user) {
                     const mockUser: MockFirebaseUser = {
-                        uid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName,
-                        role: user.role,
+                        uid: apiUser.id,
+                        email: apiUser.email,
+                        displayName: apiUser.name || apiUser.email.split('@')[0],
+                        role: apiUser.role,
                     };
 
                     const profile: UserProfile = {
-                        uid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName,
-                        department: user.department,
-                        createdAt: new Date(user.createdAt),
-                        lastLogin: new Date(user.lastLogin),
-                        role: user.role,
+                        uid: apiUser.id,
+                        email: apiUser.email,
+                        displayName: apiUser.name || apiUser.email.split('@')[0],
+                        department: department,
+                        createdAt: new Date(apiUser.created_at || Date.now()),
+                        lastLogin: new Date(),
+                        role: apiUser.role,
                     };
 
+                    setCurrentUserSession(apiUser.id);
                     setCurrentUser(mockUser);
                     setUserProfile(profile);
                 } else {
+                    // No valid session, clear everything
                     clearCurrentUserSession();
+                    setCurrentUser(null);
+                    setUserProfile(null);
                 }
+            } catch (error) {
+                console.error('Failed to verify session:', error);
+                // Clear session on error
+                clearCurrentUserSession();
+                setCurrentUser(null);
+                setUserProfile(null);
+            } finally {
+                setLoading(false);
             }
-
-            setLoading(false);
         };
 
         loadSession();

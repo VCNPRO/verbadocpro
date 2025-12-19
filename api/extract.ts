@@ -32,10 +32,27 @@ const vertexAI = new VertexAI({
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS headers para llamadas desde el frontend
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // CORS restrictivo - Solo dominios autorizados
+  const allowedOrigins = [
+    'https://www.verbadocpro.eu',
+    'https://verbadoc-europa-pro.vercel.app',
+    'https://verbadoc-enterprise.vercel.app',
+    // Permitir localhost solo en desarrollo
+    ...(process.env.NODE_ENV === 'development' ? [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      'http://localhost:4173'
+    ] : [])
+  ];
+
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
