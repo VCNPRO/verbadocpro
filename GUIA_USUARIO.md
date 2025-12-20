@@ -2,7 +2,7 @@
 
 ## 🎯 ¿Qué es VerbadocPro?
 
-**VerbadocPro Enterprise** es una plataforma de inteligencia artificial avanzada diseñada para **extraer, clasificar y estructurar información** de documentos empresariales de forma automática. Utiliza los modelos de IA más avanzados de **Google Vertex AI** (Gemini 2.5) procesados íntegramente en **Europa** para cumplir con GDPR.
+**VerbadocPro Enterprise** es una plataforma de inteligencia artificial avanzada diseñada para **extraer, clasificar y estructurar información** de documentos empresariales de forma automática. Utiliza los modelos de IA más avanzados de **Google Vertex AI** (Gemini 2.0 y 2.5) procesados íntegramente en **Europa** para cumplir con GDPR.
 
 ### 🏆 Características Principales
 
@@ -74,12 +74,12 @@ VerbadocPro se adapta a diferentes sectores empresariales:
 
 ### 🏢 General
 - **Descripción:** Plantillas de uso general para cualquier tipo de documento
-- **Modelo recomendado:** Gemini 2.5 Flash
+- **Modelo recomendado:** Gemini 2.0 Flash Exp (más rápido y económico)
 - **Casos de uso:** Documentos variados, informes generales
 
 ### 🧾 Contabilidad
 - **Descripción:** Facturas, recibos, notas de crédito, extractos bancarios
-- **Modelo recomendado:** Gemini 2.5 Flash
+- **Modelo recomendado:** Gemini 2.0 Flash Exp (rápido y económico)
 - **Plantillas:**
   - Factura estándar (NIF, CIF, importes, IVA, líneas de detalle)
   - Recibo de pago
@@ -97,7 +97,7 @@ VerbadocPro se adapta a diferentes sectores empresariales:
 
 ### 📈 Marketing
 - **Descripción:** Informes de campañas, análisis de redes sociales, métricas
-- **Modelo recomendado:** Gemini 2.5 Flash
+- **Modelo recomendado:** Gemini 2.0 Flash Exp (análisis rápido)
 - **Plantillas:**
   - Informe de campaña publicitaria
   - Análisis de redes sociales (KPIs, engagement)
@@ -114,7 +114,7 @@ VerbadocPro se adapta a diferentes sectores empresariales:
 
 ### 👥 Recursos Humanos
 - **Descripción:** Currículums, cartas de oferta, nóminas
-- **Modelo recomendado:** Gemini 2.5 Flash
+- **Modelo recomendado:** Gemini 2.0 Flash Exp (extracción rápida de CVs)
 - **Plantillas:**
   - Currículum vitae (extracción estructurada)
   - Carta de oferta de empleo
@@ -125,40 +125,65 @@ VerbadocPro se adapta a diferentes sectores empresariales:
 
 ## 🤖 Modelos de IA Disponibles
 
-VerbadocPro ofrece 3 modelos de Google Gemini, todos procesados en **🇪🇺 Europa (Bélgica)**:
+VerbadocPro ofrece 4 modelos de Google Gemini, todos procesados en **🇪🇺 Europa (Bélgica)**:
 
-### 1. Gemini 2.5 Flash-Lite - Genérico 🇪🇺
-- **Velocidad:** ⚡⚡⚡ Muy rápido (< 2 segundos)
-- **Coste:** ~$0.0005/documento (3× más barato)
+### 1. Gemini 2.0 Flash Experimental - Último Modelo 🚀 🇪🇺 ⭐ (PREDETERMINADO)
+- **Velocidad:** ⚡⚡⚡ Ultrarrápido (< 2 segundos)
+- **Coste:** ~$0.0008/documento (**50% más barato que 2.5 Flash**)
+- **Estado:** Experimental pero estable
 - **Mejor para:**
-  - Documentos simples (1-2 páginas)
-  - Formularios con campos claros
-  - Recetas médicas
-  - Facturas estándar
-  - Extracciones básicas
+  - **Uso general recomendado** (el más rápido y económico)
+  - Todo tipo de documentos empresariales
+  - Facturas, contratos, informes
+  - Documentos con imágenes y texto mixto
+  - Capacidades multimodales avanzadas
+  - Máxima velocidad de procesamiento
 
-### 2. Gemini 2.5 Flash - Recomendado 🇪🇺 ⭐
+**🎯 Ventajas:**
+- Modelo más reciente de Google (Diciembre 2024)
+- 2× más rápido que modelos anteriores
+- 50% más económico que Gemini 2.5 Flash
+- Mejor comprensión de contexto
+- Razonamiento mejorado
+
+### 2. Gemini 2.5 Flash-Lite - Económico 🇪🇺
+- **Velocidad:** ⚡⚡⚡ Muy rápido (< 2 segundos)
+- **Coste:** ~$0.0005/documento (el más barato)
+- **Mejor para:**
+  - Documentos muy simples (1-2 páginas)
+  - Formularios con campos claros
+  - Recetas médicas básicas
+  - Facturas estándar sin complejidad
+  - Cuando el coste es prioritario
+
+### 3. Gemini 2.5 Flash - Estable 🇪🇺
 - **Velocidad:** ⚡⚡ Rápido (2-5 segundos)
 - **Coste:** ~$0.0016/documento
+- **Estado:** Completamente estable y probado
 - **Mejor para:**
+  - Si prefieres estabilidad sobre velocidad
   - Documentos médicos estándar
   - Informes clínicos
   - Contratos de 5-10 páginas
   - Documentos con tablas simples
-  - **Uso general recomendado**
 
-### 3. Gemini 2.5 Pro - Avanzado 🇪🇺
+### 4. Gemini 2.5 Pro - Avanzado 🇪🇺
 - **Velocidad:** ⚡ Moderado (5-15 segundos)
 - **Coste:** ~$0.008/documento
 - **Mejor para:**
   - Documentos complejos (>10 páginas)
   - Múltiples tablas interrelacionadas
-  - Análisis profundo de contratos
+  - Análisis profundo de contratos legales
   - Documentos médicos complejos (historias clínicas completas)
-  - Documentos con escritura a mano difícil
+  - Documentos con escritura a mano difícil (HTR)
   - Análisis legal detallado
+  - Cuando la máxima precisión es crítica
 
-**💡 Consejo:** Empieza con **Gemini 2.5 Flash**. Si los resultados no son satisfactorios, prueba con Pro.
+**💡 Consejo:**
+- **Uso general:** Usa **Gemini 2.0 Flash Exp** (ya configurado por defecto) ⭐
+- **Máxima estabilidad:** Usa **Gemini 2.5 Flash**
+- **Documentos complejos:** Usa **Gemini 2.5 Pro**
+- **Ahorro máximo:** Usa **Gemini 2.5 Flash-Lite**
 
 ---
 
@@ -257,11 +282,14 @@ Identifica si hay cláusulas de confidencialidad o no competencia.
 
 ### Paso 4: Seleccionar Modelo de IA
 
-En el selector de modelo, elige según la complejidad:
+El modelo **Gemini 2.0 Flash Exp** está seleccionado por defecto (el más rápido y económico).
 
-- **Documento simple:** Flash-Lite
-- **Documento estándar:** Flash (recomendado)
-- **Documento complejo:** Pro
+Puedes cambiar según tus necesidades:
+
+- **Uso general (predeterminado):** Gemini 2.0 Flash Exp ⭐ - El más rápido y barato
+- **Documentos muy simples:** Flash-Lite - El más económico
+- **Máxima estabilidad:** Gemini 2.5 Flash - Modelo probado y estable
+- **Documentos complejos:** Gemini 2.5 Pro - Máxima precisión
 
 ### Paso 5: Ejecutar Extracción
 
@@ -805,8 +833,9 @@ Revisar 200 CVs para un proceso de selección.
    ```
 
 2. **Usar un modelo más potente:**
-   - Si usas Flash-Lite → Cambia a Flash
-   - Si usas Flash → Cambia a Pro
+   - Si usas Flash-Lite → Cambia a **2.0 Flash Exp** o **2.5 Flash**
+   - Si usas 2.0 Flash Exp → Cambia a **2.5 Flash** (más estable) o **2.5 Pro**
+   - Si usas 2.5 Flash → Cambia a **2.5 Pro** (máxima precisión)
 
 3. **Mejorar la calidad del documento:**
    - Escanear a 300 DPI mínimo
@@ -823,7 +852,7 @@ Revisar 200 CVs para un proceso de selección.
 
 - **Documento muy grande (>50 páginas):**
   - Dividir en partes más pequeñas
-  - Usar modelo Flash (más rápido que Pro)
+  - Usar **Gemini 2.0 Flash Exp** (el más rápido) o **2.5 Flash-Lite**
 
 - **Múltiples documentos en cola:**
   - Solo se procesa 1 a la vez
@@ -1086,7 +1115,7 @@ Para documentos con tablas, usa `ARRAY_OF_OBJECTS`:
 
 ---
 
-*Esta guía se actualiza regularmente. Última actualización: 19/12/2024*
+*Esta guía se actualiza regularmente. Última actualización: 20/12/2024*
 
 *Versión de la aplicación: 2.0.0*
 
