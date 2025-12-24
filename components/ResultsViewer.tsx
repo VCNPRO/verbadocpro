@@ -226,13 +226,117 @@ export const ResultsViewer: React.FC<ResultsViewerProps> = ({
                         {selectedResult.type === 'extraction' && (
                             <>
                                 <div className="p-3 rounded-lg border transition-colors" style={{ backgroundColor: isLightMode ? '#f0f9ff' : 'rgba(30, 41, 59, 0.5)', borderColor: borderColor }}>
-                                    <h3 className="text-sm font-semibold mb-2 flex items-center gap-2" style={{ color: textColor }}><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: accentColor }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>Formato de Excel</h3>
-                                    {/* ... (resto de la UI de selección de formato excel) ... */}
+                                    <h3 className="text-sm font-semibold mb-2 flex items-center gap-2" style={{ color: textColor }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: accentColor }}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                                        </svg>
+                                        Formato de Excel
+                                    </h3>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setExcelTransposed(false)}
+                                            className={`flex-1 px-3 py-2 rounded text-xs font-medium transition-all ${!excelTransposed ? 'font-bold' : ''}`}
+                                            style={{
+                                                backgroundColor: !excelTransposed ? (isLightMode ? '#2563eb' : '#3b82f6') : (isLightMode ? '#e2e8f0' : 'rgba(71, 85, 105, 0.3)'),
+                                                color: !excelTransposed ? '#ffffff' : (isLightMode ? '#64748b' : '#94a3b8'),
+                                                borderWidth: '1px',
+                                                borderStyle: 'solid',
+                                                borderColor: !excelTransposed ? (isLightMode ? '#2563eb' : '#3b82f6') : borderColor
+                                            }}
+                                        >
+                                            <div className="flex items-center justify-center gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                                </svg>
+                                                Horizontal (Columnas)
+                                            </div>
+                                        </button>
+                                        <button
+                                            onClick={() => setExcelTransposed(true)}
+                                            className={`flex-1 px-3 py-2 rounded text-xs font-medium transition-all ${excelTransposed ? 'font-bold' : ''}`}
+                                            style={{
+                                                backgroundColor: excelTransposed ? (isLightMode ? '#2563eb' : '#3b82f6') : (isLightMode ? '#e2e8f0' : 'rgba(71, 85, 105, 0.3)'),
+                                                color: excelTransposed ? '#ffffff' : (isLightMode ? '#64748b' : '#94a3b8'),
+                                                borderWidth: '1px',
+                                                borderStyle: 'solid',
+                                                borderColor: excelTransposed ? (isLightMode ? '#2563eb' : '#3b82f6') : borderColor
+                                            }}
+                                        >
+                                            <div className="flex items-center justify-center gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                                </svg>
+                                                Vertical (Filas)
+                                            </div>
+                                        </button>
+                                    </div>
+                                    <p className="text-xs mt-2" style={{ color: textSecondary }}>
+                                        {excelTransposed
+                                            ? '📄 Cada campo en una fila (ideal para muchos campos)'
+                                            : '📊 Cada campo en una columna (ideal para comparar registros)'}
+                                    </p>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                    <button onClick={handleDownloadExtractionPDF} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: isLightMode ? '#dc2626' : '#ef4444', color: '#ffffff' }} title="Descargar PDF (formato vertical)"><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>Descargar PDF</button>
-                                    {/* ... (resto de botones de descarga) ... */}
-                                    <button onClick={handleCopyToClipboard} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: isLightMode ? '#6ee7b7' : 'rgba(100, 116, 139, 0.5)', color: isLightMode ? '#064e3b' : '#f1f5f9', borderWidth: '1px', borderStyle: 'solid', borderColor: borderColor }}><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copiar JSON</button>
+                                    <button
+                                        onClick={handleDownloadJSON}
+                                        className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90"
+                                        style={{ backgroundColor: isLightMode ? '#8b5cf6' : '#a78bfa', color: '#ffffff' }}
+                                        title="Descargar JSON"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        JSON
+                                    </button>
+                                    <button
+                                        onClick={handleDownloadCSV}
+                                        className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90"
+                                        style={{ backgroundColor: isLightMode ? '#059669' : '#10b981', color: '#ffffff' }}
+                                        title="Descargar CSV"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        CSV
+                                    </button>
+                                    <button
+                                        onClick={handleDownloadExcel}
+                                        className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90"
+                                        style={{ backgroundColor: isLightMode ? '#16a34a' : '#22c55e', color: '#ffffff' }}
+                                        title={`Descargar Excel (${excelTransposed ? 'Vertical' : 'Horizontal'})`}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        Excel {excelTransposed ? '↕' : '↔'}
+                                    </button>
+                                    <button
+                                        onClick={handleDownloadExtractionPDF}
+                                        className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90"
+                                        style={{ backgroundColor: isLightMode ? '#dc2626' : '#ef4444', color: '#ffffff' }}
+                                        title="Descargar PDF (formato vertical)"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                        </svg>
+                                        PDF
+                                    </button>
+                                    <button
+                                        onClick={handleCopyToClipboard}
+                                        className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all hover:opacity-90"
+                                        style={{
+                                            backgroundColor: isLightMode ? '#6ee7b7' : 'rgba(100, 116, 139, 0.5)',
+                                            color: isLightMode ? '#064e3b' : '#f1f5f9',
+                                            borderWidth: '1px',
+                                            borderStyle: 'solid',
+                                            borderColor: borderColor
+                                        }}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        Copiar
+                                    </button>
                                 </div>
                                 <div>
                                     <h3 className="text-sm font-semibold mb-2" style={{ color: textColor }}>Datos Extraídos:</h3>
