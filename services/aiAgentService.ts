@@ -1,7 +1,29 @@
 // AI Agent Service - Clasificación y Validación Inteligente
 import { extractDataFromDocument, type GeminiModel } from './geminiService.ts';
 import type { SchemaField } from '../types.ts';
-import { BarcodeService, type BarcodeDetectionResult } from './barcodeService.ts';
+
+// Tipos importados del servicio de barcode (backend)
+export interface BarcodeDetectionResult {
+  codesDetected: number;
+  codes: DetectedCode[];
+  documentType?: string;
+  structuredData?: any;
+  validationStatus?: 'VALID' | 'INVALID' | 'UNVERIFIED';
+  processingTime: number;
+}
+
+export interface DetectedCode {
+  type: string;
+  rawData: string;
+  parsedData?: any;
+  confidence: number;
+  position?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+}
 
 // ============================================
 // TIPOS Y INTERFACES
@@ -36,53 +58,11 @@ export interface ValidationIssue {
 }
 
 // ============================================
-// DETECCIÓN AUTOMÁTICA DE CÓDIGOS DE BARRAS Y QR
+// VALIDACIÓN CRUZADA DE CÓDIGOS DE BARRAS Y QR
 // ============================================
 
-/**
- * Detecta códigos de barras y QR en un documento
- * @param file - Archivo a analizar
- * @param apiKey - API Key de Google (Gemini)
- * @returns Resultado de detección de códigos
- */
-export async function detectBarcodesInDocument(
-  file: File,
-  apiKey: string
-): Promise<BarcodeDetectionResult | null> {
-  try {
-    console.log(`🔍 Buscando códigos de barras/QR en: ${file.name}`);
-
-    // Convertir archivo a base64
-    const base64 = await fileToBase64(file);
-
-    // Crear servicio de barcode
-    const barcodeService = new BarcodeService(apiKey);
-
-    // Quick check primero para ahorrar tiempo
-    const hasCode = await barcodeService.quickDetect(base64);
-
-    if (!hasCode) {
-      console.log(`✅ No se detectaron códigos en el documento`);
-      return null;
-    }
-
-    // Detección completa si quick check es positivo
-    const result = await barcodeService.detectAndReadCodes(base64);
-
-    if (result.codesDetected > 0) {
-      console.log(`✅ Detectados ${result.codesDetected} códigos (${result.processingTime}ms)`);
-      result.codes.forEach((code, i) => {
-        console.log(`  ${i + 1}. ${code.type}: ${code.rawData?.substring(0, 50)}...`);
-      });
-    }
-
-    return result;
-
-  } catch (error) {
-    console.error('⚠️ Error detectando códigos:', error);
-    return null;
-  }
-}
+// NOTA: La detección de códigos QR/barras se realiza en el backend (api/services/barcodeService.ts)
+// Este archivo solo contiene funciones de validación cruzada que se ejecutan en el frontend
 
 /**
  * Valida cruzadamente datos de QR/barcode vs datos extraídos por OCR
@@ -304,15 +284,9 @@ export async function classifyDocument(
 
   console.log(`🤖 Clasificando documento: ${file.name}`);
 
-  // 🔥 NUEVO: Intentar detectar códigos de barras/QR primero (en paralelo)
+  // NOTA: La detección de códigos QR/barras se hace en el backend
+  // Este valor se pasará desde el backend cuando esté disponible
   let barcodeData: BarcodeDetectionResult | null = null;
-  if (apiKey) {
-    try {
-      barcodeData = await detectBarcodesInDocument(file, apiKey);
-    } catch (error) {
-      console.warn('⚠️ No se pudieron detectar códigos, continuando con clasificación normal');
-    }
-  }
 
   const classificationPrompt = `Analiza este documento e identifica su tipo exacto.
 
