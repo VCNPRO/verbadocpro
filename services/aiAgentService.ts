@@ -1,6 +1,7 @@
 // AI Agent Service - Clasificación y Validación Inteligente
 import { extractDataFromDocument, type GeminiModel } from './geminiService.ts';
 import type { SchemaField } from '../types.ts';
+import { BarcodeService, type BarcodeDetectionResult } from './barcodeService.ts';
 
 // ============================================
 // TIPOS Y INTERFACES
@@ -15,6 +16,7 @@ export interface DocumentClassification {
   suggestedTemplate?: string;
   suggestedPrompt?: string;
   suggestedSchema?: SchemaField[];
+  barcodeData?: BarcodeDetectionResult; // 🔥 NUEVO: Datos de códigos detectados
 }
 
 export interface ValidationResult {
@@ -31,6 +33,194 @@ export interface ValidationIssue {
   message: string;
   suggestedFix?: any;
   originalValue?: any;
+}
+
+// ============================================
+// DETECCIÓN AUTOMÁTICA DE CÓDIGOS DE BARRAS Y QR
+// ============================================
+
+/**
+ * Detecta códigos de barras y QR en un documento
+ * @param file - Archivo a analizar
+ * @param apiKey - API Key de Google (Gemini)
+ * @returns Resultado de detección de códigos
+ */
+export async function detectBarcodesInDocument(
+  file: File,
+  apiKey: string
+): Promise<BarcodeDetectionResult | null> {
+  try {
+    console.log(`🔍 Buscando códigos de barras/QR en: ${file.name}`);
+
+    // Convertir archivo a base64
+    const base64 = await fileToBase64(file);
+
+    // Crear servicio de barcode
+    const barcodeService = new BarcodeService(apiKey);
+
+    // Quick check primero para ahorrar tiempo
+    const hasCode = await barcodeService.quickDetect(base64);
+
+    if (!hasCode) {
+      console.log(`✅ No se detectaron códigos en el documento`);
+      return null;
+    }
+
+    // Detección completa si quick check es positivo
+    const result = await barcodeService.detectAndReadCodes(base64);
+
+    if (result.codesDetected > 0) {
+      console.log(`✅ Detectados ${result.codesDetected} códigos (${result.processingTime}ms)`);
+      result.codes.forEach((code, i) => {
+        console.log(`  ${i + 1}. ${code.type}: ${code.rawData?.substring(0, 50)}...`);
+      });
+    }
+
+    return result;
+
+  } catch (error) {
+    console.error('⚠️ Error detectando códigos:', error);
+    return null;
+  }
+}
+
+/**
+ * Valida cruzadamente datos de QR/barcode vs datos extraídos por OCR
+ * @param barcodeData - Datos del código detectado
+ * @param ocrData - Datos extraídos por OCR/IA
+ * @returns Array de discrepancias encontradas
+ */
+export function crossValidateData(
+  barcodeData: any,
+  ocrData: any
+): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+
+  if (!barcodeData || !ocrData) return issues;
+
+  // Validaciones específicas por tipo de documento
+
+  // FACTURA: Comparar número, CIF, total, fecha
+  if (barcodeData.numeroFactura && ocrData.numero_factura) {
+    if (normalizeString(barcodeData.numeroFactura) !== normalizeString(ocrData.numero_factura)) {
+      issues.push({
+        field: 'numero_factura',
+        severity: 'warning',
+        message: `Discrepancia: QR dice "${barcodeData.numeroFactura}" pero OCR dice "${ocrData.numero_factura}"`,
+        suggestedFix: barcodeData.numeroFactura, // QR tiene más confianza
+        originalValue: ocrData.numero_factura
+      });
+    }
+  }
+
+  if (barcodeData.cif && ocrData.cliente_cif) {
+    if (normalizeString(barcodeData.cif) !== normalizeString(ocrData.cliente_cif)) {
+      issues.push({
+        field: 'cliente_cif',
+        severity: 'warning',
+        message: `Discrepancia CIF: QR "${barcodeData.cif}" vs OCR "${ocrData.cliente_cif}"`,
+        suggestedFix: barcodeData.cif,
+        originalValue: ocrData.cliente_cif
+      });
+    }
+  }
+
+  if (barcodeData.total && ocrData.total) {
+    const qrTotal = parseFloat(barcodeData.total);
+    const ocrTotal = parseFloat(ocrData.total);
+    const diff = Math.abs(qrTotal - ocrTotal);
+
+    if (diff > 0.01) { // Tolerancia de 1 céntimo
+      issues.push({
+        field: 'total',
+        severity: 'error',
+        message: `DIFERENCIA DE IMPORTE: QR ${qrTotal.toFixed(2)}€ vs OCR ${ocrTotal.toFixed(2)}€ (diferencia: ${diff.toFixed(2)}€)`,
+        suggestedFix: qrTotal,
+        originalValue: ocrTotal
+      });
+    }
+  }
+
+  // DNI: Comparar número DNI, nombre
+  if (barcodeData.dni && ocrData.numero_dni) {
+    if (normalizeString(barcodeData.dni) !== normalizeString(ocrData.numero_dni)) {
+      issues.push({
+        field: 'numero_dni',
+        severity: 'error',
+        message: `DNI no coincide: PDF417 "${barcodeData.dni}" vs OCR "${ocrData.numero_dni}"`,
+        suggestedFix: barcodeData.dni,
+        originalValue: ocrData.numero_dni
+      });
+    }
+  }
+
+  if (barcodeData.nombre && ocrData.nombre_completo) {
+    const barcodeNombre = normalizeString(`${barcodeData.nombre} ${barcodeData.apellidos || ''}`);
+    const ocrNombre = normalizeString(ocrData.nombre_completo);
+
+    if (barcodeNombre !== ocrNombre && !ocrNombre.includes(barcodeData.nombre)) {
+      issues.push({
+        field: 'nombre_completo',
+        severity: 'warning',
+        message: `Posible discrepancia en nombre: PDF417 vs OCR`,
+        originalValue: ocrData.nombre_completo
+      });
+    }
+  }
+
+  // MULTA: Comparar expediente, matrícula, importe
+  if (barcodeData.numeroExpediente && ocrData.expediente) {
+    if (normalizeString(barcodeData.numeroExpediente) !== normalizeString(ocrData.expediente)) {
+      issues.push({
+        field: 'expediente',
+        severity: 'warning',
+        message: `Expediente: QR "${barcodeData.numeroExpediente}" vs OCR "${ocrData.expediente}"`,
+        suggestedFix: barcodeData.numeroExpediente,
+        originalValue: ocrData.expediente
+      });
+    }
+  }
+
+  if (barcodeData.importe && ocrData.importe) {
+    const qrImporte = parseFloat(barcodeData.importe);
+    const ocrImporte = parseFloat(ocrData.importe);
+    const diff = Math.abs(qrImporte - ocrImporte);
+
+    if (diff > 0.01) {
+      issues.push({
+        field: 'importe',
+        severity: 'error',
+        message: `IMPORTE MULTA no coincide: QR ${qrImporte.toFixed(2)}€ vs OCR ${ocrImporte.toFixed(2)}€`,
+        suggestedFix: qrImporte,
+        originalValue: ocrImporte
+      });
+    }
+  }
+
+  return issues;
+}
+
+// Helper para normalizar strings (sin espacios, mayúsculas, guiones)
+function normalizeString(str: string): string {
+  return str.toString().toUpperCase().replace(/[\s\-\.]/g, '');
+}
+
+// Helper para convertir File a base64 (sin prefijo data:)
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        // Quitar el prefijo "data:image/jpeg;base64,"
+        const base64 = reader.result.split(',')[1];
+        resolve(base64);
+      } else {
+        reject(new Error('No se pudo convertir a base64'));
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 // ============================================
@@ -103,14 +293,26 @@ const callVertexAIAPIRaw = async (file: File, prompt: string, model: GeminiModel
  * Clasifica automáticamente un documento usando Gemini Vision
  * @param file - Archivo a clasificar (PDF, imagen)
  * @param model - Modelo Gemini a usar (por defecto: flash-lite para ahorrar costes)
+ * @param apiKey - API Key para detección de códigos (opcional)
  * @returns Clasificación del documento con sugerencias
  */
 export async function classifyDocument(
   file: File,
-  model: GeminiModel = 'gemini-2.5-flash-lite'
+  model: GeminiModel = 'gemini-2.5-flash-lite',
+  apiKey?: string
 ): Promise<DocumentClassification> {
 
   console.log(`🤖 Clasificando documento: ${file.name}`);
+
+  // 🔥 NUEVO: Intentar detectar códigos de barras/QR primero (en paralelo)
+  let barcodeData: BarcodeDetectionResult | null = null;
+  if (apiKey) {
+    try {
+      barcodeData = await detectBarcodesInDocument(file, apiKey);
+    } catch (error) {
+      console.warn('⚠️ No se pudieron detectar códigos, continuando con clasificación normal');
+    }
+  }
 
   const classificationPrompt = `Analiza este documento e identifica su tipo exacto.
 
@@ -165,7 +367,8 @@ Responde SOLO en JSON (sin markdown):
       confidence: result.confidence,
       reasoning: result.reasoning,
       keyIndicators: result.keyIndicators || [],
-      ...templateData
+      ...templateData,
+      barcodeData: barcodeData || undefined // 🔥 NUEVO: Incluir datos de códigos
     };
 
   } catch (error) {
@@ -319,13 +522,15 @@ async function getTemplateForDocumentType(docType: string): Promise<{
  * @param schema - Esquema esperado
  * @param originalFile - Archivo original (opcional, para análisis adicional)
  * @param model - Modelo a usar
+ * @param barcodeData - Datos de códigos de barras/QR (opcional, para cross-validation)
  * @returns Resultado de validación con issues detectados
  */
 export async function validateExtractedData(
   extractedData: object,
   schema: SchemaField[],
   originalFile?: File,
-  model: GeminiModel = 'gemini-2.5-flash-lite'
+  model: GeminiModel = 'gemini-2.5-flash-lite',
+  barcodeData?: BarcodeDetectionResult
 ): Promise<ValidationResult> {
 
   console.log(`🔍 Validando datos extraídos...`);
@@ -333,15 +538,34 @@ export async function validateExtractedData(
   // Validación básica sin IA (más rápida y gratis)
   const basicValidation = performBasicValidation(extractedData, schema);
 
+  // 🔥 NUEVO: Cross-validation con datos de códigos de barras/QR
+  let crossValidationIssues: ValidationIssue[] = [];
+  if (barcodeData && barcodeData.codesDetected > 0 && barcodeData.structuredData) {
+    console.log(`🔍 Validando cruzadamente con datos de códigos detectados...`);
+    crossValidationIssues = crossValidateData(barcodeData.structuredData, extractedData);
+
+    if (crossValidationIssues.length > 0) {
+      console.warn(`⚠️ Encontradas ${crossValidationIssues.length} discrepancias entre código y OCR`);
+    } else {
+      console.log(`✅ Datos de código coinciden con OCR`);
+    }
+  }
+
   // Si la validación básica detecta errores críticos, no gastar en IA
   if (basicValidation.issues.filter(i => i.severity === 'error').length > 3) {
     console.log(`⚠️ Validación básica detectó ${basicValidation.issues.length} problemas`);
-    return basicValidation;
+    return {
+      ...basicValidation,
+      issues: [...basicValidation.issues, ...crossValidationIssues] // Incluir issues de cross-validation
+    };
   }
 
   // Si no hay archivo original o no hay issues básicos, retornar validación básica
-  if (!originalFile || basicValidation.issues.length === 0) {
-    return basicValidation;
+  if (!originalFile || (basicValidation.issues.length === 0 && crossValidationIssues.length === 0)) {
+    return {
+      ...basicValidation,
+      issues: [...basicValidation.issues, ...crossValidationIssues]
+    };
   }
 
   // Validación avanzada con IA (solo si es necesario)
@@ -392,13 +616,16 @@ Responde SOLO en JSON (sin markdown):
       isValid: result.isValid ?? true,
       confidence: result.confidence ?? 0.8,
       score: result.score ?? 85,
-      issues: [...basicValidation.issues, ...(result.issues || [])],
+      issues: [...basicValidation.issues, ...crossValidationIssues, ...(result.issues || [])], // Incluir todos los issues
       suggestions: result.suggestions || []
     };
 
   } catch (error) {
     console.error('⚠️ Error en validación IA, usando validación básica:', error);
-    return basicValidation;
+    return {
+      ...basicValidation,
+      issues: [...basicValidation.issues, ...crossValidationIssues]
+    };
   }
 }
 
