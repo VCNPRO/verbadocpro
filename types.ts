@@ -197,6 +197,6 @@ export interface DepartamentoInfo {
         text: string;
         textSecondary: string;
     };
-    recommendedModel?: 'gemini-2.0-flash-exp' | 'gemini-2.5-flash' | 'gemini-2.5-pro';
+    recommendedModel?: 'gemini-2.5-flash' | 'gemini-2.5-flash-lite' | 'gemini-2.5-pro';
     certifications?: string[];
 }
